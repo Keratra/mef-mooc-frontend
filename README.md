@@ -1,2 +1,2 @@
-# mef-mooc-frontend
-MEF MOOC Project Frontend
+# MEF MOOC Project Frontend
+A website built with Next.js.
