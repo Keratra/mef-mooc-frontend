@@ -19,7 +19,6 @@ export default function Home() {
         >
           Coordinator
         </NextLink>
-        
 
         <NextLink
           href='/student/auth/login'
@@ -63,27 +62,7 @@ export default function Home() {
           </table>
       </form> */}
 
-{/* <form action = "http://localhost:3000/student/auth/login" method = "post">
-<h1 className='text-center text-5xl mb-16 drop-shadow-md'>
-       Student Login
-      </h1>
-          <table>
-              <tr>
-                  <td>Student No:</td>
-                  <td><input type = "text" name = "number" /></td>
-              </tr>
-              <tr>  
-                  <td>Password:</td>
-                  <td><input type = "password" name = "password" /></td>
-              </tr>
-              <tr>
-                  <td><input type = "submit" value = "Login" /></td>
-              </tr>
-          </table>
-      </form> */}
-
-
-         {/* <div className="flex flex-col justify-center items-center">
+      {/* <div className="flex flex-col justify-center items-center">
           <h1 className='text-center text-5xl mb-16 drop-shadow-md'>
         Available Courses
       </h1>
@@ -115,19 +94,6 @@ export default function Home() {
         </tbody>
       </table>
       </div> */}
-
-         
-
-
-
-
-
-
-
-
-
-
-
 
       {/* <div className={styles.center}>
           <Image

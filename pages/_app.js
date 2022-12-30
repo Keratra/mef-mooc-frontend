@@ -1,3 +1,4 @@
+import NextLink from 'next/link';
 import Head from 'next/head';
 import Image from 'next/image';
 import '../styles/globals.css';
@@ -18,26 +19,25 @@ export default function App({ Component, pageProps }) {
       <div className={inter.className + ' min-h-screen'}>
         <nav
           className='
-            w-full px-2
-            bg-slate-50'
+            w-full px-2'
         >
-          <Image
-            className='p-1.5'
-            src='/mef.png'
-            alt='MEF University Logo'
-            width={100}
-            height={64}
-            priority
-          />
+          <NextLink href='/'>
+            <Image
+              className='p-1.5'
+              src='/mef.png'
+              alt='MEF University Logo'
+              width={100}
+              height={64}
+              priority
+            />
+          </NextLink>
         </nav>
 
         <section className='mx-4'>
           <Component {...pageProps} />
         </section>
 
-        <footer className='w-full absolute bottom-0 p-2 bg-slate-50'>
-          Kerem yaptı.
-        </footer>
+        {/* <footer className='w-full p-2'>Kerem yaptı.</footer> */}
       </div>
     </>
   );

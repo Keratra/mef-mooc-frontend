@@ -9,9 +9,10 @@ export default function ___________Page() {
   const Router = useRouter();
 
   return (
-    <div>
-      <h1>Kerem abi</h1>
-      <span>adspfgkaspogjfsdpobfdpojtıpu</span>
+    <div className='text-center'>
+      <h1>Contributors</h1>
+      <span>Kerem Kaya from Sinope</span>
+      <div>Friends with Diogenes</div>
     </div>
   );
 }
