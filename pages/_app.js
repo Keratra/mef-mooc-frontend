@@ -14,8 +14,9 @@ export default function App({ Component, pageProps }) {
         <meta name='viewport' content='width=device-width, initial-scale=1' />
         <link rel='icon' href='/favicon.ico' />
       </Head>
+
       <div className={inter.className + ' min-h-screen'}>
-        <header
+        <nav
           className='
             w-full px-2
             bg-slate-50'
@@ -28,13 +29,15 @@ export default function App({ Component, pageProps }) {
             height={64}
             priority
           />
-        </header>
+        </nav>
 
         <section className='mx-4'>
           <Component {...pageProps} />
         </section>
 
-        <footer>Kerem yaptı.</footer>
+        <footer className='w-full absolute bottom-0 p-2 bg-slate-50'>
+          Kerem yaptı.
+        </footer>
       </div>
     </>
   );
