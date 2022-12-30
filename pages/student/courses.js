@@ -10,7 +10,7 @@ export default function ___________Page() {
 
   return (
     <div>
-      <h1>Kerem abi</h1>
+      <h1>Available Courses</h1>
       <span>adspfgkaspogjfsdpobfdpojtıpu</span>
     </div>
   );
