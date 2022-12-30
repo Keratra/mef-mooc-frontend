@@ -19,6 +19,7 @@ export default function Home() {
         >
           Coordinator
         </NextLink>
+        
 
         <NextLink
           href='/student/auth/login'
@@ -34,6 +35,99 @@ export default function Home() {
           Administrator
         </NextLink>
       </section>
+      {/* <form action = "http://localhost:3000/student/auth/login" method = "post">
+      <h1 className='text-center text-5xl mb-16 drop-shadow-md'>
+       Student Register
+      </h1>
+          <table>
+              <tr>
+                  <td>Email:</td>
+                  <td><input type = "text" name = "username" /></td>
+              </tr>
+              <tr>
+                  <td>Student No:</td>
+                  <td><input type = "text" name = "number" /></td>
+              </tr>
+              <tr>  
+                  <td>Password:</td>
+                  <td><input type = "password" name = "password" /></td>
+              </tr> 
+
+              <tr>  
+                  <td>Confirm Password:</td>
+                  <td><input type = "password" name = "password" /></td>
+              </tr> 
+              <tr>
+                  <td><input type = "submit" value = "Register" /></td>
+              </tr>
+          </table>
+      </form> */}
+
+{/* <form action = "http://localhost:3000/student/auth/login" method = "post">
+<h1 className='text-center text-5xl mb-16 drop-shadow-md'>
+       Student Login
+      </h1>
+          <table>
+              <tr>
+                  <td>Student No:</td>
+                  <td><input type = "text" name = "number" /></td>
+              </tr>
+              <tr>  
+                  <td>Password:</td>
+                  <td><input type = "password" name = "password" /></td>
+              </tr>
+              <tr>
+                  <td><input type = "submit" value = "Login" /></td>
+              </tr>
+          </table>
+      </form> */}
+
+
+         {/* <div className="flex flex-col justify-center items-center">
+          <h1 className='text-center text-5xl mb-16 drop-shadow-md'>
+        Available Courses
+      </h1>
+      <table className="table-auto">
+        <thead>
+          <tr>
+            <th className="px-4 py-2">Name</th>
+            <th className="px-4 py-2">Semester</th>
+            <th className="px-4 py-2">Status</th>
+            <th className="px-4 py-2">Select</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td className="border px-4 py-2">Introduction </td>
+            <td className="border px-4 py-2">COMP 100</td>
+            <td className="border px-4 py-2">cem</td>
+          </tr>
+          <tr className="bg-gray-100">
+          <td className="border px-4 py-2">Introduction </td>
+            <td className="border px-4 py-2">COMP 100</td>
+            <td className="border px-4 py-2">cem</td>
+          </tr>
+          <tr>
+          <td className="border px-4 py-2">Introduction </td>
+            <td className="border px-4 py-2">COMP 100</td>
+            <td className="border px-4 py-2">cem</td>
+          </tr>
+        </tbody>
+      </table>
+      </div> */}
+
+         
+
+
+
+
+
+
+
+
+
+
+
 
       {/* <div className={styles.center}>
           <Image
