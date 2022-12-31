@@ -12,7 +12,7 @@ function NavBar() {
 			className='
         w-full p-3
         flex justify-start items-baseline
-        bg-gradient-to-b from-stone-400 via-stone-100 to-white
+        bg-gradient-to-b from-[#eee] via-slate-100 to-white
       '
 		>
 			<NextLink href='/'>

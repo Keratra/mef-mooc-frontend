@@ -7,7 +7,6 @@ import { useRouter } from 'next/router';
 
 export default function StudentRegisterPage({ departments }) {
 	const Router = useRouter();
-	// console.log(departments);
 
 	const handleRegister = async (
 		{ student_no, name, surname, email, password, department_id },
@@ -22,7 +21,9 @@ export default function StudentRegisterPage({ departments }) {
 		// );
 
 		try {
-			const { data } = await axios.post(`/api/student/auth/login`, {
+			if (department_id === 0) throw 'Please select a department';
+
+			const { data } = await axios.post(`/api/student/auth/register`, {
 				student_no,
 				name,
 				surname,
@@ -30,18 +31,6 @@ export default function StudentRegisterPage({ departments }) {
 				password,
 				department_id,
 			});
-
-			// const { data } = await axios.post(
-			// 	`${process.env.NEXT_PUBLIC_API_URL}/student/login`,
-			// 	{
-			// 		student_no,
-			// 		name,
-			// 		surname,
-			// 		email,
-			// 		password,
-			// 		department_id,
-			// 	}
-			// );
 
 			Router.replace('/student/auth/login');
 		} catch (error) {
@@ -86,6 +75,7 @@ export default function StudentRegisterPage({ departments }) {
 					onSubmit={handleRegister}
 				>
 					{({
+						setFieldValue,
 						values,
 						errors,
 						touched,
@@ -113,7 +103,6 @@ export default function StudentRegisterPage({ departments }) {
 								id='student_no'
 								value={values.student_no}
 								onChange={handleChange}
-								error={touched.student_no && Boolean(errors.student_no)}
 							/>
 							<span className={classError}>
 								{errors.student_no && touched.student_no && errors.student_no}
@@ -129,7 +118,6 @@ export default function StudentRegisterPage({ departments }) {
 								id='name'
 								value={values.name}
 								onChange={handleChange}
-								error={touched.name && Boolean(errors.name)}
 							/>
 							<span className={classError}>
 								{errors.name && touched.name && errors.name}
@@ -145,7 +133,6 @@ export default function StudentRegisterPage({ departments }) {
 								id='surname'
 								value={values.surname}
 								onChange={handleChange}
-								error={touched.surname && Boolean(errors.surname)}
 							/>
 							<span className={classError}>
 								{errors.surname && touched.surname && errors.surname}
@@ -161,7 +148,6 @@ export default function StudentRegisterPage({ departments }) {
 								id='email'
 								value={values.email}
 								onChange={handleChange}
-								error={touched.email && Boolean(errors.email)}
 							/>
 							<span className={classError}>
 								{errors.email && touched.email && errors.email}
@@ -177,7 +163,6 @@ export default function StudentRegisterPage({ departments }) {
 								id='password'
 								value={values.password}
 								onChange={handleChange}
-								error={touched.password && Boolean(errors.password)}
 							/>
 							<span className={classError}>
 								{errors.password && touched.password && errors.password}
@@ -193,9 +178,6 @@ export default function StudentRegisterPage({ departments }) {
 								id='confirmPassword'
 								value={values.confirmPassword}
 								onChange={handleChange}
-								error={
-									touched.confirmPassword && Boolean(errors.confirmPassword)
-								}
 							/>
 							<span className={classError}>
 								{errors.confirmPassword &&
@@ -206,102 +188,28 @@ export default function StudentRegisterPage({ departments }) {
 							<label className={classLabel} htmlFor='department_id'>
 								Department
 							</label>
-							<input
-								className={classInput}
-								type='text'
+							<select
 								name='department_id'
 								id='department_id'
+								className={classInput}
 								value={values.department_id}
-								onChange={handleChange}
-								error={touched.department_id && Boolean(errors.department_id)}
-							/>
+								onChange={(e) => {
+									setFieldValue('department_id', e.target.value);
+								}}
+							>
+								<option value={0}>None</option>
+								{!!departments &&
+									departments.map(({ id, name }) => (
+										<option key={id} value={id}>
+											{name}
+										</option>
+									))}
+							</select>
 							<span className={classError}>
 								{errors.department_id &&
 									touched.department_id &&
 									errors.department_id}
 							</span>
-
-							{/* <TextField
-                id='email'
-                name='email'
-                label='Email'
-                placeholder='Emailinizi giriniz...'
-                className={'md:col-span-2 ' + classInput}
-                fullWidth
-                value={values.email}
-                onChange={handleChange}
-                error={touched.email && Boolean(errors.email)}
-                helperText={touched.email && errors.email}
-              /> */}
-
-							{/* <FormControl fullWidth>
-                <InputLabel id={'admin_id_label'} className={``}>
-                  Marka
-                </InputLabel>
-                <Select
-                  id='admin_id'
-                  name='admin_id'
-                  label='Marka'
-                  labelId='admin_id_label'
-                  className='bg-neutral-50'
-                  fullWidth
-                  value={values.admin_id}
-                  onChange={handleChange}
-                  error={touched.admin_id && Boolean(errors.admin_id)}
-                >
-                  {brands.map(({ id, brand }) => (
-                    <MenuItem key={id} value={id}>
-                      {brand}
-                    </MenuItem>
-                  ))}
-                </Select>
-                <p className='-my-1 py-2 pl-3 text-xs col-span-2 text-rose-600 bg-neutral-50 rounded-b-lg'>
-                  {errors.admin_id && touched.admin_id && errors.admin_id}
-                </p>
-              </FormControl> */}
-
-							{/* <TextField
-                id='name'
-                name='name'
-                label='Ad'
-                placeholder='Bayi adını giriniz...'
-                className={classInput}
-                fullWidth
-                value={values.name}
-                onChange={handleChange}
-                error={touched.name && Boolean(errors.name)}
-                helperText={touched.name && errors.name}
-              />
-
-              <TextField
-                id='password'
-                name='password'
-                label='Şifre'
-                type='password'
-                placeholder='Şifrenizi giriniz...'
-                className={classInput}
-                fullWidth
-                value={values.password}
-                onChange={handleChange}
-                error={touched.password && Boolean(errors.password)}
-                helperText={touched.password && errors.password}
-              />
-
-              <TextField
-                id='confirmPassword'
-                name='confirmPassword'
-                label='Tekrar Şifre'
-                type='password'
-                placeholder='Tekrar Şifrenizi giriniz...'
-                fullWidth
-                className={classInput}
-                value={values.confirmPassword}
-                onChange={handleChange}
-                error={
-                  touched.confirmPassword && Boolean(errors.confirmPassword)
-                }
-                helperText={touched.confirmPassword && errors.confirmPassword}
-              /> */}
 
 							<button
 								variant='contained'
@@ -330,16 +238,16 @@ export default function StudentRegisterPage({ departments }) {
 	);
 }
 
-// export async function getServerSideProps(context) {
-//   const backendURL = `${process.env.NEXT_PUBLIC_API_URL}/all-departments`;
+export async function getServerSideProps(context) {
+	const backendURL = `${process.env.NEXT_PUBLIC_API_URL}/all-departments`;
 
-//   const { data } = await axios.get(backendURL);
+	const { data } = await axios.get(backendURL);
 
-//   const { departments } = data;
+	const { departments } = data;
 
-//   return {
-//     props: {
-//       departments,
-//     },
-//   };
-// }
+	return {
+		props: {
+			departments,
+		},
+	};
+}
