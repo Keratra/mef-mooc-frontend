@@ -6,14 +6,14 @@ import axios from 'axios';
 import { useRouter } from 'next/router';
 
 export default function ___________Page() {
-  const Router = useRouter();
+	const Router = useRouter();
 
-  return (
-    <div>
-      <h1>Kerem abi</h1>
-      <span>adspfgkaspogjfsdpobfdpojtıpu</span>
-    </div>
-  );
+	return (
+		<div>
+			<h1>Information Page</h1>
+			<span>Buraya siteyi nasıl kullanabileceklerini yazalım.</span>
+		</div>
+	);
 }
 
 // export async function getServerSideProps(context) {
