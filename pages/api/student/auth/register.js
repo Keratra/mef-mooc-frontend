@@ -4,11 +4,16 @@ export default async function register(req, res) {
 	try {
 		const backendURL = `${process.env.NEXT_PUBLIC_API_URL}/student/register`;
 
-		const { student_no, password } = req.body;
+		const { student_no, name, surname, email, password, department_id } =
+			req.body;
 
 		const { data } = await axios.post(backendURL, {
 			student_no,
+			name,
+			surname,
+			email,
 			password,
+			department_id,
 		});
 
 		res.status(200).json(data);

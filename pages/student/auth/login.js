@@ -27,7 +27,7 @@ export default function Login() {
 			// 	}
 			// );
 
-			Router.replace('/student');
+			Router.replace('/student/courses');
 		} catch (error) {
 			console.log(error);
 			alert(

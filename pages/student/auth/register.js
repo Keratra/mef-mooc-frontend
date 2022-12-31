@@ -13,25 +13,35 @@ export default function StudentRegisterPage({ departments }) {
 		{ student_no, name, surname, email, password, department_id },
 		{ setSubmitting }
 	) => {
-		alert(
-			JSON.stringify(
-				{ student_no, name, surname, email, password, department_id },
-				null,
-				2
-			)
-		);
+		// alert(
+		// 	JSON.stringify(
+		// 		{ student_no, name, surname, email, password, department_id },
+		// 		null,
+		// 		2
+		// 	)
+		// );
+
 		try {
-			const { data } = await axios.post(
-				`${process.env.NEXT_PUBLIC_API_URL}/student/login`,
-				{
-					student_no,
-					name,
-					surname,
-					email,
-					password,
-					department_id,
-				}
-			);
+			const { data } = await axios.post(`/api/student/auth/login`, {
+				student_no,
+				name,
+				surname,
+				email,
+				password,
+				department_id,
+			});
+
+			// const { data } = await axios.post(
+			// 	`${process.env.NEXT_PUBLIC_API_URL}/student/login`,
+			// 	{
+			// 		student_no,
+			// 		name,
+			// 		surname,
+			// 		email,
+			// 		password,
+			// 		department_id,
+			// 	}
+			// );
 
 			Router.replace('/student/auth/login');
 		} catch (error) {

@@ -1,20 +1,39 @@
 import NextLink from 'next/link';
 import { useState } from 'react';
 import { Formik } from 'formik';
+import { loginStudentModel } from 'lib/yupmodels';
 import axios from 'axios';
 import { useRouter } from 'next/router';
 
-export default function CreateBundlePage({ moocs }) {
+export default function BundleViewPage({ course_id, bundle_id, bundle }) {
 	const Router = useRouter();
 
-	const [cart, setCart] = useState([]);
+	const handleLinkUpdate = async (bundle_detail_id) => {
+		try {
+			const certificate_url = prompt('Enter the link to the certificate here');
 
-	const handleClick = () => {};
+			await axios.post('/api/student/certificate-update', {
+				course_id,
+				bundle_id,
+				bundle_detail_id,
+				certificate_url,
+			});
+
+			Router.reload();
+		} catch (error) {
+			console.log(error);
+			alert(
+				error?.response?.data?.message?.message ??
+					error?.response?.data?.message ??
+					error?.message
+			);
+		}
+	};
 
 	return (
 		<div className='min-h-[80vh] flex flex-col justify-center items-center'>
 			<h1 className='text-center text-5xl mb-16 drop-shadow-md'>
-				Creating a Bundle
+				Selected Bundle
 			</h1>
 
 			<div className='flex flex-col'>
@@ -40,12 +59,18 @@ export default function CreateBundlePage({ moocs }) {
 											scope='col'
 											className={`min-w-[170px] px-4 py-2 bg-slate-200 font-bold text-center text-2xl drop-shadow-sm`}
 										>
-											<span className='text-center'>Link</span>
+											<span className='text-center'>Certificate Link</span>
+										</th>
+										<th
+											scope='col'
+											className={`min-w-[170px] px-4 py-2 bg-slate-200 font-bold text-center text-2xl drop-shadow-sm`}
+										>
+											<span className='text-center'>Update Link</span>
 										</th>
 									</tr>
 								</thead>
 
-								{/* <tbody className='divide-y divide-gray-200'>
+								<tbody className='divide-y divide-gray-200'>
 									{!!bundle &&
 										bundle.map(
 											({
@@ -82,28 +107,20 @@ export default function CreateBundlePage({ moocs }) {
 												</tr>
 											)
 										)}
-								</tbody> */}
+								</tbody>
 							</table>
 						</div>
 					</div>
 				</div>
 			</div>
-
-			<div>
-				<button
-					onClick={handleClick}
-					className='justify-self-end self-end place-self-end text-lg py-1 px-3 bg-[#212021] hover:bg-[#414041] shadow-md text-white font-thin rounded-full border-none cursor-pointer transition-colors'
-				>
-					ADD MOOC
-				</button>
-			</div>
 		</div>
 	);
 }
 
-export async function getServerSideProps({ req }) {
+export async function getServerSideProps({ req, query }) {
+	const { id: course_id, bundle_id } = query;
 	const token = req.cookies.token;
-	const backendURL = `${process.env.NEXT_PUBLIC_API_URL}/student/moocs`;
+	const backendURL = `${process.env.NEXT_PUBLIC_API_URL}/student/enrollments/${course_id}/bundles/${bundle_id}`;
 
 	const { data } = await axios.get(backendURL, {
 		headers: {
@@ -111,11 +128,15 @@ export async function getServerSideProps({ req }) {
 		},
 	});
 
-	const { moocs } = data;
+	const { bundle } = data;
+
+	console.log(bundle);
 
 	return {
 		props: {
-			moocs,
+			course_id,
+			bundle_id,
+			bundle: bundle ?? [],
 		},
 	};
 }

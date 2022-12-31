@@ -34,6 +34,18 @@ function NavBar() {
 					Contributors
 				</span>
 			</NextLink>
+
+			<NextLink href='/student/courses'>
+				<span className='ml-8 border-[#ffd700] border-solid border-0 hover:border-b-4 text-2xl font-medium drop-shadow-lg transition-all select-none'>
+					Courses
+				</span>
+			</NextLink>
+
+			<NextLink href='/student/moocs'>
+				<span className='ml-8 border-[#ffd700] border-solid border-0 hover:border-b-4 text-2xl font-medium drop-shadow-lg transition-all select-none'>
+					MOOC List
+				</span>
+			</NextLink>
 		</nav>
 	);
 }
