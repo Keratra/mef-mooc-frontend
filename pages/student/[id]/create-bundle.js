@@ -4,7 +4,6 @@ import { Formik } from 'formik';
 import axios from 'axios';
 import { useRouter } from 'next/router';
 import Multiselect from 'multiselect-react-dropdown';
-import { Artifika } from '@next/font/google';
 
 export default function CreateBundlePage({ course_id, moocs, mooc_details }) {
 	const Router = useRouter();

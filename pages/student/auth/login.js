@@ -4,11 +4,19 @@ import { Formik } from 'formik';
 import { loginStudentModel } from 'lib/yupmodels';
 import axios from 'axios';
 import { useRouter } from 'next/router';
+import { useAuth } from 'contexts/auth/AuthProvider';
+import { useApp, useAppUpdate } from 'contexts/AppContext';
+import { USER_TYPE_STUDENT } from 'utils/constants';
 
-const classInput = 'bg-neutral-50 rounded-b-lg';
+const loginType = USER_TYPE_STUDENT;
 
 export default function Login() {
 	const Router = useRouter();
+
+	const { loginWithToken } = useAuth();
+
+	const appState = useApp();
+	const setAppState = useAppUpdate();
 
 	const handleLogin = async ({ student_no, password }, { setSubmitting }) => {
 		// alert(JSON.stringify({ student_no, password }, null, 2));
@@ -19,13 +27,17 @@ export default function Login() {
 				password,
 			});
 
-			// const { data } = await axios.post(
-			// 	`${process.env.NEXT_PUBLIC_API_URL}/student/login`,
-			// 	{
-			// 		student_no,
-			// 		password,
-			// 	}
-			// );
+			loginWithToken({
+				token: data.access_token,
+				userName: data.brand,
+				userType: loginType,
+			});
+
+			setAppState({
+				...appState,
+				token: data.access_token,
+				userType: loginType,
+			});
 
 			Router.replace('/student/courses');
 		} catch (error) {

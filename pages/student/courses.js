@@ -4,11 +4,10 @@ import { Formik } from 'formik';
 import { loginStudentModel } from 'lib/yupmodels';
 import axios from 'axios';
 import { useRouter } from 'next/router';
+import EmptyTableMessage from '@components/EmptyTableMessage';
 
 export default function CourseSelectionPage({ courses, enrollments }) {
 	const Router = useRouter();
-
-	// console.log(courses);
 
 	const handleEnroll = async (course_id) => {
 		try {
@@ -31,7 +30,7 @@ export default function CourseSelectionPage({ courses, enrollments }) {
 		<div className='min-h-[80vh] flex flex-col justify-center items-center'>
 			<h1 className='text-center text-5xl mb-4 drop-shadow-md'>Enrollments</h1>
 
-			<div className='flex flex-col mb-24 overflow-x-auto p-1.5 w-full align-middle overflow-hidden border'>
+			<div className='flex flex-col mb-24 overflow-x-auto w-full align-middle overflow-hidden border shadow-lg'>
 				<table className='min-w-full border-solid border-0 border-b-2 border-collapse'>
 					<thead className='bg-gradient-to-t from-[#212021] to-[#414041] text-white'>
 						<tr>
@@ -79,9 +78,10 @@ export default function CourseSelectionPage({ courses, enrollments }) {
 								</tr>
 							))}
 						{enrollments?.length === 0 && (
-							<span className='w-full px-2 font-semibold text-xl text-red-600'>
-								No enrolled courses were found...
-							</span>
+							<EmptyTableMessage
+								cols={3}
+								message='No enrolled courses were found...'
+							/>
 						)}
 					</tbody>
 				</table>
@@ -91,7 +91,7 @@ export default function CourseSelectionPage({ courses, enrollments }) {
 				Available Courses
 			</h1>
 
-			<div className='flex flex-col overflow-x-auto p-1.5 w-full align-middle overflow-hidden border'>
+			<div className='flex flex-col overflow-x-auto w-full align-middle overflow-hidden border shadow-lg'>
 				<table className='min-w-full border-solid border-0 border-b-2 border-collapse'>
 					<thead className='bg-gradient-to-t from-[#212021] to-[#414041] text-white'>
 						<tr>
@@ -140,13 +140,7 @@ export default function CourseSelectionPage({ courses, enrollments }) {
 								</tr>
 							))}
 						{courses?.length === 0 && (
-							<tr>
-								<td colSpan={3}>
-									<span className='w-full px-2 font-semibold text-xl text-red-600'>
-										No courses were found...
-									</span>
-								</td>
-							</tr>
+							<EmptyTableMessage cols={3} message='No courses were found...' />
 						)}
 					</tbody>
 				</table>

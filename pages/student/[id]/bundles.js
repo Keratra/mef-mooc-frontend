@@ -4,6 +4,7 @@ import { Formik } from 'formik';
 import { loginStudentModel } from 'lib/yupmodels';
 import axios from 'axios';
 import { useRouter } from 'next/router';
+import EmptyTableMessage from '@components/EmptyTableMessage';
 
 export default function CourseBundlesPage({
 	course_id,
@@ -115,13 +116,7 @@ export default function CourseBundlesPage({
 								</tr>
 							))}
 						{bundles?.length === 0 && (
-							<tr>
-								<td colSpan={3}>
-									<span className='w-full px-2 font-semibold text-xl text-red-600'>
-										No bundles were found...
-									</span>
-								</td>
-							</tr>
+							<EmptyTableMessage cols={3} message='No bundles were found...' />
 						)}
 					</tbody>
 				</table>

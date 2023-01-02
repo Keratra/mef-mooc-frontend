@@ -4,6 +4,7 @@ import { Formik } from 'formik';
 import { loginStudentModel } from 'lib/yupmodels';
 import axios from 'axios';
 import { useRouter } from 'next/router';
+import EmptyTableMessage from '@components/EmptyTableMessage';
 
 export default function MOOCListPage({ moocs }) {
 	const Router = useRouter();
@@ -73,15 +74,8 @@ export default function MOOCListPage({ moocs }) {
 									</td>
 								</tr>
 							))}
-						{moocs?.length !== 0 && (
-							<tr>
-								<td
-									colSpan={4}
-									className='w-full px-2 font-semibold text-xl text-red-600'
-								>
-									No MOOCs were found...
-								</td>
-							</tr>
+						{moocs?.length === 0 && (
+							<EmptyTableMessage cols={4} message='No MOOCs were found...' />
 						)}
 					</tbody>
 				</table>
