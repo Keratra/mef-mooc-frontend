@@ -57,9 +57,9 @@ export default function CourseSelectionPage({ courses, enrollments }) {
 
 					<tbody className='divide-y divide-gray-200'>
 						{!!enrollments &&
-							enrollments.map(({ enrolment_id, name, course_code }) => (
+							enrollments.map(({ course_id, name, course_code }) => (
 								<tr
-									key={enrolment_id}
+									key={course_id}
 									className='border-solid border-0 border-b border-neutral-200'
 								>
 									<td className='align-baseline px-4 py-4 text-lg font-medium whitespace-nowrap'>
@@ -69,7 +69,7 @@ export default function CourseSelectionPage({ courses, enrollments }) {
 										{name}
 									</td>
 									<td className='align-baseline px-4 py-4 text-lg font-medium text-center whitespace-nowrap'>
-										<NextLink href={`/student/${enrolment_id}/bundles`}>
+										<NextLink href={`/student/${course_id}/bundles`}>
 											<button className='text-center text-lg py-2 px-2 bg-[#212021] hover:bg-[#414041] shadow-md text-white font-thin rounded-full border-none cursor-pointer transition-colors'>
 												GO
 											</button>
