@@ -69,6 +69,7 @@ function AuthProvider({ children }) {
 			...loadState('token'),
 			token: null,
 			userName: null,
+			isAuthenticated: false,
 		});
 		dispatch({
 			type: SETUSERTYPE,

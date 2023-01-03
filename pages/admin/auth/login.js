@@ -61,6 +61,7 @@ export default function Login() {
 	const classInput = `
     md:col-span-2
     p-2 rounded-lg
+		border-solid border-2 border-neutral-400
     text-base bg-neutral-50
   `;
 
@@ -129,32 +130,6 @@ export default function Login() {
 								{errors.password && touched.password && errors.password}
 							</span>
 
-							{/* <FormControl fullWidth>
-                <InputLabel id={'admin_id_label'} className={``}>
-                  Marka
-                </InputLabel>
-                <Select
-                  id='admin_id'
-                  name='admin_id'
-                  label='Marka'
-                  labelId='admin_id_label'
-                  className='bg-neutral-50'
-                  fullWidth
-                  value={values.admin_id}
-                  onChange={handleChange}
-                  error={touched.admin_id && Boolean(errors.admin_id)}
-                >
-                  {brands.map(({ id, brand }) => (
-                    <MenuItem key={id} value={id}>
-                      {brand}
-                    </MenuItem>
-                  ))}
-                </Select>
-                <p className='-my-1 py-2 pl-3 text-xs col-span-2 text-rose-600 bg-neutral-50 rounded-b-lg'>
-                  {errors.admin_id && touched.admin_id && errors.admin_id}
-                </p>
-              </FormControl> */}
-
 							<button
 								variant='contained'
 								color='primary'
@@ -163,7 +138,12 @@ export default function Login() {
 								className={`mx-auto  my-4 md:col-span-2 tracking-wider text-center text-xl py-2 px-4 bg-[#212021] hover:bg-[#414041] shadow-md text-white font-bold rounded-xl border-none cursor-pointer transition-colors`}
 								disabled={isSubmitting}
 							>
-								Login
+								<div
+									className={`inline-block rounded-sm bg-purple-500 ${
+										isSubmitting && 'w-4 h-4 mr-2 animate-spin'
+									}`}
+								></div>
+								<span>{isSubmitting ? 'Logging in...' : 'Login'}</span>
 							</button>
 
 							<span className={`md:col-span-2 place-self-center`}>

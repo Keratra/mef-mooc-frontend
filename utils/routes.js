@@ -13,30 +13,31 @@ import {
 } from 'react-icons/hi';
 import { RiSecurePaymentFill } from 'react-icons/ri';
 
-const size = 28;
+const size = 22;
+const iconClass = `align-text-bottom`;
 
 export const routes = [
 	{
 		name: 'My Courses',
 		pathname: '/student/courses',
-		icon: <HiTag size={size} className={`align-middle`} />,
+		icon: <HiTag size={size} className={iconClass} />,
 	},
 	{
 		name: 'MOOC List',
 		pathname: '/student/moocs',
-		icon: <HiCash size={size} className={`align-middle`} />,
+		icon: <HiCash size={size} className={iconClass} />,
 	},
 
 	{
 		name: 'Coordinators',
 		pathname: '/admin/coordinators',
-		icon: <HiUsers size={size} className={`align-middle`} />,
+		icon: <HiUsers size={size} className={iconClass} />,
 	},
 
 	{
 		name: 'Departments',
 		pathname: '/admin/departments',
-		icon: <HiTemplate size={size} className={`align-middle`} />,
+		icon: <HiTemplate size={size} className={iconClass} />,
 	},
 
 	// {
