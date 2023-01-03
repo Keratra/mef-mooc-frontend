@@ -2,6 +2,7 @@ import {
 	HiHome,
 	HiEye,
 	HiUser,
+	HiUsers,
 	HiTemplate,
 	HiTag,
 	HiCube,
@@ -24,6 +25,18 @@ export const routes = [
 		name: 'MOOC List',
 		pathname: '/student/moocs',
 		icon: <HiCash size={size} className={`align-middle`} />,
+	},
+
+	{
+		name: 'Coordinators',
+		pathname: '/admin/coordinators',
+		icon: <HiUsers size={size} className={`align-middle`} />,
+	},
+
+	{
+		name: 'Departments',
+		pathname: '/admin/departments',
+		icon: <HiTemplate size={size} className={`align-middle`} />,
 	},
 
 	// {
@@ -97,7 +110,7 @@ export const coordinatorPages = ['Test'];
 
 export const studentPages = ['My Courses', 'MOOC List'];
 
-export const adminPages = ['Test2'];
+export const adminPages = ['Coordinators', 'Departments'];
 
 export const ignoredRouteList = [
 	'/',

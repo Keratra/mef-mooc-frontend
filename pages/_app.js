@@ -55,11 +55,9 @@ function NavBar({ items }) {
 					onClick={USER_TYPES.includes(appState.userType) && logout}
 					href='/'
 				>
-					<span className='ml-8 text-2xl font-medium drop-shadow-lg transition-all select-none'>
-						<FiLogOut
-							size={22}
-							className={`rotate-180 inline-block align-middle text-red-700 hover:text-red-500 transition-colors`}
-						/>
+					<span className='ml-8 text-2xl font-medium drop-shadow-lg select-none text-red-700 hover:text-red-500 transition-all'>
+						<FiLogOut size={28} className={`inline-block align-middle`} />{' '}
+						Logout
 					</span>
 				</NextLink>
 			)}
@@ -85,7 +83,7 @@ export default function App({ Component, pageProps }) {
 				<title>MOOC Platform</title>
 				<meta name='description' content='MOOC Platform for MEF University' />
 				<meta name='viewport' content='width=device-width, initial-scale=1' />
-				<link rel='icon' href='/favicon.ico' />
+				<link rel='icon' href='/mef.png' />
 			</Head>
 
 			<AppProvider>

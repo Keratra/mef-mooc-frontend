@@ -5,7 +5,7 @@ import { loginStudentModel } from 'lib/yupmodels';
 import axios from 'axios';
 import { useRouter } from 'next/router';
 
-export default function StudentPage() {
+export default function AdminLandingPage() {
 	const Router = useRouter();
 
 	return (

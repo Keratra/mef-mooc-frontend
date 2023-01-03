@@ -1,14 +1,14 @@
 import NextLink from 'next/link';
 import { useState } from 'react';
 import { Formik } from 'formik';
-import { loginStudentModel } from 'lib/yupmodels';
+import { loginAdminModel } from 'lib/yupmodels';
 import axios from 'axios';
 import { useRouter } from 'next/router';
 import { useAuth } from 'contexts/auth/AuthProvider';
 import { useApp, useAppUpdate } from 'contexts/AppContext';
-import { USER_TYPE_STUDENT } from 'utils/constants';
+import { USER_TYPE_ADMIN } from 'utils/constants';
 
-const loginType = USER_TYPE_STUDENT;
+const loginType = USER_TYPE_ADMIN;
 
 export default function Login() {
 	const Router = useRouter();
@@ -18,12 +18,12 @@ export default function Login() {
 	const appState = useApp();
 	const setAppState = useAppUpdate();
 
-	const handleLogin = async ({ student_no, password }, { setSubmitting }) => {
+	const handleLogin = async ({ username, password }, { setSubmitting }) => {
 		// alert(JSON.stringify({ student_no, password }, null, 2));
 
 		try {
-			const { data } = await axios.post(`/api/student/auth/login`, {
-				student_no,
+			const { data } = await axios.post(`/api/admin/auth/login`, {
+				username,
 				password,
 			});
 
@@ -39,7 +39,7 @@ export default function Login() {
 				userType: loginType,
 			});
 
-			Router.replace('/student/courses');
+			Router.replace('/admin/departments');
 		} catch (error) {
 			console.log(error);
 			alert(
@@ -77,8 +77,8 @@ export default function Login() {
 				className={`max-w-md md:max-w-2xl mx-auto my-24 py-6 md:px-6 transition-transform rounded-3xl`}
 			>
 				<Formik
-					initialValues={loginStudentModel.initials}
-					validationSchema={loginStudentModel.schema}
+					initialValues={loginAdminModel.initials}
+					validationSchema={loginAdminModel.schema}
 					onSubmit={handleLogin}
 				>
 					{({
@@ -96,22 +96,22 @@ export default function Login() {
 							<h1
 								className={`md:col-span-2 font-bold text-center text-5xl  drop-shadow-md`}
 							>
-								Student Login
+								Administrator Login
 							</h1>
 
-							<label className={classLabel} htmlFor='student_no'>
-								Student No
+							<label className={classLabel} htmlFor='username'>
+								Username
 							</label>
 							<input
 								className={classInput}
 								type='text'
-								name='student_no'
-								id='student_no'
-								value={values.student_no}
+								name='username'
+								id='username'
+								value={values.username}
 								onChange={handleChange}
 							/>
 							<span className={classError}>
-								{errors.student_no && touched.student_no && errors.student_no}
+								{errors.username && touched.username && errors.username}
 							</span>
 
 							<label className={classLabel} htmlFor='password'>
@@ -122,7 +122,7 @@ export default function Login() {
 								type='password'
 								name='password'
 								id='password'
-								value={values.email}
+								value={values.password}
 								onChange={handleChange}
 							/>
 							<span className={classError}>
