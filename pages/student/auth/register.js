@@ -38,7 +38,8 @@ export default function StudentRegisterPage({ departments }) {
 			alert(
 				error?.response?.data?.message?.message ??
 					error?.response?.data?.message ??
-					error?.message
+					error?.message ??
+					'Error'
 			);
 		} finally {
 			setSubmitting(false);

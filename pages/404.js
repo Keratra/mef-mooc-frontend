@@ -1,19 +1,25 @@
-export default function fourofour() {
+import { useRouter } from 'next/router';
+
+export default function Fourofour() {
+	const Router = useRouter();
+
+	const handleReturn = async () => {
+		Router.replace('/');
+	};
 	return (
 		<>
 			<div>
-				404 bro
-				{/* <h1
-					className='next-error-h1'
-					style='display:inline-block;margin:0;margin-right:20px;padding:0 23px 0 0;font-size:24px;font-weight:500;vertical-align:top;line-height:49px'
+				<div className='h-[90vh] font-sans font-bold text-3xl drop-shadow-2xl flex justify-center items-center text-[#161516]'>
+					<div className='w-[2rem] h-[2rem] bg-rose-900 rounded-md mr-4 animate-bounce'></div>
+					<span className=''>404 | Not Found</span>
+					<div className='w-[2rem] h-[2rem] bg-rose-900 rounded-md ml-4 animate-bounce'></div>
+				</div>
+				<div
+					className='font-sans m-4 cursor-pointer text-blue-700 text-lg'
+					onClick={handleReturn}
 				>
-					404
-				</h1>
-				<div style='display:inline-block;text-align:left;line-height:49px;height:49px;vertical-align:middle'>
-					<h2 style='font-size:14px;font-weight:normal;line-height:49px;margin:0;padding:0'>
-						This page could not be found.
-					</h2>
-				</div> */}
+					Click here to return...
+				</div>
 			</div>
 		</>
 	);

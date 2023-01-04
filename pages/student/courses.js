@@ -21,7 +21,8 @@ export default function CourseSelectionPage({ courses, enrollments }) {
 			alert(
 				error?.response?.data?.message?.message ??
 					error?.response?.data?.message ??
-					error?.message
+					error?.message ??
+					'Error'
 			);
 		}
 	};

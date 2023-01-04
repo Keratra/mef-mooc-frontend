@@ -26,7 +26,8 @@ export default function BundleViewPage({ course_id, bundle_id, bundle }) {
 			alert(
 				error?.response?.data?.message?.message ??
 					error?.response?.data?.message ??
-					error?.message
+					error?.message ??
+					'Error'
 			);
 		}
 	};
@@ -87,7 +88,7 @@ export default function BundleViewPage({ course_id, bundle_id, bundle }) {
 
 										<td className='align-baseline px-4 py-4 text-lg font-medium min-w-[15vw]'>
 											<NextLink
-												href={certificate_url}
+												href={certificate_url ?? ''}
 												className='text-blue-600 hover:underline underline-offset-2'
 											>
 												{certificate_url}

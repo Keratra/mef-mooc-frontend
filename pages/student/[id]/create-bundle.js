@@ -34,13 +34,14 @@ export default function CreateBundlePage({ course_id, moocs, mooc_details }) {
 				mooc_ids: cart,
 			});
 
-			Router.reload();
+			Router.push(`/student/${Router.query.id}/bundles`);
 		} catch (error) {
 			console.log(error);
 			alert(
 				error?.response?.data?.message?.message ??
 					error?.response?.data?.message ??
-					error?.message
+					error?.message ??
+					'Error'
 			);
 		}
 	};

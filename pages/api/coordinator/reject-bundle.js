@@ -1,18 +1,15 @@
 import axios from 'axios';
 
-export default async function addDepartment(req, res) {
+export default async function rejectBundle(req, res) {
 	try {
-		const { name, coordinator_id } = req.body;
-		const backendURL = `${process.env.NEXT_PUBLIC_API_URL}/admin/add-department`;
+		const { course_id, bundle_id } = req.body;
+		const backendURL = `${process.env.NEXT_PUBLIC_API_URL}/coordinator/course/${course_id}/bundle/${bundle_id}/reject-bundle`;
 
 		const token = req.cookies.token;
 
 		const { data } = await axios.post(
 			backendURL,
-			{
-				name,
-				coordinator_id,
-			},
+			{},
 			{
 				headers: {
 					Authorization: `Bearer ${token}`,

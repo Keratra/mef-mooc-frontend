@@ -1,14 +1,14 @@
 import NextLink from 'next/link';
 import { useState } from 'react';
 import { Formik } from 'formik';
-import { loginAdminModel } from 'lib/yupmodels';
+import { loginCoordinatorModel } from 'lib/yupmodels';
 import axios from 'axios';
 import { useRouter } from 'next/router';
 import { useAuth } from 'contexts/auth/AuthProvider';
 import { useApp, useAppUpdate } from 'contexts/AppContext';
-import { USER_TYPE_ADMIN } from 'utils/constants';
+import { USER_TYPE_COORDINATOR } from 'utils/constants';
 
-const loginType = USER_TYPE_ADMIN;
+const loginType = USER_TYPE_COORDINATOR;
 
 export default function Login() {
 	const Router = useRouter();
@@ -18,12 +18,12 @@ export default function Login() {
 	const appState = useApp();
 	const setAppState = useAppUpdate();
 
-	const handleLogin = async ({ username, password }, { setSubmitting }) => {
+	const handleLogin = async ({ email, password }, { setSubmitting }) => {
 		// alert(JSON.stringify({ student_no, password }, null, 2));
 
 		try {
-			const { data } = await axios.post(`/api/admin/auth/login`, {
-				username,
+			const { data } = await axios.post(`/api/coordinator/auth/login`, {
+				email,
 				password,
 			});
 
@@ -39,7 +39,7 @@ export default function Login() {
 				userType: loginType,
 			});
 
-			Router.replace('/admin/departments');
+			Router.replace('/coordinator/courses');
 		} catch (error) {
 			console.log(error);
 			alert(
@@ -79,8 +79,8 @@ export default function Login() {
 				className={`max-w-md md:max-w-2xl mx-auto my-24 py-6 md:px-6 transition-transform rounded-3xl`}
 			>
 				<Formik
-					initialValues={loginAdminModel.initials}
-					validationSchema={loginAdminModel.schema}
+					initialValues={loginCoordinatorModel.initials}
+					validationSchema={loginCoordinatorModel.schema}
 					onSubmit={handleLogin}
 				>
 					{({
@@ -98,22 +98,22 @@ export default function Login() {
 							<h1
 								className={`md:col-span-2 font-bold text-center text-5xl  drop-shadow-md`}
 							>
-								Administrator Login
+								Coordinator Login
 							</h1>
 
-							<label className={classLabel} htmlFor='username'>
-								Username
+							<label className={classLabel} htmlFor='email'>
+								Email
 							</label>
 							<input
 								className={classInput}
 								type='text'
-								name='username'
-								id='username'
-								value={values.username}
+								name='email'
+								id='email'
+								value={values.email}
 								onChange={handleChange}
 							/>
 							<span className={classError}>
-								{errors.username && touched.username && errors.username}
+								{errors.email && touched.email && errors.email}
 							</span>
 
 							<label className={classLabel} htmlFor='password'>

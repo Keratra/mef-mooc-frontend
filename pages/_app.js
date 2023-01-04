@@ -24,7 +24,7 @@ function NavBar({ items }) {
 			className='
         w-full p-1.5
         flex justify-start items-baseline
-        bg-gradient-to-b from-[#eee] via-slate-100 to-white
+        bg-gradient-to-b from-[#ddd] via-slate-100 to-white
       '
 		>
 			<NextLink href='/'>
@@ -39,27 +39,28 @@ function NavBar({ items }) {
 				</span>
 			</NextLink>
 
-			<span>
-				{!!items &&
-					items.map(({ name, pathname, icon }) => (
-						<NextLink key={name} href={pathname}>
-							<span className='ml-8 border-[#ffd700] border-solid border-0 hover:border-b-4 text-xl font-medium drop-shadow-lg transition-all select-none'>
-								{icon} {name}
+			{state?.isAuthenticated && (
+				<>
+					<span>
+						{!!items &&
+							items.map(({ name, pathname, icon }) => (
+								<NextLink key={name} href={pathname}>
+									<span className='ml-8 border-[#ffd700] border-solid border-0 hover:border-b-4 text-xl font-medium drop-shadow-lg transition-all select-none'>
+										{icon} {name}
+									</span>
+								</NextLink>
+							))}
+						<NextLink onClick={logout} href='/'>
+							<span className='ml-8 text-xl font-medium drop-shadow-lg select-none text-red-700 hover:text-red-500 transition-all'>
+								<FiLogOut
+									size={22}
+									className={`inline-block align-text-bottom`}
+								/>{' '}
+								Logout
 							</span>
 						</NextLink>
-					))}
-			</span>
-
-			{state?.isAuthenticated && (
-				<NextLink
-					onClick={USER_TYPES.includes(appState.userType) && logout}
-					href='/'
-				>
-					<span className='ml-8 text-xl font-medium drop-shadow-lg select-none text-red-700 hover:text-red-500 transition-all'>
-						<FiLogOut size={22} className={`inline-block align-text-bottom`} />{' '}
-						Logout
 					</span>
-				</NextLink>
+				</>
 			)}
 		</nav>
 	);

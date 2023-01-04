@@ -29,7 +29,7 @@ export default function AdminDepartmentsPage({
 			if (selected === 0) throw 'Please select a department';
 			if (coordinator_id === 0) throw 'Please select a coordinator';
 			if (!confirm('Are you sure about changing the coordinator?'))
-				throw 'Action refused by user';
+				throw new Error('Action refused by user');
 
 			await axios.post(`/api/admin/change-coordinator`, {
 				department_id: selected,
@@ -42,7 +42,8 @@ export default function AdminDepartmentsPage({
 			alert(
 				error?.response?.data?.message?.message ??
 					error?.response?.data?.message ??
-					error?.message
+					error?.message ??
+					'Error'
 			);
 		} finally {
 			setSubmitting(false);

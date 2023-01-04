@@ -1,9 +1,9 @@
 import axios from 'axios';
 
-export default async function addDepartment(req, res) {
+export default async function addCoordinator(req, res) {
 	try {
-		const { name, coordinator_id } = req.body;
-		const backendURL = `${process.env.NEXT_PUBLIC_API_URL}/admin/add-department`;
+		const { name, surname, email } = req.body;
+		const backendURL = `${process.env.NEXT_PUBLIC_API_URL}/admin/add-coordinator`;
 
 		const token = req.cookies.token;
 
@@ -11,7 +11,8 @@ export default async function addDepartment(req, res) {
 			backendURL,
 			{
 				name,
-				coordinator_id,
+				surname,
+				email,
 			},
 			{
 				headers: {

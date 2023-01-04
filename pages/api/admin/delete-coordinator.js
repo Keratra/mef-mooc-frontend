@@ -1,18 +1,15 @@
 import axios from 'axios';
 
-export default async function addDepartment(req, res) {
+export default async function deleteCoordinator(req, res) {
 	try {
-		const { name, coordinator_id } = req.body;
-		const backendURL = `${process.env.NEXT_PUBLIC_API_URL}/admin/add-department`;
+		const { coordinator_id } = req.body;
+		const backendURL = `${process.env.NEXT_PUBLIC_API_URL}/admin/coordinators/${coordinator_id}/passive`;
 
 		const token = req.cookies.token;
 
 		const { data } = await axios.post(
 			backendURL,
-			{
-				name,
-				coordinator_id,
-			},
+			{},
 			{
 				headers: {
 					Authorization: `Bearer ${token}`,

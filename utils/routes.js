@@ -18,6 +18,12 @@ const iconClass = `align-text-bottom`;
 
 export const routes = [
 	{
+		name: 'Courses',
+		pathname: '/coordinator/courses',
+		icon: <HiViewGridAdd size={size} className={iconClass} />,
+	},
+
+	{
 		name: 'My Courses',
 		pathname: '/student/courses',
 		icon: <HiTag size={size} className={iconClass} />,
@@ -107,7 +113,7 @@ export const routes = [
 	// },
 ];
 
-export const coordinatorPages = ['Test'];
+export const coordinatorPages = ['Courses'];
 
 export const studentPages = ['My Courses', 'MOOC List'];
 

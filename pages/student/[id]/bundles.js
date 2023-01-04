@@ -72,7 +72,7 @@ export default function CourseBundlesPage({
 									className='border-solid border-0 border-b border-neutral-200'
 								>
 									<td className='align-baseline px-4 py-4 text-lg font-medium whitespace-nowrap text-center'>
-										{id}
+										{10000 + id}
 									</td>
 
 									<td className='align-baseline px-4 py-4 text-lg font-medium whitespace-nowrap text-center'>

@@ -1,17 +1,20 @@
 import axios from 'axios';
 
-export default async function addDepartment(req, res) {
+export default async function addCourse(req, res) {
 	try {
 		const { name, coordinator_id } = req.body;
-		const backendURL = `${process.env.NEXT_PUBLIC_API_URL}/admin/add-department`;
+		const backendURL = `${process.env.NEXT_PUBLIC_API_URL}/coordinator/add-course`;
 
 		const token = req.cookies.token;
 
 		const { data } = await axios.post(
 			backendURL,
 			{
+				course_code,
 				name,
-				coordinator_id,
+				type,
+				semester,
+				credits,
 			},
 			{
 				headers: {
