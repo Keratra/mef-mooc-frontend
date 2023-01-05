@@ -37,11 +37,13 @@ export default function AdminCoordinatorsPage({ coordinators }) {
 		// alert(JSON.stringify({ name, surname, email }, null, 2));
 
 		try {
-			await axios.post(`/api/admin/add-coordinator`, {
+			const { data } = await axios.post(`/api/admin/add-coordinator`, {
 				name,
 				surname,
 				email,
 			});
+
+			console.log(data);
 
 			Router.reload();
 		} catch (error) {
