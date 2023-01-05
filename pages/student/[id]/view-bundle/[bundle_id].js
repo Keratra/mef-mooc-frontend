@@ -13,6 +13,9 @@ export default function BundleViewPage({ course_id, bundle_id, bundle }) {
 		try {
 			const certificate_url = prompt('Enter the link to the certificate here');
 
+			if (certificate_url === null || certificate_url === '')
+				throw new Error('Please enter a valid certificate link');
+
 			await axios.post('/api/student/certificate-update', {
 				course_id,
 				bundle_id,
@@ -21,6 +24,27 @@ export default function BundleViewPage({ course_id, bundle_id, bundle }) {
 			});
 
 			Router.reload();
+		} catch (error) {
+			console.log(error);
+			alert(
+				error?.response?.data?.message?.message ??
+					error?.response?.data?.message ??
+					error?.message ??
+					'Error'
+			);
+		}
+	};
+
+	const handleBundleComplete = async () => {
+		try {
+			if (!confirm('Are you sure?')) throw Error('Action cancelled by user');
+
+			await axios.post('/api/student/bundle-complete', {
+				course_id,
+				bundle_id,
+			});
+
+			Router.push(`/student/${course_id}/bundles`);
 		} catch (error) {
 			console.log(error);
 			alert(
@@ -114,6 +138,24 @@ export default function BundleViewPage({ course_id, bundle_id, bundle }) {
 						)}
 					</tbody>
 				</table>
+			</div>
+
+			<div className='mr-2'>
+				<button
+					onClick={handleBundleComplete}
+					className='my-4 py-2 px-5 bg-[#212021] hover:bg-[#414041] shadow-md text-white text-lg font-thin rounded-full border-none cursor-pointer transition-colors'
+				>
+					COMPLETE BUNDLE
+				</button>
+			</div>
+
+			<div className='text-center'>
+				<span className='text-center'>
+					By clicking the “Submit Bundle” button, you send your bundle to your
+					coordinator for confirmation. <br />
+					Please make sure you entered valid links that directs to your
+					certificates.
+				</span>
 			</div>
 		</div>
 	);
