@@ -11,24 +11,24 @@ const makers = [
 		student_no: '042001003',
 	},
 	{
-		name: 'Diogenes',
-		student_no: '042001004',
+		name: 'Mustafa Mert Tunalı',
+		student_no: '041801124',
 	},
 	{
-		name: 'Socrates',
-		student_no: '042001005',
+		name: 'Ahmet Yıldız',
+		student_no: '041901008',
 	},
 	{
-		name: 'Plato',
-		student_no: '042001006',
+		name: 'Cem Baysal',
+		student_no: '042101005',
 	},
 	{
-		name: 'Aristotle',
-		student_no: '042001007',
+		name: 'Pelin Mişe',
+		student_no: '041901015',
 	},
 	{
-		name: 'Homer',
-		student_no: '042001008',
+		name: 'Mehmet Talha Bozan',
+		student_no: '041901020',
 	},
 ];
 

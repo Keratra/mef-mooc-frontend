@@ -362,12 +362,11 @@ export default function CoordinatorCoursesPage({
 											{semester}
 										</td>
 										<td className='align-baseline px-4 py-4 text-lg font-medium text-center whitespace-nowrap'>
-											<button
-												onClick={() => alert('hop')}
-												className={` py-1 px-3 shadow-md text-white text-center text-lg font-thin rounded-full bg-orange-800 hover:bg-orange-600 border-none cursor-pointer transition-colors`}
-											>
-												GO
-											</button>
+											<NextLink href={`/coordinator/courses/${id}`}>
+												<button className='text-center text-lg py-2 px-2 bg-orange-800 hover:bg-orange-600 shadow-md text-white font-thin rounded-full border-none cursor-pointer transition-colors'>
+													GO
+												</button>
+											</NextLink>
 										</td>
 									</tr>
 								)
