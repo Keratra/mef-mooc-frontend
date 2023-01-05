@@ -349,10 +349,10 @@ export default function CoordinatorCoursePage({
 										key={index}
 										className='
 											mt-2 p-1 w-full
-											grid grid-cols-3 gap-4
+											grid grid-cols-4 gap-4
 										'
 									>
-										<NextLink href={mooc_url ?? ''} className=''>
+										<NextLink href={mooc_url ?? ''} className='col-span-3'>
 											<span className='select-none text-black no-underline'>
 												-&gt;
 											</span>
@@ -571,10 +571,10 @@ export default function CoordinatorCoursePage({
 										key={index}
 										className='
 											mt-2 p-1 w-full
-											grid grid-cols-3 gap-4
+											grid grid-cols-4 gap-4
 										'
 									>
-										<NextLink href={mooc_url ?? ''} className=''>
+										<NextLink href={mooc_url ?? ''} className='col-span-3'>
 											<span className='select-none text-black no-underline'>
 												-&gt;
 											</span>
@@ -836,7 +836,7 @@ export default function CoordinatorCoursePage({
 							No bundles were found...
 						</div>
 					)}
-					{Object.entries(dictBundlesRC).map(([key, value], i) => (
+					{Object.entries(dictBundlesAC).map(([key, value], i) => (
 						<div
 							key={i}
 							className='
@@ -875,10 +875,10 @@ export default function CoordinatorCoursePage({
 										key={index}
 										className='
 											mt-2 p-1 w-full
-											grid grid-cols-3 gap-4
+											grid grid-cols-4 gap-4
 										'
 									>
-										<NextLink href={mooc_url ?? ''} className=''>
+										<NextLink href={mooc_url ?? ''} className='col-span-3'>
 											<span className='select-none text-black no-underline'>
 												-&gt;
 											</span>
