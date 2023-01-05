@@ -25,7 +25,7 @@ export default function CoordinatorCoursesPage({
 			await axios.post(`/api/coordinator/add-course`, {
 				course_code,
 				name,
-				type,
+				type: 'blank',
 				semester,
 				credits,
 			});

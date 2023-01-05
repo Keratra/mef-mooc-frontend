@@ -2,7 +2,7 @@ import axios from 'axios';
 
 export default async function addCourse(req, res) {
 	try {
-		const { name, coordinator_id } = req.body;
+		const { course_code, name, type, semester, credits } = req.body;
 		const backendURL = `${process.env.NEXT_PUBLIC_API_URL}/coordinator/add-course`;
 
 		const token = req.cookies.token;
