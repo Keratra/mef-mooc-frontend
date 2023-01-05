@@ -158,7 +158,7 @@ export default function CoordinatorCoursePage({
 		}
 	};
 
-	const handleApproveCertificate = async (bundle_id) => {
+	const handleApproveCertificate = async (bundle_id, student_id) => {
 		// alert(JSON.stringify({ course_id, bundle_id }, null, 2));
 
 		try {
@@ -173,6 +173,7 @@ export default function CoordinatorCoursePage({
 			await axios.post(`/api/coordinator/approve-certificates`, {
 				course_id,
 				bundle_id,
+				student_id,
 			});
 
 			Router.reload();
@@ -624,7 +625,9 @@ export default function CoordinatorCoursePage({
 										<span className='drop-shadow-md'>Reject</span>
 									</button>
 									<button
-										onClick={() => handleApproveCertificate(key)}
+										onClick={() =>
+											handleApproveCertificate(key, value[0]?.student_id)
+										}
 										className='px-5 py-1 font-semibold text-xl uppercase border-none shadow-lg cursor-pointer rounded-lg hover:bg-emerald-500 bg-emerald-700 text-emerald-50 transition-colors'
 									>
 										<span className='drop-shadow-md'>Approve</span>
