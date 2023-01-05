@@ -486,6 +486,7 @@ export default function CoordinatorCoursePage({
 							)}
 
 							<div className='mt-2 px-2 text-center text-neutral-700 drop-shadow-md'>
+								Accepted by {value[0]?.coordinator_name} at{' '}
 								{new Date(value[0]?.bundle_created_at).toLocaleDateString(
 									'en-US',
 									{
@@ -598,6 +599,7 @@ export default function CoordinatorCoursePage({
 							)}
 
 							<div className='mt-2 px-2 text-center text-neutral-700 drop-shadow-md'>
+								Accepted by {value[0]?.coordinator_name} at{' '}
 								{new Date(value[0]?.bundle_created_at).toLocaleDateString(
 									'en-US',
 									{
@@ -709,6 +711,7 @@ export default function CoordinatorCoursePage({
 							)}
 
 							<div className='mt-2 px-2 text-center text-neutral-700 drop-shadow-md'>
+								Accepted by {value[0]?.coordinator_name} at{' '}
 								{new Date(value[0]?.bundle_created_at).toLocaleDateString(
 									'en-US',
 									{
@@ -801,6 +804,7 @@ export default function CoordinatorCoursePage({
 							)}
 
 							<div className='mt-2 px-2 text-center text-neutral-700 drop-shadow-md'>
+								Accepted by {value[0]?.coordinator_name} at{' '}
 								{new Date(value[0]?.bundle_created_at).toLocaleDateString(
 									'en-US',
 									{
@@ -893,6 +897,7 @@ export default function CoordinatorCoursePage({
 							)}
 
 							<div className='mt-2 px-2 text-center text-neutral-700 drop-shadow-md'>
+								Bundle accepted by {value[0]?.coordinator_name} at{' '}
 								{new Date(value[0]?.bundle_created_at).toLocaleDateString(
 									'en-US',
 									{
@@ -909,6 +914,19 @@ export default function CoordinatorCoursePage({
 										timeZone: 'UTC',
 									}
 								)}
+							</div>
+							<div className='mt-2 px-2 text-center text-neutral-700 drop-shadow-md'>
+								Approved by {value[0]?.coordinator_name} at{' '}
+								{new Date(value[0]?.pass_date).toLocaleDateString('en-US', {
+									weekday: 'long',
+									year: 'numeric',
+									month: 'long',
+									day: 'numeric',
+									timeZone: 'UTC',
+								})}{' '}
+								{new Date(value[0]?.pass_date).toLocaleTimeString('en-US', {
+									timeZone: 'UTC',
+								})}
 							</div>
 						</div>
 					))}
