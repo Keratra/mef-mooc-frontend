@@ -1,40 +1,19 @@
-# MEF MOOC Project Frontend
+# MEF MOOC Platform Frontend
 
-A website built with Next.js.
+## Project Description
 
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+MOOC courses are courses which are taken from online course platforms such as Coursera, edX etc. and are required for graduation at MEF University. All departments have different amounts of free electives and hum-soc elective courses inside and there are coordinators who are responsible for a department’s MOOC course processes. Each student finds courses for a specific course and creates bundles for taking credits from the course. These bundles must be approved by the coordinator and then students can start and finish the courses. When courses are finished, certificates are shared by the coordinator and the coordinator decides to pass or fail. But this system doesn’t have a platform that provides checking all of those processes by both students and coordinators. Blackboard, gmail, and some google sheets are used to collect all those processes. To collect all of the processes in a single platform can provide benefits for both coordinators and students. In this project, it is aimed to create a relational database for the project in a way which has the correct story and as much as without redundancy. Database creation is one of the most crucial steps for the project but in addition to this project’s backend and frontend implementations were designed. In this report, all processes for the database design and implementations according to the need are explained in detail. PostgreSQL was used in this project.
 
-## Getting Started
+## Steps
 
-First, run the development server:
-
-```bash
-npm run dev
-# or
-yarn dev
+1) Run the following code to install the packages
+```
+npm install
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+2) Run the following code to run the website
+```
+npm run dev
+```
 
-You can start editing the page by modifying `pages/index.js`. The page auto-updates as you edit the file.
-
-[API routes](https://nextjs.org/docs/api-routes/introduction) can be accessed on [http://localhost:3000/api/hello](http://localhost:3000/api/hello). This endpoint can be edited in `pages/api/hello.js`.
-
-The `pages/api` directory is mapped to `/api/*`. Files in this directory are treated as [API routes](https://nextjs.org/docs/api-routes/introduction) instead of React pages.
-
-This project uses [`next/font`](https://nextjs.org/docs/basic-features/font-optimization) to automatically optimize and load Inter, a custom Google Font.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
+3) In your browser, go to http://localhost:3000/
