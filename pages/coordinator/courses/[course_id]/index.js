@@ -170,7 +170,7 @@ export default function CoordinatorCoursePage({
 			)
 				throw new Error('Action refused by user');
 
-			await axios.post(`/api/coordinator/approve-certificates`, {
+			await axios.post(`/api/coordinator/approve-certificate`, {
 				course_id,
 				bundle_id,
 				student_id,
@@ -188,7 +188,7 @@ export default function CoordinatorCoursePage({
 		}
 	};
 
-	const handleRejectCertificate = async (bundle_id) => {
+	const handleRejectCertificate = async (bundle_id, student_id) => {
 		// alert(JSON.stringify({ course_id, bundle_id }, null, 2));
 
 		try {
@@ -200,9 +200,10 @@ export default function CoordinatorCoursePage({
 			)
 				throw new Error('Action refused by user');
 
-			await axios.post(`/api/coordinator/reject-certificates`, {
+			await axios.post(`/api/coordinator/reject-certificate`, {
 				course_id,
 				bundle_id,
+				student_id,
 			});
 
 			Router.reload();
@@ -621,7 +622,9 @@ export default function CoordinatorCoursePage({
 							{!!is_active && (
 								<div className='my-4 flex justify-evenly items-center'>
 									<button
-										onClick={() => handleRejectCertificate(key)}
+										onClick={() =>
+											handleRejectCertificate(key, value[0]?.student_id)
+										}
 										className='px-5 py-1 font-semibold text-xl uppercase border-none shadow-lg cursor-pointer rounded-lg hover:bg-rose-500 bg-rose-700 text-rose-50 transition-colors'
 									>
 										<span className='drop-shadow-md'>Reject</span>
