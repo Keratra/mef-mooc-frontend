@@ -43,7 +43,7 @@ export default function AdminCoordinatorsPage({ coordinators }) {
 				email,
 			});
 
-			console.log(data);
+			alert(data?.message ?? 'Successfully added');
 
 			Router.reload();
 		} catch (error) {
