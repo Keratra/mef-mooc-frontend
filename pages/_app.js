@@ -78,6 +78,10 @@ export default function App({ Component, pageProps }) {
 
 	const navbarTitle = tokenState?.userName;
 
+	// if (currentPage !== '/maintenance' && currentPage !== '/contributors') {
+	// 	Router.push('/maintenance');
+	// }
+
 	return (
 		<>
 			<Head>
