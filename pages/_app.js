@@ -88,7 +88,8 @@ export default function App({ Component, pageProps }) {
 				<title>MOOC Platform</title>
 				<meta name='description' content='MOOC Platform for MEF University' />
 				<meta name='viewport' content='width=device-width, initial-scale=1' />
-				<link rel='icon' href='/mef.png' />
+				<link rel='icon' href='/mef.jpg' />
+
 			</Head>
 
 			<AppProvider>
