@@ -7,6 +7,7 @@ import { useRouter } from 'next/router';
 import { useAuth } from 'contexts/auth/AuthProvider';
 import { useApp, useAppUpdate } from 'contexts/AppContext';
 import { USER_TYPE_COORDINATOR } from 'utils/constants';
+import SignForm from '@components/SignForm';
 
 const loginType = USER_TYPE_COORDINATOR;
 
@@ -75,8 +76,15 @@ export default function Login() {
 
 	return (
 		<div>
+			<SignForm
+				title={'Coordinator Login'}
+				identifier={['Email', 'email']}
+				handleLogin={handleLogin}
+				yupModel={loginCoordinatorModel}
+			/>
+
 			<div
-				className={`max-w-md md:max-w-2xl mx-auto my-24 py-6 md:px-6 transition-transform rounded-3xl`}
+				className={`max-w-md md:max-w-2xl mx-auto my-24 py-6 md:px-6 transition-transform rounded-3xl border-solid border-neutral-400 shadow-lg`}
 			>
 				<Formik
 					initialValues={loginCoordinatorModel.initials}

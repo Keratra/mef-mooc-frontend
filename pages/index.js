@@ -7,10 +7,6 @@ import { useRouter } from 'next/router';
 const inter = Inter({ subsets: ['latin'] });
 
 export default function Home() {
-	const router = useRouter();
-
-	router.push('/maintenance');
-
 	return (
 		<div className='min-h-[80vh] flex flex-col justify-center items-center'>
 			<h1 className='text-center text-5xl mb-16 drop-shadow-md'>

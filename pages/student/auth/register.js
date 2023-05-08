@@ -4,6 +4,7 @@ import { Formik } from 'formik';
 import { registerStudentModel } from 'lib/yupmodels';
 import axios from 'axios';
 import { useRouter } from 'next/router';
+import { BiLoaderAlt } from 'react-icons/bi';
 
 export default function StudentRegisterPage({ departments }) {
 	const Router = useRouter();
@@ -69,7 +70,7 @@ export default function StudentRegisterPage({ departments }) {
 	return (
 		<div>
 			<div
-				className={`max-w-md md:max-w-2xl mx-auto my-24 py-6 md:px-6 transition-transform rounded-3xl`}
+				className={`max-w-md md:max-w-2xl mx-auto my-24 py-6 md:px-6 transition-transform rounded-3xl border-solid border-neutral-200 shadow-lg bg-white`}
 			>
 				<Formik
 					initialValues={registerStudentModel.initials}
@@ -222,11 +223,12 @@ export default function StudentRegisterPage({ departments }) {
 								disabled={isSubmitting}
 							>
 								<div
-									className={`inline-block rounded-sm bg-purple-500 ${
-										isSubmitting && 'w-4 h-4 mr-2 animate-spin'
+									className={`rounded-sm flex flex-col justify-center items-center  ${
+										isSubmitting && ' animate-spin'
 									}`}
-								></div>
-								<span>{isSubmitting ? 'Registering...' : 'Register'}</span>
+								>
+									{isSubmitting ? <BiLoaderAlt size={24} /> : 'Register'}
+								</div>
 							</button>
 
 							<span className={`md:col-span-2 place-self-center`}>

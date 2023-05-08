@@ -97,7 +97,7 @@ export default function App({ Component, pageProps }) {
 						<div
 							className={
 								inter.className +
-								' min-h-screen selection:bg-purple-600 selection:text-white'
+								' min-h-screen bg-zinc-50 selection:bg-purple-700 selection:text-white'
 							}
 						>
 							<NavBar items={items} />
