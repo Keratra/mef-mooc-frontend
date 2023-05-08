@@ -34,6 +34,28 @@ export default function BundleViewPage({ course_id, bundle_id, bundle }) {
 			);
 		}
 	};
+	const handleFeedbackUpdate = async (feedback_id) => {
+		try {
+			const certificate_url = prompt('Enter the feedback here');
+
+			if (certificate_url === null || certificate_url === '')
+				throw new Error('Please enter a valid feedback');
+
+			await axios.post('/api/student/feedback', {
+				feedback_id,
+			});
+
+			Router.reload();
+		} catch (error) {
+			console.log(error);
+			alert(
+				error?.response?.data?.message?.message ??
+					error?.response?.data?.message ??
+					error?.message ??
+					'Error'
+			);
+		}
+	};
 
 	const handleBundleComplete = async () => {
 		try {
@@ -92,13 +114,19 @@ export default function BundleViewPage({ course_id, bundle_id, bundle }) {
 							>
 								<span className='text-center drop-shadow-md'>Update Link</span>
 							</th>
+							<th
+								scope='col'
+								className={`min-w-[170px] px-4 py-2 font-bold text-center text-2xl`}
+							>
+								<span className='text-center drop-shadow-md'>Feedback</span>
+							</th>
 						</tr>
 					</thead>
 
 					<tbody className='divide-y divide-gray-200'>
 						{!!bundle &&
 							bundle.map(
-								({ bundle_detail_id, certificate_url, mooc_id, mooc_name }) => (
+								({ bundle_detail_id, certificate_url, mooc_id, mooc_name, feedback_id }) => (
 									<tr
 										key={bundle_detail_id}
 										className='border-solid border-0 border-b border-neutral-200'
@@ -125,6 +153,14 @@ export default function BundleViewPage({ course_id, bundle_id, bundle }) {
 												className='text-center text-lg py-1 px-3 bg-[#212021] hover:bg-[#414041] shadow-md text-white font-thin rounded-full border-none cursor-pointer transition-colors'
 											>
 												Update
+											</button>
+										</td>
+										<td className='align-baseline px-4 py-4 text-lg font-medium text-center whitespace-nowrap'>
+											<button
+												onClick={() => handleFeedbackUpdate(feedback_id)}
+												className='text-center text-lg py-1 px-3 bg-[#212021] hover:bg-[#414041] shadow-md text-white font-thin rounded-full border-none cursor-pointer transition-colors'
+											>
+												Update Feedback
 											</button>
 										</td>
 									</tr>
