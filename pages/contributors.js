@@ -4,6 +4,7 @@ import { Formik } from 'formik';
 import { loginStudentModel } from 'lib/yupmodels';
 import axios from 'axios';
 import { useRouter } from 'next/router';
+import PageTitle from '@components/PageTitle';
 
 const makers = [
 	{
@@ -43,8 +44,8 @@ export default function ContributorsPage() {
 
 	return (
 		<div className='text-center'>
-			<h1 className='mt-16 mb-1 text-5xl'>Contributors</h1>
-			<p>Order is randomized every refresh</p>
+			<PageTitle>Contributors</PageTitle>
+			<p className='-mt-2'>Order is randomized every refresh</p>
 			<section className='grid grid-cols-1 gap-4 my-12'>
 				{randomArray.map(({ name, student_no }) => (
 					<div

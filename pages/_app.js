@@ -1,6 +1,6 @@
 import NextLink from 'next/link';
 import Head from 'next/head';
-import Image from 'next/image';
+import 'react-toastify/dist/ReactToastify.css';
 import '../styles/globals.css';
 import { Inter } from '@next/font/google';
 import { useRouter } from 'next/router';
@@ -12,6 +12,8 @@ import RouteGuard from '@components/RouteGuard';
 import { chooseUserType, loadState, parseJwt } from 'lib';
 import { FiMenu, FiLogOut, FiArrowRight } from 'react-icons/fi';
 import { USER_TYPES } from 'utils/constants';
+import { ToastContainer } from 'react-toastify';
+import Dropdown from '@components/Dropdown';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -22,14 +24,16 @@ function NavBar({ items }) {
 	return (
 		<nav
 			className='
-        w-full p-1.5
+        w-full p-3
         flex justify-start items-baseline
-        bg-gradient-to-b from-[#ddd] via-slate-100 to-white
+        bg-gradient-to-b from-zinc-400 via-zinc-100 to-zinc-200
       '
 		>
+			{/* <Dropdown /> */}
+
 			<NextLink href='/'>
 				<span className='border-[#ffd700] border-solid border-0 hover:border-b-4 text-2xl font-semibold drop-shadow-lg transition-all select-none'>
-					MEF MOOC Platform
+					MEF MOOC
 				</span>
 			</NextLink>
 
@@ -51,7 +55,7 @@ function NavBar({ items }) {
 								</NextLink>
 							))}
 						<NextLink onClick={logout} href='/'>
-							<span className='ml-8 text-xl font-medium drop-shadow-lg select-none text-red-700 hover:text-red-500 transition-all'>
+							<span className=' ml-8 text-xl font-medium drop-shadow-lg select-none text-red-700 hover:text-red-500 transition-all'>
 								<FiLogOut
 									size={22}
 									className={`inline-block align-text-bottom`}
@@ -85,11 +89,10 @@ export default function App({ Component, pageProps }) {
 	return (
 		<>
 			<Head>
-				<title>MOOC Platform</title>
+				<title>MEF MOOC Platform</title>
 				<meta name='description' content='MOOC Platform for MEF University' />
 				<meta name='viewport' content='width=device-width, initial-scale=1' />
 				<link rel='icon' href='/mef.jpg' />
-
 			</Head>
 
 			<AppProvider>
@@ -98,7 +101,7 @@ export default function App({ Component, pageProps }) {
 						<div
 							className={
 								inter.className +
-								' min-h-screen bg-zinc-50 selection:bg-purple-700 selection:text-white'
+								' min-h-screen bg-zinc-200 selection:bg-purple-700 selection:text-white'
 							}
 						>
 							<NavBar items={items} />
@@ -108,6 +111,8 @@ export default function App({ Component, pageProps }) {
 							</section>
 
 							{/* <footer className='w-full p-2'>Kerem yaptı.</footer> */}
+
+							<ToastContainer />
 						</div>
 					</RouteGuard>
 				</AuthProvider>

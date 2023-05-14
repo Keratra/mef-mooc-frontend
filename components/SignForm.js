@@ -3,13 +3,7 @@ import { useState } from 'react';
 import { Formik } from 'formik';
 import { BiLoaderAlt } from 'react-icons/bi';
 
-export default function SignForm({
-	title,
-	identifier,
-	handleLogin,
-	hasRegisterRedirect,
-	yupModel,
-}) {
+export default function SignForm({ title, identifier, handleLogin, yupModel }) {
 	const classLabel = `
   md:col-span-2
   mt-4 p-2 -mb-2 rounded-lg
@@ -105,17 +99,6 @@ export default function SignForm({
 								{isSubmitting ? <BiLoaderAlt size={24} /> : 'Login'}
 							</div>
 						</button>
-
-						{!!hasRegisterRedirect && (
-							<span className={`md:col-span-2 place-self-center`}>
-								Don&apos;t have an account?{' '}
-								<NextLink href={hasRegisterRedirect} passHref>
-									<span className={`text-blue-500 no-underline`}>
-										Register now.
-									</span>
-								</NextLink>
-							</span>
-						)}
 					</form>
 				)}
 			</Formik>

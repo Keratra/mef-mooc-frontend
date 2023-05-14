@@ -6,6 +6,9 @@ import axios from 'axios';
 import { useRouter } from 'next/router';
 import EmptyTableMessage from '@components/EmptyTableMessage';
 import { groupBy } from 'lodash';
+import PageTitle from '@components/PageTitle';
+import Modal from '@components/Modal';
+import { UsersIcon } from '@heroicons/react/24/solid';
 
 export default function AdminDepartmentsPage({
 	departments,
@@ -14,6 +17,25 @@ export default function AdminDepartmentsPage({
 }) {
 	const Router = useRouter();
 	const [selected, setSelected] = useState(0);
+
+	const [isOpenAdd, setIsOpenAdd] = useState(false);
+	const [isOpenChange, setIsOpenChange] = useState(false);
+
+	function closeModalAdd() {
+		setIsOpenAdd(false);
+	}
+
+	function openModalAdd() {
+		setIsOpenAdd(true);
+	}
+
+	function closeModalChange() {
+		setIsOpenChange(false);
+	}
+
+	function openModalChange() {
+		setIsOpenChange(true);
+	}
 
 	const handleSelect = async (department_id) => {
 		setSelected(department_id);
@@ -39,11 +61,11 @@ export default function AdminDepartmentsPage({
 			Router.reload();
 		} catch (error) {
 			console.log(error);
-			alert(
+			notify(
+				'error',
 				error?.response?.data?.message?.message ??
 					error?.response?.data?.message ??
-					error?.message ??
-					'Error'
+					error?.message
 			);
 		} finally {
 			setSubmitting(false);
@@ -64,7 +86,8 @@ export default function AdminDepartmentsPage({
 			Router.reload();
 		} catch (error) {
 			console.log(error);
-			alert(
+			notify(
+				'error',
 				error?.response?.data?.message?.message ??
 					error?.response?.data?.message ??
 					error?.message
@@ -96,27 +119,30 @@ export default function AdminDepartmentsPage({
 
 	return (
 		<div className='flex flex-col justify-center items-center'>
-			<h1 className='text-center text-5xl my-4 drop-shadow-md'>Departments</h1>
+			<PageTitle>Departments</PageTitle>
 
-			<div className='flex flex-col overflow-x-auto w-full align-middle overflow-hidden border shadow-lg'>
-				<table className='min-w-full border-solid border-0 border-b-2 border-collapse'>
-					<thead className='bg-gradient-to-t from-[#212021] to-[#414041] text-white'>
+			<div className='w-full'>
+				<table className='max-w-5xl mx-auto border-collapse border-solid border-2 border-zinc-300 shadow-lg '>
+					<thead className='bg-gradient-to-t from-zinc-300 to-zinc-200 text-black'>
 						<tr>
 							<th
 								scope='col'
-								className={`min-w-[170px] px-4 py-2 font-bold text-center text-2xl`}
+								align='left'
+								className={`min-w-[170px] px-4 py-2 font-semibold text-xl`}
 							>
 								<span className='text-center drop-shadow-md'>Name</span>
 							</th>
 							<th
 								scope='col'
-								className={`min-w-[170px] px-4 py-2 font-bold text-center text-2xl`}
+								align='left'
+								className={`min-w-[170px] px-4 py-2 font-semibold text-xl`}
 							>
 								<span className='text-center drop-shadow-md'>Coordinator</span>
 							</th>
 							<th
 								scope='col'
-								className={`min-w-[170px] px-4 py-2 font-bold text-center text-2xl`}
+								align='left'
+								className={`min-w-[170px] px-4 py-2 font-semibold text-xl`}
 							>
 								<span className='text-center drop-shadow-md'>
 									Change Coordinator
@@ -139,13 +165,15 @@ export default function AdminDepartmentsPage({
 										<td className='align-baseline px-4 py-4 text-lg font-medium whitespace-nowrap'>
 											{coordinator_name} {coordinator_surname}
 										</td>
-										<td className='align-baseline px-4 py-4 text-lg font-medium text-center whitespace-nowrap'>
+										<td className=' align-middle px-4 py-4 text-lg font-medium text-center whitespace-nowrap'>
 											<button
-												onClick={() => handleSelect(id)}
-												disabled={selected === id}
-												className={` py-1 px-3 shadow-md text-white text-center text-lg font-thin rounded-full bg-blue-800 hover:bg-blue-600 disabled:bg-emerald-800 border-none cursor-pointer transition-colors`}
+												onClick={() => {
+													handleSelect(id);
+													openModalChange();
+												}}
+												className={` bg-transparent  text-center font-thin border-none cursor-pointer transition-colors`}
 											>
-												{selected === id ? 'Selected' : 'Select'}
+												<UsersIcon className='h-7 w-7 text-black' />
 											</button>
 										</td>
 									</tr>
@@ -159,12 +187,27 @@ export default function AdminDepartmentsPage({
 						)}
 					</tbody>
 				</table>
+
+				<div className=' px-4 py-4 text-lg font-medium text-center '>
+					<button
+						onClick={() => openModalAdd()}
+						className={` py-1 px-3 shadow-md text-white text-center text-lg font-thin rounded-full bg-zinc-800 hover:bg-zinc-600 border-none cursor-pointer transition-colors `}
+					>
+						CREATE DEPARTMENT
+					</button>
+				</div>
 			</div>
 
-			<section className='grid grid-cols-1 md:grid-cols-2 gap-4'>
-				<div
-					className={`max-w-md md:max-w-2xl mx-auto mt-24 md:px-6 transition-all shadow-lg border-solid border-neutral-200 hover:border-neutral-300 rounded-md `}
-				>
+			<Modal
+				{...{
+					isOpen: isOpenAdd,
+					setIsOpen: setIsOpenAdd,
+					closeModal: closeModalAdd,
+					openModal: openModalAdd,
+				}}
+				title='Add a new department'
+			>
+				<div className={`transition-all mt-2 `}>
 					<Formik
 						initialValues={addDepartmentModel.initials}
 						validationSchema={addDepartmentModel.schema}
@@ -183,10 +226,6 @@ export default function AdminDepartmentsPage({
 								onSubmit={handleSubmit}
 								className={`grid grid-cols-1 md:grid-cols-2 gap-2 content-center place-content-center px-4`}
 							>
-								<h2 className='md:col-span-2 mt-4 text-center text-3xl drop-shadow-md'>
-									Add a new Department
-								</h2>
-
 								<label className={classLabel} htmlFor='name'>
 									Name
 								</label>
@@ -241,16 +280,24 @@ export default function AdminDepartmentsPage({
 											isSubmitting && 'w-4 h-4 mr-2 animate-spin'
 										}`}
 									></div>
-									<span>{isSubmitting ? 'Adding...' : 'Add Department'}</span>
+									<span>{isSubmitting ? 'CREATING...' : 'CREATE'}</span>
 								</button>
 							</form>
 						)}
 					</Formik>
 				</div>
+			</Modal>
 
-				<div
-					className={`max-w-md md:max-w-2xl mx-auto mt-24 md:px-6 transition-all shadow-lg border-solid border-neutral-200 hover:border-neutral-300 rounded-md `}
-				>
+			<Modal
+				{...{
+					isOpen: isOpenChange,
+					setIsOpen: setIsOpenChange,
+					closeModal: closeModalChange,
+					openModal: openModalChange,
+				}}
+				title='CHANGE COORDINATOR'
+			>
+				<div className={` transition-all mt-2 `}>
 					<Formik
 						initialValues={changeCoordinatorModel.initials}
 						validationSchema={changeCoordinatorModel.schema}
@@ -269,12 +316,8 @@ export default function AdminDepartmentsPage({
 								onSubmit={handleSubmit}
 								className={`grid grid-cols-1 md:grid-cols-2 gap-2 content-center place-content-center px-4`}
 							>
-								<h2 className='md:col-span-2 mt-4 text-center text-3xl drop-shadow-md'>
-									Change Coordinator
-								</h2>
-
 								<label className={classLabel} htmlFor='name'>
-									Name
+									Current Coordinator
 								</label>
 								<span
 									className={
@@ -290,7 +333,7 @@ export default function AdminDepartmentsPage({
 								</span>
 
 								<label className={classLabel} htmlFor='coordinator_id'>
-									Coordinator
+									New Coordinator
 								</label>
 								<select
 									name='coordinator_id'
@@ -328,13 +371,13 @@ export default function AdminDepartmentsPage({
 											isSubmitting && 'w-4 h-4 mr-2 animate-spin'
 										}`}
 									></div>
-									<span>{isSubmitting ? 'Adding...' : 'Add Department'}</span>
+									<span>{isSubmitting ? 'CREATING...' : 'CREATE'}</span>
 								</button>
 							</form>
 						)}
 					</Formik>
 				</div>
-			</section>
+			</Modal>
 		</div>
 	);
 }

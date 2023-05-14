@@ -60,7 +60,6 @@ export default function Login() {
 				title={'Student Login'}
 				identifier={['Student No', 'student_no']}
 				handleLogin={handleLogin}
-				hasRegisterRedirect={'/student/auth/register'}
 				yupModel={loginStudentModel}
 			/>
 		</div>

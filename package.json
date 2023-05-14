@@ -9,18 +9,23 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@headlessui/react": "^1.7.14",
+    "@heroicons/react": "^2.0.18",
     "@next/font": "^13.1.1",
     "axios": "^1.2.2",
     "cookies": "^0.8.0",
     "eslint": "8.30.0",
     "eslint-config-next": "13.1.1",
+    "exceljs": "^4.3.0",
     "formik": "^2.2.9",
     "lodash": "^4.17.21",
     "multiselect-react-dropdown": "^2.0.25",
     "next": "13.1.1",
+    "prop-types": "^15.8.1",
     "react": "18.2.0",
     "react-dom": "18.2.0",
     "react-icons": "^4.7.1",
+    "react-toastify": "^9.1.2",
     "yup": "^0.32.11"
   },
   "devDependencies": {
