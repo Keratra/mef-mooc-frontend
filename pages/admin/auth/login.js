@@ -40,7 +40,7 @@ export default function Login() {
 				userType: loginType,
 			});
 
-			Router.replace('/admin/departments');
+			Router.replace('/admin/dashboard');
 		} catch (error) {
 			console.log(error);
 			alert(

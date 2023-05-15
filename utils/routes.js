@@ -13,7 +13,7 @@ import {
 } from 'react-icons/hi';
 import { RiSecurePaymentFill } from 'react-icons/ri';
 
-const size = 22;
+const size = 26;
 const iconClass = `align-text-bottom`;
 
 export const routes = [
@@ -35,14 +35,8 @@ export const routes = [
 	},
 
 	{
-		name: 'Coordinators',
-		pathname: '/admin/coordinators',
-		icon: <HiUsers size={size} className={iconClass} />,
-	},
-
-	{
-		name: 'Departments',
-		pathname: '/admin/departments',
+		name: 'Dashboard',
+		pathname: '/admin/dashboard',
 		icon: <HiTemplate size={size} className={iconClass} />,
 	},
 
@@ -117,7 +111,7 @@ export const coordinatorPages = ['Courses'];
 
 export const studentPages = ['My Courses', 'MOOC List'];
 
-export const adminPages = ['Coordinators', 'Departments'];
+export const adminPages = ['Dashboard'];
 
 export const ignoredRouteList = [
 	'/',

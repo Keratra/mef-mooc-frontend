@@ -19,12 +19,12 @@ export default function Login() {
 	const appState = useApp();
 	const setAppState = useAppUpdate();
 
-	const handleLogin = async ({ student_no, password }, { setSubmitting }) => {
+	const handleLogin = async ({ email, password }, { setSubmitting }) => {
 		// alert(JSON.stringify({ student_no, password }, null, 2));
 
 		try {
 			const { data } = await axios.post(`/api/student/auth/login`, {
-				student_no,
+				email,
 				password,
 			});
 
@@ -58,7 +58,7 @@ export default function Login() {
 		<div>
 			<SignForm
 				title={'Student Login'}
-				identifier={['Student No', 'student_no']}
+				identifier={['Email', 'email']}
 				handleLogin={handleLogin}
 				yupModel={loginStudentModel}
 			/>
