@@ -26,10 +26,15 @@ function NavBar({ items }) {
 			className='
         w-full p-3
         flex justify-start items-baseline
-        bg-gradient-to-b from-zinc-400 via-zinc-100 to-zinc-200
+        bg-gradient-to-b from-zinc-200 via-zinc-100 to-zinc-100
+				border-solid border-0 border-b border-zinc-400
       '
 		>
 			{/* <Dropdown /> */}
+
+			<div className=' mr-4 cursor-pointer text-xl hover:text-zinc-700 font-medium drop-shadow-lg transition-all select-none'>
+				<FiMenu size={27} className={`inline-block align-text-bottom`} />
+			</div>
 
 			<NextLink href='/'>
 				<span className='border-[#ffd700] border-solid border-0 hover:border-b-4 text-2xl font-semibold drop-shadow-lg transition-all select-none'>
@@ -101,7 +106,7 @@ export default function App({ Component, pageProps }) {
 						<div
 							className={
 								inter.className +
-								' min-h-screen bg-zinc-200 selection:bg-purple-700 selection:text-white'
+								' min-h-screen bg-zinc-100 selection:bg-purple-700 selection:text-white'
 							}
 						>
 							<NavBar items={items} />
