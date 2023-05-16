@@ -110,7 +110,7 @@ function Sidebar({ items, open, setOpen, children }) {
 export default function App({ Component, pageProps }) {
 	const Router = useRouter();
 	// const currentPage = Router.pathname;
-	const [open, setOpen] = useState(false);
+	const [open, setOpen] = useState(true);
 
 	const tokenState = loadState('token');
 

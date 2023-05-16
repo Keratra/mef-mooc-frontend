@@ -7,6 +7,13 @@ import EmptyTableMessage from '@components/EmptyTableMessage';
 import { useRouter } from 'next/router';
 import PageTitle from '@components/PageTitle';
 import Modal from '@components/Modal';
+import {
+	UsersIcon,
+	UserMinusIcon,
+	PencilSquareIcon,
+	TrashIcon,
+	ChevronDoubleRightIcon,
+} from '@heroicons/react/24/solid';
 
 export default function CoordinatorCoursesPage({
 	active_courses,
@@ -104,7 +111,7 @@ export default function CoordinatorCoursesPage({
 		<div className='flex flex-col justify-center items-center'>
 			<PageTitle>Courses</PageTitle>
 
-			<section className='w-full max-w-6xl px-2 py-8 sm:px-0 font-sans transition-all '>
+			<section className='w-full max-w-6xl px-2 pb-8 sm:px-0 font-sans transition-all '>
 				<div className='flex space-x-1 rounded-xl bg-zinc-200/[0.8]  p-1'>
 					<div
 						onClick={() => setSelectedTabs(0)}
@@ -121,7 +128,7 @@ export default function CoordinatorCoursesPage({
 							}
 						`}
 					>
-						<span className='drop-shadow-md'>Active Courses</span>
+						<span className='drop-shadow-md select-none '>Active Courses</span>
 					</div>
 					<div
 						onClick={() => setSelectedTabs(1)}
@@ -138,7 +145,9 @@ export default function CoordinatorCoursesPage({
 							}
 						`}
 					>
-						<span className='drop-shadow-md'>Deactivated Courses</span>
+						<span className='drop-shadow-md select-none '>
+							Deactivated Courses
+						</span>
 					</div>
 				</div>
 			</section>
@@ -220,18 +229,18 @@ export default function CoordinatorCoursesPage({
 											<td className=' px-4 py-4 text-lg font-medium whitespace-nowrap '>
 												{semester}
 											</td>
-											<td className=' flex justify-center items-center px-4 py-4 text-lg font-medium text-center whitespace-nowrap '>
+											<td className='  px-4 py-4 text-lg font-medium text-center whitespace-nowrap '>
 												<button
 													onClick={() => handleDeactivate(id)}
-													className={` py-1 px-3 shadow-md text-white text-center text-lg font-thin rounded-full bg-rose-800 hover:bg-rose-600 border-none cursor-pointer transition-colors`}
+													className={`inline-flex justify-center items-center  py-1 px-3 shadow-none text-white text-center text-lg font-thin rounded-full bg-transparent border-none`}
 												>
-													X
+													<TrashIcon className='h-7 w-7 text-rose-700 hover:text-rose-500 cursor-pointer transition-colors' />
 												</button>
 											</td>
-											<td className=' flex justify-center items-center px-4 py-4 text-lg font-medium text-center whitespace-nowrap '>
+											<td className=' px-4 py-4 text-lg font-medium text-center whitespace-nowrap '>
 												<NextLink href={`/coordinator/courses/${id}`}>
-													<button className='text-center text-lg py-2 px-2 bg-blue-800 hover:bg-blue-600 shadow-md text-white font-thin rounded-full border-none cursor-pointer transition-colors'>
-														GO
+													<button className=' inline-flex justify-center items-center text-center text-lg py-2 px-2 bg-transparent shadow-none text-white font-thin rounded-full border-none cursor-pointer transition-colors'>
+														<ChevronDoubleRightIcon className='h-7 w-7 text-indigo-700 hover:text-indigo-500 cursor-pointer transition-colors' />
 													</button>
 												</NextLink>
 											</td>
@@ -328,18 +337,10 @@ export default function CoordinatorCoursesPage({
 											<td className=' px-4 py-4 text-lg font-medium whitespace-nowrap '>
 												{semester}
 											</td>
-											<td className=' flex justify-center items-center px-4 py-4 text-lg font-medium text-center whitespace-nowrap '>
-												<button
-													onClick={() => handleDeactivate(id)}
-													className={` py-1 px-3 shadow-md text-white text-center text-lg font-thin rounded-full bg-rose-800 hover:bg-rose-600 border-none cursor-pointer transition-colors`}
-												>
-													X
-												</button>
-											</td>
-											<td className=' flex justify-center items-center px-4 py-4 text-lg font-medium text-center whitespace-nowrap '>
+											<td className=' px-4 py-4 text-lg font-medium text-center whitespace-nowrap '>
 												<NextLink href={`/coordinator/courses/${id}`}>
-													<button className='text-center text-lg py-2 px-2 bg-blue-800 hover:bg-blue-600 shadow-md text-white font-thin rounded-full border-none cursor-pointer transition-colors'>
-														GO
+													<button className=' inline-flex justify-center items-center text-center text-lg py-2 px-2 bg-transparent shadow-none text-white font-thin rounded-full border-none cursor-pointer transition-colors'>
+														<ChevronDoubleRightIcon className='h-7 w-7 text-indigo-700 hover:text-indigo-500 cursor-pointer transition-colors' />
 													</button>
 												</NextLink>
 											</td>
