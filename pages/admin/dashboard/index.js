@@ -5,6 +5,9 @@ import {
 	addDepartmentModel,
 	changeCoordinatorModel,
 	addCoordinatorModel,
+	editStudentModel,
+	editCoordinatorModel,
+	inviteStudentModel,
 } from 'lib/yupmodels';
 import axios from 'axios';
 import { useRouter } from 'next/router';
@@ -27,19 +30,29 @@ export default function AdminDepartmentsPage({
 }) {
 	const Router = useRouter();
 	const [selected, setSelected] = useState(0); // coordinator select
+	const [selectedCoordinator, setSelectedCoordinator] = useState({
+		id: -1,
+		name: '',
+		surname: '',
+		email: '',
+	});
 	const [selectedStudent, setSelectedStudent] = useState({
+		id: -1,
 		name: '',
 		surname: '',
 		email: '',
 		student_no: '',
-		department_name: '',
+		department_id: -1,
 	});
 	const [selectedTabs, setSelectedTabs] = useState(1); // tabs
 
 	const [isOpenAdd, setIsOpenAdd] = useState(false);
 	const [isOpenChange, setIsOpenChange] = useState(false);
 	const [isOpenAddCo, setIsOpenAddCo] = useState(false);
+	const [isOpenCo, setIsOpenCo] = useState(false);
 	const [isOpenStudent, setIsOpenStudent] = useState(false);
+	const [isOpenInviteMultiple, setIsOpenInviteMultiple] = useState(false);
+	const [isOpenInviteSingle, setIsOpenInviteSingle] = useState(false);
 
 	function closeModalAdd() {
 		setIsOpenAdd(false);
@@ -62,6 +75,13 @@ export default function AdminDepartmentsPage({
 		setIsOpenAddCo(true);
 	}
 
+	function openModalCo() {
+		setIsOpenCo(true);
+	}
+	function closeModalCo() {
+		setIsOpenCo(false);
+	}
+
 	function closeModalStudent() {
 		setIsOpenStudent(false);
 		setSelectedStudent({
@@ -74,6 +94,20 @@ export default function AdminDepartmentsPage({
 	}
 	function openModalStudent() {
 		setIsOpenStudent(true);
+	}
+
+	function closeModalInviteMultiple() {
+		setIsOpenInviteMultiple(false);
+	}
+	function openModalInviteMultiple() {
+		setIsOpenInviteMultiple(true);
+	}
+
+	function closeModalInviteSingle() {
+		setIsOpenInviteSingle(false);
+	}
+	function openModalInviteSingle() {
+		setIsOpenInviteSingle(true);
 	}
 
 	const handleSelect = async (department_id) => {
@@ -185,7 +219,127 @@ export default function AdminDepartmentsPage({
 		}
 	};
 
-	const handleEditStudent = async ({ name, surname, email, student_no }) => {};
+	const handleEditStudent = async (
+		{ id, name, surname, email, student_no, department_id },
+		{ setSubmitting }
+	) => {
+		try {
+			if (id <= 0) throw 'Please select a student';
+			if (department_id <= 0) throw 'Please select a valid department';
+
+			await axios.post(`/api/admin/edit-student`, {
+				id,
+				name,
+				surname,
+				email,
+				student_no,
+				department_id,
+			});
+
+			Router.reload();
+		} catch (error) {
+			console.log(error);
+			notify(
+				'error',
+				error?.response?.data?.message?.message ??
+					error?.response?.data?.message ??
+					error?.message
+			);
+		} finally {
+			setSubmitting(false);
+		}
+	};
+
+	const handleEditCoordinator = async (
+		{ id, name, surname, email },
+		{ setSubmitting }
+	) => {
+		try {
+			if (id <= 0) throw 'Please select a coordinator';
+
+			await axios.post(`/api/admin/edit-coordinator`, {
+				id,
+				name,
+				surname,
+				email,
+			});
+
+			Router.reload();
+		} catch (error) {
+			console.log(error);
+			notify(
+				'error',
+				error?.response?.data?.message?.message ??
+					error?.response?.data?.message ??
+					error?.message
+			);
+		} finally {
+			setSubmitting(false);
+		}
+	};
+
+	const handleInviteMultipleStudent = async ({}) => {
+		try {
+			// if (department_id <= 0) throw 'Please select a valid department';
+
+			// await axios.post(`/api/admin/invite-students`, {
+			// 	students: [
+			// 		{
+			// 			name,
+			// 			surname,
+			// 			email,
+			// 			student_no,
+			// 			department_id,
+			// 		},
+			// 	],
+			// });
+
+			Router.reload();
+		} catch (error) {
+			console.log(error);
+			notify(
+				'error',
+				error?.response?.data?.message?.message ??
+					error?.response?.data?.message ??
+					error?.message
+			);
+		} finally {
+			// setSubmitting(false);
+		}
+	};
+
+	const handleInviteSingleStudent = async (
+		{ name, surname, email, student_no, department_id },
+		{ setSubmitting }
+	) => {
+		try {
+			if (department_id <= 0) throw 'Please select a valid department';
+
+			await axios.post(`/api/admin/invite-students`, {
+				students: [
+					{
+						name,
+						surname,
+						email,
+						student_no,
+						department_id,
+					},
+				],
+			});
+
+			Router.reload();
+		} catch (error) {
+			console.log(error);
+			notify(
+				'error',
+				error?.response?.data?.message?.message ??
+					error?.response?.data?.message ??
+					error?.message
+			);
+		} finally {
+			setSubmitting(false);
+		}
+	};
 
 	const classLabel = `
 		md:col-span-2
@@ -211,7 +365,7 @@ export default function AdminDepartmentsPage({
 		<div className='flex flex-col justify-center items-center'>
 			<PageTitle>Dashboard</PageTitle>
 
-			<section className='w-full max-w-6xl px-2 py-8 sm:px-0 font-sans transition-all '>
+			<section className='w-full max-w-6xl px-2 pb-8 sm:px-0 font-sans transition-all '>
 				<div className='flex space-x-1 rounded-xl bg-zinc-200/[0.8]  p-1'>
 					<div
 						onClick={() => setSelectedTabs(0)}
@@ -228,7 +382,7 @@ export default function AdminDepartmentsPage({
 							}
 						`}
 					>
-						<span className='drop-shadow-md'>Coordinators</span>
+						<span className='drop-shadow-md select-none '>Coordinators</span>
 					</div>
 					<div
 						onClick={() => setSelectedTabs(1)}
@@ -245,7 +399,7 @@ export default function AdminDepartmentsPage({
 							}
 						`}
 					>
-						<span className='drop-shadow-md'>Departments</span>
+						<span className='drop-shadow-md select-none '>Departments</span>
 					</div>
 					<div
 						onClick={() => setSelectedTabs(2)}
@@ -262,7 +416,7 @@ export default function AdminDepartmentsPage({
 							}
 						`}
 					>
-						<span className='drop-shadow-md'>Students</span>
+						<span className='drop-shadow-md select-none '>Students</span>
 					</div>
 				</div>
 			</section>
@@ -300,6 +454,13 @@ export default function AdminDepartmentsPage({
 								>
 									<span className='text-center drop-shadow-md'>Delete</span>
 								</th>
+								<th
+									scope='col'
+									align='center'
+									className={`min-w-[170px] px-4 py-2 font-semibold text-xl rounded-tr-md`}
+								>
+									<span className='text-center drop-shadow-md'>Edit</span>
+								</th>
 							</tr>
 						</thead>
 
@@ -332,6 +493,22 @@ export default function AdminDepartmentsPage({
 													className={` bg-transparent  text-center font-thin border-none cursor-pointer transition-colors`}
 												>
 													<UserMinusIcon className='h-7 w-7 text-red-700' />
+												</button>
+											</td>
+											<td className='px-4 py-4 text-lg font-medium text-center whitespace-nowrap'>
+												<button
+													onClick={() => {
+														setSelectedCoordinator({
+															id,
+															name,
+															surname,
+															email,
+														});
+														openModalCo();
+													}}
+													className={` bg-transparent  text-center font-thin border-none cursor-pointer transition-colors`}
+												>
+													<PencilSquareIcon className='h-7 w-7 text-zinc-700' />
 												</button>
 											</td>
 										</tr>
@@ -437,7 +614,7 @@ export default function AdminDepartmentsPage({
 					<div className=' px-4 py-4 text-lg font-medium text-center '>
 						<button
 							onClick={() => openModalAdd()}
-							className={` py-1 px-3 shadow-md text-white text-center text-lg font-thin rounded-full bg-zinc-800 hover:bg-zinc-600 border-none cursor-pointer transition-colors `}
+							className={` mx-auto py-1 px-3 shadow-md text-white text-center text-lg font-thin rounded-full bg-zinc-800 hover:bg-zinc-600 border-none cursor-pointer transition-colors `}
 						>
 							CREATE DEPARTMENT
 						</button>
@@ -483,7 +660,7 @@ export default function AdminDepartmentsPage({
 									align='center'
 									className={`min-w-[170px] px-4 py-2 font-semibold text-xl rounded-tr-md`}
 								>
-									<span className='text-center drop-shadow-md'>Edit (WIP)</span>
+									<span className='text-center drop-shadow-md'>Edit</span>
 								</th>
 							</tr>
 						</thead>
@@ -520,13 +697,17 @@ export default function AdminDepartmentsPage({
 											<td className='flex justify-center items-center px-4 py-4 text-lg font-medium text-center whitespace-nowrap'>
 												<button
 													onClick={() => {
+														const department_id = departments.find(
+															({ name }) => name === department_name
+														)?.id;
+
 														setSelectedStudent({
 															id,
 															name,
 															surname,
 															email,
 															student_no,
-															department_name,
+															department_id,
 														});
 														openModalStudent();
 													}}
@@ -546,6 +727,22 @@ export default function AdminDepartmentsPage({
 							)}
 						</tbody>
 					</table>
+
+					<div className=' grid grid-cols-2 gap-2 px-4 py-4 text-lg font-medium text-center '>
+						<button
+							onClick={() => openModalInviteMultiple()}
+							className={` mx-auto py-1 px-3 shadow-md text-white text-center text-lg font-thin rounded-full bg-zinc-800 hover:bg-zinc-600 border-none cursor-pointer transition-colors `}
+						>
+							INVITE STUDENTS
+						</button>
+
+						<button
+							onClick={() => openModalInviteSingle()}
+							className={` mx-auto py-1 px-3 shadow-md text-white text-center text-lg font-thin rounded-full bg-zinc-800 hover:bg-zinc-600 border-none cursor-pointer transition-colors `}
+						>
+							INVITE A STUDENT
+						</button>
+					</div>
 				</div>
 			)}
 
@@ -826,61 +1023,112 @@ export default function AdminDepartmentsPage({
 
 			<Modal
 				{...{
+					isOpen: isOpenCo,
+					setIsOpen: setIsOpenCo,
+					closeModal: closeModalCo,
+					openModal: openModalCo,
+				}}
+				title='Edit the coordinator'
+			>
+				<div className={`transition-all mt-2`}>
+					<Formik
+						initialValues={selectedCoordinator}
+						validationSchema={editCoordinatorModel.schema}
+						onSubmit={handleEditCoordinator}
+					>
+						{({
+							setFieldValue,
+							values,
+							errors,
+							touched,
+							handleChange,
+							handleSubmit,
+							isSubmitting,
+						}) => (
+							<form
+								onSubmit={handleSubmit}
+								className={`grid grid-cols-1 md:grid-cols-2 gap-2 content-center place-content-center px-4`}
+							>
+								<label className={classLabel} htmlFor='name'>
+									Name
+								</label>
+								<input
+									className={classInput}
+									type='text'
+									name='name'
+									id='name'
+									value={values.name}
+									onChange={handleChange}
+								/>
+								<span className={classError}>
+									{errors.name && touched.name && errors.name}
+								</span>
+
+								<label className={classLabel} htmlFor='surname'>
+									Surname
+								</label>
+								<input
+									className={classInput}
+									type='text'
+									name='surname'
+									id='surname'
+									value={values.surname}
+									onChange={handleChange}
+								/>
+								<span className={classError}>
+									{errors.surname && touched.surname && errors.surname}
+								</span>
+
+								<label className={classLabel} htmlFor='email'>
+									Email
+								</label>
+								<input
+									className={classInput}
+									type='text'
+									name='email'
+									id='email'
+									value={values.email}
+									onChange={handleChange}
+								/>
+								<span className={classError}>
+									{errors.email && touched.email && errors.email}
+								</span>
+
+								<button
+									variant='contained'
+									color='primary'
+									size='large'
+									type='submit'
+									className={`mx-auto  my-4 md:col-span-2 tracking-wider text-center text-xl py-2 px-4 bg-[#212021] hover:bg-[#414041] shadow-md text-white font-bold rounded-xl border-none cursor-pointer transition-colors`}
+									disabled={isSubmitting}
+								>
+									<div
+										className={`inline-block rounded-sm bg-purple-500 ${
+											isSubmitting && 'w-4 h-4 mr-2 animate-spin'
+										}`}
+									></div>
+									<span>
+										{isSubmitting ? 'Editing...' : 'Edit Coordinator'}
+									</span>
+								</button>
+							</form>
+						)}
+					</Formik>
+				</div>
+			</Modal>
+
+			<Modal
+				{...{
 					isOpen: isOpenStudent,
 					setIsOpen: setIsOpenStudent,
 					closeModal: closeModalStudent,
 					openModal: openModalStudent,
 				}}
-				title='Edit the student (WIP)'
+				title='Edit the student'
 			>
 				<div className={`transition-all mt-2`}>
-					<div className=' grid grid-cols-1 md:grid-cols-2 gap-2 content-center place-content-center px-4 mb-4  '>
-						<label className={classLabel} htmlFor='name'>
-							Name
-						</label>
-						<input
-							className={classInput}
-							type='text'
-							name='name'
-							id='name'
-							value={selectedStudent.name}
-						/>
-
-						<label className={classLabel} htmlFor='surname'>
-							Surname
-						</label>
-						<input
-							className={classInput}
-							type='text'
-							name='surname'
-							id='surname'
-							value={selectedStudent.surname}
-						/>
-
-						<label className={classLabel} htmlFor='email'>
-							Email
-						</label>
-						<input
-							className={classInput}
-							type='text'
-							name='email'
-							id='email'
-							value={selectedStudent.email}
-						/>
-
-						<label className={classLabel} htmlFor='student_no'>
-							Student NO
-						</label>
-						<input
-							className={classInput}
-							type='text'
-							name='student_no'
-							id='student_no'
-							value={selectedStudent.student_no}
-						/>
-					</div>
-					{/* <Formik
-						initialValues={editStudentModel.initials}
+					<Formik
+						initialValues={selectedStudent}
 						validationSchema={editStudentModel.schema}
 						onSubmit={handleEditStudent}
 					>
@@ -957,6 +1205,26 @@ export default function AdminDepartmentsPage({
 									{errors.student_no && touched.student_no && errors.student_no}
 								</span>
 
+								<label className={classLabel} htmlFor='department_id'>
+									Department
+								</label>
+								<select
+									name='department_id'
+									id='department_id'
+									className={classInput}
+									value={values.department_id}
+									onChange={(e) => {
+										setFieldValue('department_id', e.target.value);
+									}}
+								>
+									{!!departments &&
+										departments.map(({ id, name }, i) => (
+											<option key={i} value={id}>
+												{name}
+											</option>
+										))}
+								</select>
+
 								<button
 									variant='contained'
 									color='primary'
@@ -970,11 +1238,152 @@ export default function AdminDepartmentsPage({
 											isSubmitting && 'w-4 h-4 mr-2 animate-spin'
 										}`}
 									></div>
-									<span>{isSubmitting ? 'Adding...' : 'Add Student'}</span>
+									<span>{isSubmitting ? 'Editing...' : 'Edit Student'}</span>
 								</button>
 							</form>
 						)}
-					</Formik> */}
+					</Formik>
+				</div>
+			</Modal>
+
+			<Modal
+				{...{
+					isOpen: isOpenInviteMultiple,
+					setIsOpen: setIsOpenInviteMultiple,
+					closeModal: closeModalInviteMultiple,
+					openModal: openModalInviteMultiple,
+				}}
+				title='Invite multiple students'
+			>
+				<div className={`transition-all mt-2`}>Excel Upload Here...</div>
+			</Modal>
+
+			<Modal
+				{...{
+					isOpen: isOpenInviteSingle,
+					setIsOpen: setIsOpenInviteSingle,
+					closeModal: closeModalInviteSingle,
+					openModal: openModalInviteSingle,
+				}}
+				title='Invite a student'
+			>
+				<div className={`transition-all mt-2`}>
+					<Formik
+						initialValues={inviteStudentModel.initials}
+						validationSchema={inviteStudentModel.schema}
+						onSubmit={handleInviteSingleStudent}
+					>
+						{({
+							setFieldValue,
+							values,
+							errors,
+							touched,
+							handleChange,
+							handleSubmit,
+							isSubmitting,
+						}) => (
+							<form
+								onSubmit={handleSubmit}
+								className={`grid grid-cols-1 md:grid-cols-2 gap-2 content-center place-content-center px-4`}
+							>
+								<label className={classLabel} htmlFor='name'>
+									Name
+								</label>
+								<input
+									className={classInput}
+									type='text'
+									name='name'
+									id='name'
+									value={values.name}
+									onChange={handleChange}
+								/>
+								<span className={classError}>
+									{errors.name && touched.name && errors.name}
+								</span>
+
+								<label className={classLabel} htmlFor='surname'>
+									Surname
+								</label>
+								<input
+									className={classInput}
+									type='text'
+									name='surname'
+									id='surname'
+									value={values.surname}
+									onChange={handleChange}
+								/>
+								<span className={classError}>
+									{errors.surname && touched.surname && errors.surname}
+								</span>
+
+								<label className={classLabel} htmlFor='email'>
+									Email
+								</label>
+								<input
+									className={classInput}
+									type='text'
+									name='email'
+									id='email'
+									value={values.email}
+									onChange={handleChange}
+								/>
+								<span className={classError}>
+									{errors.email && touched.email && errors.email}
+								</span>
+
+								<label className={classLabel} htmlFor='student_no'>
+									Student NO
+								</label>
+								<input
+									className={classInput}
+									type='text'
+									name='student_no'
+									id='student_no'
+									value={values.student_no}
+									onChange={handleChange}
+								/>
+								<span className={classError}>
+									{errors.student_no && touched.student_no && errors.student_no}
+								</span>
+
+								<label className={classLabel} htmlFor='department_id'>
+									Department
+								</label>
+								<select
+									name='department_id'
+									id='department_id'
+									className={classInput}
+									value={values.department_id}
+									onChange={(e) => {
+										setFieldValue('department_id', e.target.value);
+									}}
+								>
+									{!!departments &&
+										departments.map(({ id, name }, i) => (
+											<option key={i} value={id}>
+												{name}
+											</option>
+										))}
+								</select>
+
+								<button
+									variant='contained'
+									color='primary'
+									size='large'
+									type='submit'
+									className={`mx-auto  my-4 md:col-span-2 tracking-wider text-center text-xl py-2 px-4 bg-[#212021] hover:bg-[#414041] shadow-md text-white font-bold rounded-xl border-none cursor-pointer transition-colors`}
+									disabled={isSubmitting}
+								>
+									<div
+										className={`inline-block rounded-sm bg-purple-500 ${
+											isSubmitting && 'w-4 h-4 mr-2 animate-spin'
+										}`}
+									></div>
+									<span>{isSubmitting ? 'Inviting...' : 'Invite Student'}</span>
+								</button>
+							</form>
+						)}
+					</Formik>
 				</div>
 			</Modal>
 		</div>
