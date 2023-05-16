@@ -11,7 +11,7 @@ import { useAuth } from 'contexts/auth/AuthProvider';
 import { useApp } from 'contexts/AppContext';
 import RouteGuard from '@components/RouteGuard';
 import { chooseUserType, loadState, parseJwt } from 'lib';
-import { FiMenu, FiLogOut, FiArrowRight } from 'react-icons/fi';
+import { FiMenu, FiLogOut, FiArrowRight, FiX } from 'react-icons/fi';
 import { USER_TYPES } from 'utils/constants';
 import { ToastContainer } from 'react-toastify';
 import { HiUsers, HiViewGridAdd } from 'react-icons/hi';
@@ -32,7 +32,11 @@ function NavBar({ state, logout, items, open, setOpen }) {
 				onClick={() => setOpen(() => !open)}
 				className=' mr-4 cursor-pointer text-xl hover:text-zinc-700 font-medium drop-shadow-lg transition-all select-none'
 			>
-				<FiMenu size={27} className={`inline-block align-text-bottom`} />
+				{open ? (
+					<FiMenu size={27} className={`inline-block align-text-bottom`} />
+				) : (
+					<FiX size={27} className={`inline-block align-text-bottom`} />
+				)}
 			</div>
 
 			<Link href='/'>
