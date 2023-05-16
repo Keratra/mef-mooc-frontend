@@ -1,8 +1,11 @@
 import Link from 'next/link';
 import Head from 'next/head';
+import Router from 'next/router';
+import nProgress from 'nprogress';
 import { useState } from 'react';
 import 'react-toastify/dist/ReactToastify.css';
 import '../styles/globals.css';
+import '../styles/nprogress.css';
 import { Inter } from '@next/font/google';
 import { useRouter } from 'next/router';
 import { AuthProvider } from 'contexts/auth/AuthProvider';
@@ -15,6 +18,10 @@ import { FiMenu, FiLogOut, FiArrowRight, FiX } from 'react-icons/fi';
 import { USER_TYPES } from 'utils/constants';
 import { ToastContainer } from 'react-toastify';
 import { HiUsers, HiViewGridAdd } from 'react-icons/hi';
+
+Router.events.on('routeChangeStart', nProgress.start);
+Router.events.on('routeChangeError', nProgress.done);
+Router.events.on('routeChangeComplete', nProgress.done);
 
 const inter = Inter({ subsets: ['latin'] });
 

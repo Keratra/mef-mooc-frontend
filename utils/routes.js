@@ -39,6 +39,11 @@ export const routes = [
 		pathname: '/admin/dashboard',
 		icon: <HiTemplate size={size} className={iconClass} />,
 	},
+	{
+		name: 'MOOCs',
+		pathname: '/admin/moocs',
+		icon: <HiCash size={size} className={iconClass} />,
+	},
 
 	// {
 	// 	name: 'Dashboard',
@@ -111,7 +116,7 @@ export const coordinatorPages = ['Courses'];
 
 export const studentPages = ['My Courses', 'MOOC List'];
 
-export const adminPages = ['Dashboard'];
+export const adminPages = ['Dashboard', 'MOOCs'];
 
 export const ignoredRouteList = [
 	'/',

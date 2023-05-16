@@ -14,6 +14,9 @@ import {
 	TrashIcon,
 	ChevronDoubleRightIcon,
 } from '@heroicons/react/24/solid';
+import KTable from '@components/KTable';
+import KTableHead from '@components/KTableHead';
+import KTableBody from '@components/KTableBody';
 
 export default function CoordinatorCoursesPage({
 	active_courses,
@@ -107,6 +110,15 @@ export default function CoordinatorCoursesPage({
 		drop-shadow-md
 	`;
 
+	const tableHeaders = [
+		{ name: 'Course Code', alignment: 'left', className: 'rounded-tl-md' },
+		{ name: 'Name', alignment: 'left' },
+		{ name: 'Credits', alignment: 'left' },
+		{ name: 'Semester', alignment: 'left' },
+		{ name: 'Deactivate', alignment: 'center' },
+		{ name: 'View', alignment: 'center', className: 'rounded-tr-md' },
+	];
+
 	return (
 		<div className='flex flex-col justify-center items-center'>
 			<PageTitle>Courses</PageTitle>
@@ -154,57 +166,9 @@ export default function CoordinatorCoursesPage({
 
 			{selectedTabs === 0 && (
 				<div className='w-full max-w-6xl mx-auto'>
-					<table className='w-full border-spacing-0 rounded-lg border-solid border-2 border-zinc-300 shadow-lg  '>
-						<thead className='bg-gradient-to-t from-zinc-300 to-zinc-200 text-black'>
-							<tr>
-								<th
-									scope='col'
-									align='left'
-									className={`min-w-[170px] px-4 py-2 font-semibold text-xl rounded-tl-md `}
-								>
-									<span className='text-center drop-shadow-md'>
-										Course Code
-									</span>
-								</th>
-								<th
-									scope='col'
-									align='left'
-									className={`min-w-[170px] px-4 py-2 font-semibold text-xl`}
-								>
-									<span className='text-center drop-shadow-md'>Name</span>
-								</th>
-								<th
-									scope='col'
-									align='left'
-									className={`min-w-[170px] px-4 py-2 font-semibold text-xl`}
-								>
-									<span className='text-center drop-shadow-md'>Credits</span>
-								</th>
-								<th
-									scope='col'
-									align='left'
-									className={`min-w-[170px] px-4 py-2 font-semibold text-xl`}
-								>
-									<span className='text-center drop-shadow-md'>Semester</span>
-								</th>
-								<th
-									scope='col'
-									align='center'
-									className={`min-w-[170px] px-4 py-2 font-semibold text-xl`}
-								>
-									<span className='text-center drop-shadow-md'>Deactivate</span>
-								</th>
-								<th
-									scope='col'
-									align='center'
-									className={`min-w-[170px] px-4 py-2 font-semibold text-xl rounded-tr-md`}
-								>
-									<span className='text-center drop-shadow-md'>View</span>
-								</th>
-							</tr>
-						</thead>
-
-						<tbody className='divide-y divide-gray-200'>
+					<KTable>
+						<KTableHead {...{ tableHeaders }}></KTableHead>
+						<KTableBody>
 							{!!active_courses &&
 								active_courses.map(
 									(
@@ -253,8 +217,8 @@ export default function CoordinatorCoursesPage({
 									message='No active courses were found...'
 								/>
 							)}
-						</tbody>
-					</table>
+						</KTableBody>
+					</KTable>
 
 					<div className=' px-4 py-4 text-lg font-medium text-center '>
 						<button

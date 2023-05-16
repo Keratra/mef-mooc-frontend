@@ -5,10 +5,10 @@ export default async function login(req, res) {
 	try {
 		const backendURL = `${process.env.NEXT_PUBLIC_API_URL}/student/login`;
 
-		const { student_no, password } = req.body;
+		const { email, password } = req.body;
 
 		const { data } = await axios.post(backendURL, {
-			student_no,
+			email,
 			password,
 		});
 

@@ -6,86 +6,23 @@ import axios from 'axios';
 import EmptyTableMessage from '@components/EmptyTableMessage';
 import { useRouter } from 'next/router';
 import { groupBy } from 'lodash';
-
-const headers = [
-	{
-		title: 'Students',
-		page: 'students',
-	},
-	{
-		title: 'Waiting Bundles',
-		page: 'bundlesWB',
-	},
-	{
-		title: 'Waiting Certificates',
-		page: 'bundlesWC',
-	},
-	{
-		title: 'Waiting Approval',
-		page: 'bundlesWA',
-	},
-	{
-		title: 'Rejected Bundles',
-		page: 'bundlesRB',
-	},
-	{
-		title: 'Rejected Certificates',
-		page: 'bundlesRC',
-	},
-	{
-		title: 'Accepted Certificates',
-		page: 'bundlesAC',
-	},
-];
-
-const pageColorDict = {
-	students: 'text-black',
-	bundlesWB: 'text-blue-700',
-	bundlesWC: 'text-sky-700',
-	bundlesAC: 'text-emerald-700',
-	bundlesWA: 'text-teal-700',
-	bundlesRB: 'text-pink-700',
-	bundlesRC: 'text-rose-700',
-};
+import PageTitle from '@components/PageTitle';
+import Modal from '@components/Modal';
+import Tabs from '@components/Tabs';
+import KTable from '@components/KTable';
+import KTableHead from '@components/KTableHead';
+import KTableBody from '@components/KTableBody';
+import { FiChevronLeft, FiChevronRight } from 'react-icons/fi';
 
 const pageDict = {
 	students: 'Students',
-	bundlesWB: 'Waiting Bundles',
-	bundlesWC: 'Waiting Certificates',
-	bundlesWA: 'Waiting Approval',
+	bundlesWB: 'Awaiting Bundles',
+	bundlesWC: 'Awaiting Certificates',
+	bundlesWA: 'Awaiting Approval',
 	bundlesRB: 'Rejected Bundles',
 	bundlesRC: 'Rejected Certificates',
 	bundlesAC: 'Accepted Certificates',
 };
-
-function MOOCHeaders({ setPage }) {
-	return (
-		<section className='w-full flex justify-between items-center gap-2 flex-wrap my-4'>
-			{headers.map(({ title, page }, i) => (
-				<button
-					key={i}
-					onClick={() => setPage(() => page)}
-					className='
-							px-4 py-2 
-							bg-gradient-to-b from-neutral-50 to-neutral-200
-							border-solid border-2 rounded-md
-							border-neutral-200 hover:border-black
-							ring-0 ring-offset-0 ring-neutral-200
-							hover:ring-2 hover:ring-offset-4 hover:ring-black
-							shadow-inner 
-							cursor-pointer transition-all
-						'
-				>
-					<span
-						className={`select-none drop-shadow-md text-xl ${pageColorDict[page]}`}
-					>
-						{title}
-					</span>
-				</button>
-			))}
-		</section>
-	);
-}
 
 export default function CoordinatorCoursePage({
 	students,
@@ -105,6 +42,7 @@ export default function CoordinatorCoursePage({
 }) {
 	const Router = useRouter();
 	const [page, setPage] = useState('students');
+	const [selectedTabs, setSelectedTabs] = useState(0); // tabs
 
 	const { course_id } = Router.query;
 
@@ -238,72 +176,34 @@ export default function CoordinatorCoursePage({
 		drop-shadow-md
 	`;
 
+	const tabs = [
+		{ name: 'Awaiting Bundles' },
+		{ name: 'Awaiting Certificates' },
+		{ name: 'Awaiting Approvals' },
+		{ name: 'Rejected Bundles' },
+		{ name: 'Rejected Certificates' },
+		{ name: 'Approved Certificates' },
+	];
+
 	return (
 		<div className='flex flex-col justify-center items-center'>
-			<MOOCHeaders setPage={setPage} />
+			<PageTitle>
+				<FiChevronLeft size={34} className=' text-zinc-300 align-text-bottom' />
+				Bundles
+				<NextLink href={`/coordinator/courses/${course_id}/students`}>
+					<FiChevronRight size={34} className='align-text-bottom' />
+				</NextLink>
+			</PageTitle>
+
+			<Tabs {...{ selectedTabs, setSelectedTabs, tabs }} />
+
 			{!is_active && (
-				<div className='w-full mt-4 p-3 bg-rose-50 rounded-lg shadow-md text-3xl text-rose-600 text-center font-bold'>
+				<div className='min-w-[95%] mt-4 mx-4 p-3 bg-gradient-to-t from-rose-100 to-rose-50 rounded-lg shadow-md text-3xl text-rose-600 text-center font-bold'>
 					This is an inactive course!
 				</div>
 			)}
-			<h1 className='text-center text-5xl mt-12 mb-4 drop-shadow-md'>
-				{pageDict[page]}
-			</h1>
-			{page === 'students' && (
-				<div className='max-w-7xl mx-auto  flex flex-col overflow-x-auto w-full align-middle overflow-hidden border shadow-lg'>
-					<table className='min-w-full border-solid border-0 border-b-2 border-collapse'>
-						<thead className='bg-gradient-to-t from-[#212021] to-[#414041] text-white'>
-							<tr>
-								<th
-									scope='col'
-									className={`min-w-[170px] px-4 py-2 font-bold text-center text-2xl`}
-								>
-									<span className='text-center drop-shadow-md'>Student No</span>
-								</th>
-								<th
-									scope='col'
-									className={`min-w-[170px] px-4 py-2 font-bold text-center text-2xl`}
-								>
-									<span className='text-center drop-shadow-md'>Name</span>
-								</th>
-								<th
-									scope='col'
-									className={`min-w-[170px] px-4 py-2 font-bold text-center text-2xl`}
-								>
-									<span className='text-center drop-shadow-md'>Email</span>
-								</th>
-							</tr>
-						</thead>
 
-						<tbody className='divide-y divide-gray-200'>
-							{!!students &&
-								students.map(({ id, name, surname, email, student_no }) => (
-									<tr
-										key={id}
-										className='border-solid border-0 border-b border-neutral-200'
-									>
-										<td className='align-baseline px-4 py-4 text-lg font-medium whitespace-nowrap text-center'>
-											{student_no}
-										</td>
-										<td className='align-baseline px-4 py-4 text-lg font-medium whitespace-nowrap text-center'>
-											{name} {surname}
-										</td>
-										<td className='align-baseline px-4 py-4 text-lg font-medium whitespace-nowrap text-center'>
-											{email}
-										</td>
-									</tr>
-								))}
-							{students?.length === 0 && (
-								<EmptyTableMessage
-									cols={6}
-									message='No students were found...'
-								/>
-							)}
-						</tbody>
-					</table>
-				</div>
-			)}
-			{page === 'bundlesWB' && (
+			{selectedTabs === 0 && (
 				<div className='w-full'>
 					{Object.keys(dictBundlesWB)?.length === 0 && (
 						<div className='mt-4 w-full text-center text-neutral-700'>
@@ -412,7 +312,7 @@ export default function CoordinatorCoursePage({
 					))}
 				</div>
 			)}
-			{page === 'bundlesWC' && (
+			{selectedTabs === 1 && (
 				<div className='w-full'>
 					{Object.keys(dictBundlesWC)?.length === 0 && (
 						<div className='mt-4 w-full text-center text-neutral-700'>
@@ -525,7 +425,7 @@ export default function CoordinatorCoursePage({
 				</div>
 			)}
 
-			{page === 'bundlesWA' && (
+			{selectedTabs === 2 && (
 				<div className='w-full'>
 					{Object.keys(dictBundlesWA)?.length === 0 && (
 						<div className='mt-4 w-full text-center text-neutral-700'>
@@ -643,7 +543,7 @@ export default function CoordinatorCoursePage({
 					))}
 				</div>
 			)}
-			{page === 'bundlesRB' && (
+			{selectedTabs === 3 && (
 				<div className='w-full'>
 					{Object.keys(dictBundlesRB)?.length === 0 && (
 						<div className='mt-4 w-full text-center text-neutral-700'>
@@ -736,7 +636,7 @@ export default function CoordinatorCoursePage({
 					))}
 				</div>
 			)}
-			{page === 'bundlesRC' && (
+			{selectedTabs === 4 && (
 				<div className='w-full'>
 					{Object.keys(dictBundlesRC)?.length === 0 && (
 						<div className='mt-4 w-full text-center text-neutral-700'>
@@ -829,7 +729,7 @@ export default function CoordinatorCoursePage({
 					))}
 				</div>
 			)}
-			{page === 'bundlesAC' && (
+			{selectedTabs === 5 && (
 				<div className='w-full'>
 					{Object.keys(dictBundlesAC)?.length === 0 && (
 						<div className='mt-4 w-full text-center text-neutral-700'>
@@ -935,140 +835,6 @@ export default function CoordinatorCoursePage({
 					))}
 				</div>
 			)}
-			{/* 
-			
-			
-											<td className='align-baseline px-4 py-4 text-lg font-medium text-center whitespace-nowrap'>
-												<button
-													onClick={() => handleDeactivate(id)}
-													className={` py-1 px-3 shadow-md text-white text-center text-lg font-thin rounded-full bg-rose-800 hover:bg-rose-600 border-none cursor-pointer transition-colors`}
-												>
-													X
-												</button>
-											</td>
-											<td className='align-baseline px-4 py-4 text-lg font-medium text-center whitespace-nowrap'>
-												<NextLink href={`/coordinator/courses/${id}`}>
-													<button className='text-center text-lg py-2 px-2 bg-blue-800 hover:bg-blue-600 shadow-md text-white font-thin rounded-full border-none cursor-pointer transition-colors'>
-														GO
-													</button>
-												</NextLink>
-											</td>
-			
-			<div
-				className={`max-w-md md:max-w-2xl mx-auto mt-12 mb-2 md:px-6 transition-all shadow-lg border-solid border-neutral-200 hover:border-neutral-300 rounded-md `}
-			>
-				<Formik
-					initialValues={addCourseModel.initials}
-					validationSchema={addCourseModel.schema}
-					onSubmit={handleAdd}
-				>
-					{({
-						setFieldValue,
-						values,
-						errors,
-						touched,
-						handleChange,
-						handleSubmit,
-						isSubmitting,
-					}) => (
-						<form
-							onSubmit={handleSubmit}
-							className={`grid grid-cols-1 md:grid-cols-2 gap-2 content-center place-content-center px-4`}
-						>
-							<h2 className='md:col-span-2 mt-4 text-center text-3xl drop-shadow-md'>
-								Add a new Course
-							</h2>
-
-							<label className={classLabel} htmlFor='course_code'>
-								Course Code
-							</label>
-							<input
-								className={classInput}
-								type='text'
-								name='course_code'
-								id='course_code'
-								value={values.course_code}
-								onChange={handleChange}
-							/>
-							<span className={classError}>
-								{errors.course_code &&
-									touched.course_code &&
-									errors.course_code}
-							</span>
-
-							<label className={classLabel} htmlFor='name'>
-								Name
-							</label>
-							<input
-								className={classInput}
-								type='text'
-								name='name'
-								id='name'
-								value={values.name}
-								onChange={handleChange}
-							/>
-							<span className={classError}>
-								{errors.name && touched.name && errors.name}
-							</span>
-
-							<label className={classLabel} htmlFor='semester'>
-								Semester
-							</label>
-							<select
-								name='semester'
-								id='semester'
-								className={classInput}
-								value={values.semester}
-								onChange={(e) => {
-									setFieldValue('semester', e.target.value);
-								}}
-							>
-								<option value={0}>None</option>
-								{!!semesters &&
-									semesters.map((semester, i) => (
-										<option key={i} value={semester}>
-											{semester}
-										</option>
-									))}
-							</select>
-							<span className={classError}>
-								{errors.semester && touched.semester && errors.semester}
-							</span>
-
-							<label className={classLabel} htmlFor='credits'>
-								Credits
-							</label>
-							<input
-								className={classInput}
-								type='text'
-								name='credits'
-								id='credits'
-								value={values.credits}
-								onChange={handleChange}
-							/>
-							<span className={classError}>
-								{errors.credits && touched.credits && errors.credits}
-							</span>
-
-							<button
-								variant='contained'
-								color='primary'
-								size='large'
-								type='submit'
-								className={`mx-auto  my-4 md:col-span-2 tracking-wider text-center text-xl py-2 px-4 bg-[#212021] hover:bg-[#414041] shadow-md text-white font-bold rounded-xl border-none cursor-pointer transition-colors`}
-								disabled={isSubmitting}
-							>
-								<div
-									className={`inline-block rounded-sm bg-purple-500 ${
-										isSubmitting && 'w-4 h-4 mr-2 animate-spin'
-									}`}
-								></div>
-								<span>{isSubmitting ? 'Adding...' : 'Add Course'}</span>
-							</button>
-						</form>
-					)}
-				</Formik>
-			</div> */}
 		</div>
 	);
 }
