@@ -13,15 +13,16 @@ export default function Home() {
 
 	function openModal() {
 		setIsOpen(true);
-		notify('info', 'notify');
 	}
 
-	// notify(
-	// 	'error',
-	// 	error?.response?.data?.message?.message ??
-	// 		error?.response?.data?.message ??
-	// 		error?.message
-	// );
+	/*
+	notify(
+		'error',
+		error?.response?.data?.message?.message ??
+			error?.response?.data?.message ??
+			error?.message
+	);
+	*/
 
 	const classButton = `
 		text-center text-xl text-white 

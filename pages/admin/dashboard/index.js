@@ -17,7 +17,6 @@ import {
 	UserMinusIcon,
 	PencilSquareIcon,
 } from '@heroicons/react/24/solid';
-import {} from '@heroicons/react/24/solid';
 
 export default function AdminDepartmentsPage({
 	departments,

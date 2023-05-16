@@ -5,6 +5,8 @@ import { addCourseModel } from 'lib/yupmodels';
 import axios from 'axios';
 import EmptyTableMessage from '@components/EmptyTableMessage';
 import { useRouter } from 'next/router';
+import PageTitle from '@components/PageTitle';
+import Modal from '@components/Modal';
 
 export default function CoordinatorCoursesPage({
 	active_courses,
@@ -12,6 +14,9 @@ export default function CoordinatorCoursesPage({
 	semesters,
 }) {
 	const Router = useRouter();
+
+	const [isOpen, setIsOpen] = useState(false);
+	const [selectedTabs, setSelectedTabs] = useState(0); // tabs
 
 	const handleAdd = async (
 		{ course_code, name, type, semester, credits },
@@ -67,6 +72,14 @@ export default function CoordinatorCoursesPage({
 		}
 	};
 
+	function closeModal() {
+		setIsOpen(false);
+	}
+
+	function openModal() {
+		setIsOpen(true);
+	}
+
 	const classLabel = `
 		md:col-span-2
 		mt-3 p-2 -mb-4 rounded-lg
@@ -89,297 +102,375 @@ export default function CoordinatorCoursesPage({
 
 	return (
 		<div className='flex flex-col justify-center items-center'>
-			<h1 className='text-center text-5xl mt-12 mb-4 drop-shadow-md'>
-				Active Courses
-			</h1>
+			<PageTitle>Courses</PageTitle>
 
-			<div className='flex flex-col overflow-x-auto w-full align-middle overflow-hidden border shadow-lg'>
-				<table className='min-w-full border-solid border-0 border-b-2 border-collapse'>
-					<thead className='bg-gradient-to-t from-[#212021] to-[#414041] text-white'>
-						<tr>
-							<th
-								scope='col'
-								className={`min-w-[170px] px-4 py-2 font-bold text-center text-2xl`}
-							>
-								<span className='text-center drop-shadow-md'>Course Code</span>
-							</th>
-							<th
-								scope='col'
-								className={`min-w-[170px] px-4 py-2 font-bold text-center text-2xl`}
-							>
-								<span className='text-center drop-shadow-md'>Name</span>
-							</th>
-							<th
-								scope='col'
-								className={`min-w-[170px] px-4 py-2 font-bold text-center text-2xl`}
-							>
-								<span className='text-center drop-shadow-md'>Credits</span>
-							</th>
-							<th
-								scope='col'
-								className={`min-w-[170px] px-4 py-2 font-bold text-center text-2xl`}
-							>
-								<span className='text-center drop-shadow-md'>Semester</span>
-							</th>
-							<th
-								scope='col'
-								className={`min-w-[170px] px-4 py-2 font-bold text-center text-2xl`}
-							>
-								<span className='text-center drop-shadow-md'>Deactivate</span>
-							</th>
-							<th
-								scope='col'
-								className={`min-w-[170px] px-4 py-2 font-bold text-center text-2xl`}
-							>
-								<span className='text-center drop-shadow-md'>View</span>
-							</th>
-						</tr>
-					</thead>
+			<section className='w-full max-w-6xl px-2 py-8 sm:px-0 font-sans transition-all '>
+				<div className='flex space-x-1 rounded-xl bg-zinc-200/[0.8]  p-1'>
+					<div
+						onClick={() => setSelectedTabs(0)}
+						className={`
+							w-full rounded-lg py-2.5 text-lg
+							font-semibold leading-5 text-zinc-700 text-center
+							border-0 cursor-pointer 
+							ring-opacity-60 ring-white  ring-offset-2 ring-offset-zinc-400 
+							focus:outline-none focus:ring-2
+							${
+								selectedTabs === 0
+									? 'bg-white text-zinc-900 shadow'
+									: 'text-zinc-400 bg-white/[0.35] hover:bg-white hover:text-black'
+							}
+						`}
+					>
+						<span className='drop-shadow-md'>Active Courses</span>
+					</div>
+					<div
+						onClick={() => setSelectedTabs(1)}
+						className={`
+							w-full rounded-lg py-2.5 text-lg
+							font-semibold leading-5 text-zinc-700 text-center
+							border-0 cursor-pointer 
+							ring-opacity-60 ring-white  ring-offset-2 ring-offset-zinc-400 
+							focus:outline-none focus:ring-2
+							${
+								selectedTabs === 1
+									? 'bg-white text-rose-900 shadow'
+									: 'text-rose-900/[0.5] bg-white/[0.35] hover:bg-white hover:text-rose-900'
+							}
+						`}
+					>
+						<span className='drop-shadow-md'>Deactivated Courses</span>
+					</div>
+				</div>
+			</section>
 
-					<tbody className='divide-y divide-gray-200'>
-						{!!active_courses &&
-							active_courses.map(
-								({ id, course_code, name, semester, credits, is_active }) => (
-									<tr
-										key={id}
-										className='border-solid border-0 border-b border-neutral-200'
-									>
-										<td className='align-baseline px-4 py-4 text-lg font-medium whitespace-nowrap text-center'>
-											{course_code}
-										</td>
-										<td className='align-baseline px-4 py-4 text-lg font-medium whitespace-nowrap text-center'>
-											{name}
-										</td>
-										<td className='align-baseline px-4 py-4 text-lg font-medium whitespace-nowrap text-center'>
-											{credits}
-										</td>
-										<td className='align-baseline px-4 py-4 text-lg font-medium whitespace-nowrap text-center'>
-											{semester}
-										</td>
-										<td className='align-baseline px-4 py-4 text-lg font-medium text-center whitespace-nowrap'>
-											<button
-												onClick={() => handleDeactivate(id)}
-												className={` py-1 px-3 shadow-md text-white text-center text-lg font-thin rounded-full bg-rose-800 hover:bg-rose-600 border-none cursor-pointer transition-colors`}
-											>
-												X
-											</button>
-										</td>
-										<td className='align-baseline px-4 py-4 text-lg font-medium text-center whitespace-nowrap'>
-											<NextLink href={`/coordinator/courses/${id}`}>
-												<button className='text-center text-lg py-2 px-2 bg-blue-800 hover:bg-blue-600 shadow-md text-white font-thin rounded-full border-none cursor-pointer transition-colors'>
-													GO
+			{selectedTabs === 0 && (
+				<div className='w-full max-w-6xl mx-auto'>
+					<table className='w-full border-spacing-0 rounded-lg border-solid border-2 border-zinc-300 shadow-lg  '>
+						<thead className='bg-gradient-to-t from-zinc-300 to-zinc-200 text-black'>
+							<tr>
+								<th
+									scope='col'
+									align='left'
+									className={`min-w-[170px] px-4 py-2 font-semibold text-xl rounded-tl-md `}
+								>
+									<span className='text-center drop-shadow-md'>
+										Course Code
+									</span>
+								</th>
+								<th
+									scope='col'
+									align='left'
+									className={`min-w-[170px] px-4 py-2 font-semibold text-xl`}
+								>
+									<span className='text-center drop-shadow-md'>Name</span>
+								</th>
+								<th
+									scope='col'
+									align='left'
+									className={`min-w-[170px] px-4 py-2 font-semibold text-xl`}
+								>
+									<span className='text-center drop-shadow-md'>Credits</span>
+								</th>
+								<th
+									scope='col'
+									align='left'
+									className={`min-w-[170px] px-4 py-2 font-semibold text-xl`}
+								>
+									<span className='text-center drop-shadow-md'>Semester</span>
+								</th>
+								<th
+									scope='col'
+									align='center'
+									className={`min-w-[170px] px-4 py-2 font-semibold text-xl`}
+								>
+									<span className='text-center drop-shadow-md'>Deactivate</span>
+								</th>
+								<th
+									scope='col'
+									align='center'
+									className={`min-w-[170px] px-4 py-2 font-semibold text-xl rounded-tr-md`}
+								>
+									<span className='text-center drop-shadow-md'>View</span>
+								</th>
+							</tr>
+						</thead>
+
+						<tbody className='divide-y divide-gray-200'>
+							{!!active_courses &&
+								active_courses.map(
+									(
+										{ id, course_code, name, semester, credits, is_active },
+										idx
+									) => (
+										<tr
+											key={id}
+											className={
+												idx % 2 === 0 ? 'bg-zinc-100' : 'bg-zinc-200/[0.75]'
+											}
+										>
+											<td className=' px-4 py-4 text-lg font-medium whitespace-nowrap '>
+												{course_code}
+											</td>
+											<td className=' px-4 py-4 text-lg font-medium whitespace-nowrap '>
+												{name}
+											</td>
+											<td className=' px-4 py-4 text-lg font-medium whitespace-nowrap '>
+												{credits}
+											</td>
+											<td className=' px-4 py-4 text-lg font-medium whitespace-nowrap '>
+												{semester}
+											</td>
+											<td className=' flex justify-center items-center px-4 py-4 text-lg font-medium text-center whitespace-nowrap '>
+												<button
+													onClick={() => handleDeactivate(id)}
+													className={` py-1 px-3 shadow-md text-white text-center text-lg font-thin rounded-full bg-rose-800 hover:bg-rose-600 border-none cursor-pointer transition-colors`}
+												>
+													X
 												</button>
-											</NextLink>
-										</td>
-									</tr>
-								)
+											</td>
+											<td className=' flex justify-center items-center px-4 py-4 text-lg font-medium text-center whitespace-nowrap '>
+												<NextLink href={`/coordinator/courses/${id}`}>
+													<button className='text-center text-lg py-2 px-2 bg-blue-800 hover:bg-blue-600 shadow-md text-white font-thin rounded-full border-none cursor-pointer transition-colors'>
+														GO
+													</button>
+												</NextLink>
+											</td>
+										</tr>
+									)
+								)}
+							{active_courses?.length === 0 && (
+								<EmptyTableMessage
+									cols={6}
+									message='No active courses were found...'
+								/>
 							)}
-						{active_courses?.length === 0 && (
-							<EmptyTableMessage
-								cols={6}
-								message='No active courses were found...'
-							/>
-						)}
-					</tbody>
-				</table>
-			</div>
+						</tbody>
+					</table>
 
-			<div
-				className={`max-w-md md:max-w-2xl mx-auto mt-12 mb-2 md:px-6 transition-all shadow-lg border-solid border-neutral-200 hover:border-neutral-300 rounded-md `}
-			>
-				<Formik
-					initialValues={addCourseModel.initials}
-					validationSchema={addCourseModel.schema}
-					onSubmit={handleAdd}
-				>
-					{({
-						setFieldValue,
-						values,
-						errors,
-						touched,
-						handleChange,
-						handleSubmit,
-						isSubmitting,
-					}) => (
-						<form
-							onSubmit={handleSubmit}
-							className={`grid grid-cols-1 md:grid-cols-2 gap-2 content-center place-content-center px-4`}
+					<div className=' px-4 py-4 text-lg font-medium text-center '>
+						<button
+							onClick={() => openModal()}
+							className={` py-1 px-3 shadow-md text-white text-center text-lg font-thin rounded-full bg-zinc-800 hover:bg-zinc-600 border-none cursor-pointer transition-colors `}
 						>
-							<h2 className='md:col-span-2 mt-4 text-center text-3xl drop-shadow-md'>
-								Add a new Course
-							</h2>
+							CREATE COURSE
+						</button>
+					</div>
+				</div>
+			)}
 
-							<label className={classLabel} htmlFor='course_code'>
-								Course Code
-							</label>
-							<input
-								className={classInput}
-								type='text'
-								name='course_code'
-								id='course_code'
-								value={values.course_code}
-								onChange={handleChange}
-							/>
-							<span className={classError}>
-								{errors.course_code &&
-									touched.course_code &&
-									errors.course_code}
-							</span>
+			{selectedTabs === 1 && (
+				<div className='w-full max-w-6xl mx-auto'>
+					<table className='w-full border-spacing-0 rounded-lg border-solid border-2 border-zinc-300 shadow-lg  '>
+						<thead className='bg-gradient-to-t from-zinc-300 to-zinc-200 text-black'>
+							<tr>
+								<th
+									scope='col'
+									align='left'
+									className={`min-w-[170px] px-4 py-2 font-semibold text-xl rounded-tl-md `}
+								>
+									<span className='text-center drop-shadow-md'>
+										Course Code
+									</span>
+								</th>
+								<th
+									scope='col'
+									align='left'
+									className={`min-w-[170px] px-4 py-2 font-semibold text-xl`}
+								>
+									<span className='text-center drop-shadow-md'>Name</span>
+								</th>
+								<th
+									scope='col'
+									align='left'
+									className={`min-w-[170px] px-4 py-2 font-semibold text-xl`}
+								>
+									<span className='text-center drop-shadow-md'>Credits</span>
+								</th>
+								<th
+									scope='col'
+									align='left'
+									className={`min-w-[170px] px-4 py-2 font-semibold text-xl`}
+								>
+									<span className='text-center drop-shadow-md'>Semester</span>
+								</th>
+								<th
+									scope='col'
+									align='center'
+									className={`min-w-[170px] px-4 py-2 font-semibold text-xl rounded-tr-md`}
+								>
+									<span className='text-center drop-shadow-md'>View</span>
+								</th>
+							</tr>
+						</thead>
 
-							<label className={classLabel} htmlFor='name'>
-								Name
-							</label>
-							<input
-								className={classInput}
-								type='text'
-								name='name'
-								id='name'
-								value={values.name}
-								onChange={handleChange}
-							/>
-							<span className={classError}>
-								{errors.name && touched.name && errors.name}
-							</span>
-
-							<label className={classLabel} htmlFor='semester'>
-								Semester
-							</label>
-							<select
-								name='semester'
-								id='semester'
-								className={classInput}
-								value={values.semester}
-								onChange={(e) => {
-									setFieldValue('semester', e.target.value);
-								}}
-							>
-								<option value={0}>None</option>
-								{!!semesters &&
-									semesters.map((semester, i) => (
-										<option key={i} value={semester}>
-											{semester}
-										</option>
-									))}
-							</select>
-							<span className={classError}>
-								{errors.semester && touched.semester && errors.semester}
-							</span>
-
-							<label className={classLabel} htmlFor='credits'>
-								Credits
-							</label>
-							<input
-								className={classInput}
-								type='text'
-								name='credits'
-								id='credits'
-								value={values.credits}
-								onChange={handleChange}
-							/>
-							<span className={classError}>
-								{errors.credits && touched.credits && errors.credits}
-							</span>
-
-							<button
-								variant='contained'
-								color='primary'
-								size='large'
-								type='submit'
-								className={`mx-auto  my-4 md:col-span-2 tracking-wider text-center text-xl py-2 px-4 bg-[#212021] hover:bg-[#414041] shadow-md text-white font-bold rounded-xl border-none cursor-pointer transition-colors`}
-								disabled={isSubmitting}
-							>
-								<div
-									className={`inline-block rounded-sm bg-purple-500 ${
-										isSubmitting && 'w-4 h-4 mr-2 animate-spin'
-									}`}
-								></div>
-								<span>{isSubmitting ? 'Adding...' : 'Add Course'}</span>
-							</button>
-						</form>
-					)}
-				</Formik>
-			</div>
-
-			<h1 className='text-center text-5xl mt-12 mb-4 drop-shadow-md text-rose-900'>
-				Inactive Courses
-			</h1>
-
-			<div className='flex flex-col overflow-x-auto w-full align-middle overflow-hidden border shadow-lg mb-12'>
-				<table className='min-w-full border-solid border-0 border-b-2 border-collapse'>
-					<thead className='bg-gradient-to-t from-[#212021] to-[#414041] text-white'>
-						<tr>
-							<th
-								scope='col'
-								className={`min-w-[170px] px-4 py-2 font-bold text-center text-2xl`}
-							>
-								<span className='text-center drop-shadow-md'>Course Code</span>
-							</th>
-							<th
-								scope='col'
-								className={`min-w-[170px] px-4 py-2 font-bold text-center text-2xl`}
-							>
-								<span className='text-center drop-shadow-md'>Name</span>
-							</th>
-							<th
-								scope='col'
-								className={`min-w-[170px] px-4 py-2 font-bold text-center text-2xl`}
-							>
-								<span className='text-center drop-shadow-md'>Credits</span>
-							</th>
-							<th
-								scope='col'
-								className={`min-w-[170px] px-4 py-2 font-bold text-center text-2xl`}
-							>
-								<span className='text-center drop-shadow-md'>Semester</span>
-							</th>
-							<th
-								scope='col'
-								className={`min-w-[170px] px-4 py-2 font-bold text-center text-2xl`}
-							>
-								<span className='text-center drop-shadow-md'>View</span>
-							</th>
-						</tr>
-					</thead>
-
-					<tbody className='divide-y divide-gray-200'>
-						{!!inactive_courses &&
-							inactive_courses.map(
-								({ id, course_code, name, semester, credits, is_active }) => (
-									<tr
-										key={id}
-										className='border-solid border-0 border-b border-neutral-200 text-rose-900'
-									>
-										<td className='align-baseline px-4 py-4 text-lg font-medium whitespace-nowrap text-center'>
-											{course_code}
-										</td>
-										<td className='align-baseline px-4 py-4 text-lg font-medium whitespace-nowrap text-center'>
-											{name}
-										</td>
-										<td className='align-baseline px-4 py-4 text-lg font-medium whitespace-nowrap text-center'>
-											{credits}
-										</td>
-										<td className='align-baseline px-4 py-4 text-lg font-medium whitespace-nowrap text-center'>
-											{semester}
-										</td>
-										<td className='align-baseline px-4 py-4 text-lg font-medium text-center whitespace-nowrap'>
-											<NextLink href={`/coordinator/courses/${id}`}>
-												<button className='text-center text-lg py-2 px-2 bg-orange-800 hover:bg-orange-600 shadow-md text-white font-thin rounded-full border-none cursor-pointer transition-colors'>
-													GO
+						<tbody className='divide-y divide-gray-200'>
+							{!!inactive_courses &&
+								inactive_courses.map(
+									(
+										{ id, course_code, name, semester, credits, is_active },
+										idx
+									) => (
+										<tr
+											key={id}
+											className={
+												idx % 2 === 0 ? 'bg-zinc-100' : 'bg-zinc-200/[0.75]'
+											}
+										>
+											<td className=' px-4 py-4 text-lg font-medium whitespace-nowrap '>
+												{course_code}
+											</td>
+											<td className=' px-4 py-4 text-lg font-medium whitespace-nowrap '>
+												{name}
+											</td>
+											<td className=' px-4 py-4 text-lg font-medium whitespace-nowrap '>
+												{credits}
+											</td>
+											<td className=' px-4 py-4 text-lg font-medium whitespace-nowrap '>
+												{semester}
+											</td>
+											<td className=' flex justify-center items-center px-4 py-4 text-lg font-medium text-center whitespace-nowrap '>
+												<button
+													onClick={() => handleDeactivate(id)}
+													className={` py-1 px-3 shadow-md text-white text-center text-lg font-thin rounded-full bg-rose-800 hover:bg-rose-600 border-none cursor-pointer transition-colors`}
+												>
+													X
 												</button>
-											</NextLink>
-										</td>
-									</tr>
-								)
+											</td>
+											<td className=' flex justify-center items-center px-4 py-4 text-lg font-medium text-center whitespace-nowrap '>
+												<NextLink href={`/coordinator/courses/${id}`}>
+													<button className='text-center text-lg py-2 px-2 bg-blue-800 hover:bg-blue-600 shadow-md text-white font-thin rounded-full border-none cursor-pointer transition-colors'>
+														GO
+													</button>
+												</NextLink>
+											</td>
+										</tr>
+									)
+								)}
+							{inactive_courses?.length === 0 && (
+								<EmptyTableMessage
+									cols={5}
+									message='No inactive courses were found...'
+								/>
 							)}
-						{inactive_courses?.length === 0 && (
-							<EmptyTableMessage
-								cols={5}
-								message='No inactive courses were found...'
-							/>
+						</tbody>
+					</table>
+				</div>
+			)}
+
+			<Modal
+				{...{ isOpen, setIsOpen, closeModal, openModal }}
+				title='Add a new course'
+			>
+				<div className=' transition-all mt-2 '>
+					<Formik
+						initialValues={addCourseModel.initials}
+						validationSchema={addCourseModel.schema}
+						onSubmit={handleAdd}
+					>
+						{({
+							setFieldValue,
+							values,
+							errors,
+							touched,
+							handleChange,
+							handleSubmit,
+							isSubmitting,
+						}) => (
+							<form
+								onSubmit={handleSubmit}
+								className={`grid grid-cols-1 md:grid-cols-2 gap-2 content-center place-content-center px-4`}
+							>
+								<label className={classLabel} htmlFor='course_code'>
+									Course Code
+								</label>
+								<input
+									className={classInput}
+									type='text'
+									name='course_code'
+									id='course_code'
+									value={values.course_code}
+									onChange={handleChange}
+								/>
+								<span className={classError}>
+									{errors.course_code &&
+										touched.course_code &&
+										errors.course_code}
+								</span>
+
+								<label className={classLabel} htmlFor='name'>
+									Name
+								</label>
+								<input
+									className={classInput}
+									type='text'
+									name='name'
+									id='name'
+									value={values.name}
+									onChange={handleChange}
+								/>
+								<span className={classError}>
+									{errors.name && touched.name && errors.name}
+								</span>
+
+								<label className={classLabel} htmlFor='semester'>
+									Semester
+								</label>
+								<select
+									name='semester'
+									id='semester'
+									className={classInput}
+									value={values.semester}
+									onChange={(e) => {
+										setFieldValue('semester', e.target.value);
+									}}
+								>
+									<option value={0}>None</option>
+									{!!semesters &&
+										semesters.map((semester, i) => (
+											<option key={i} value={semester}>
+												{semester}
+											</option>
+										))}
+								</select>
+								<span className={classError}>
+									{errors.semester && touched.semester && errors.semester}
+								</span>
+
+								<label className={classLabel} htmlFor='credits'>
+									Credits
+								</label>
+								<input
+									className={classInput}
+									type='text'
+									name='credits'
+									id='credits'
+									value={values.credits}
+									onChange={handleChange}
+								/>
+								<span className={classError}>
+									{errors.credits && touched.credits && errors.credits}
+								</span>
+
+								<button
+									variant='contained'
+									color='primary'
+									size='large'
+									type='submit'
+									className={`mx-auto  my-4 md:col-span-2 tracking-wider text-center text-xl py-2 px-4 bg-[#212021] hover:bg-[#414041] shadow-md text-white font-bold rounded-xl border-none cursor-pointer transition-colors`}
+									disabled={isSubmitting}
+								>
+									<div
+										className={`inline-block rounded-sm bg-purple-500 ${
+											isSubmitting && 'w-4 h-4 mr-2 animate-spin'
+										}`}
+									></div>
+									<span>{isSubmitting ? 'Adding...' : 'Add Course'}</span>
+								</button>
+							</form>
 						)}
-					</tbody>
-				</table>
-			</div>
+					</Formik>
+				</div>
+			</Modal>
 		</div>
 	);
 }
@@ -412,6 +503,8 @@ export async function getServerSideProps({ req }) {
 		const { courses: active_courses } = dataActive;
 		const { courses: inactive_courses } = dataInactive;
 		const { semesters } = dataSemesters;
+
+		console.log(dataSemesters);
 
 		return {
 			props: {
