@@ -12,6 +12,7 @@ import KTable from '@components/KTable';
 import KTableHead from '@components/KTableHead';
 import KTableBody from '@components/KTableBody';
 import { FiChevronLeft, FiChevronRight } from 'react-icons/fi';
+import { notify } from 'utils/notify';
 
 export default function CoordinatorCoursePage({
 	students,
@@ -64,7 +65,8 @@ export default function CoordinatorCoursePage({
 			Router.reload();
 		} catch (error) {
 			console.log(error);
-			alert(
+			notify(
+				'error',
 				error?.response?.data?.message?.message ??
 					error?.response?.data?.message ??
 					error?.message ??

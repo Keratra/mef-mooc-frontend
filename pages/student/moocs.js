@@ -59,11 +59,6 @@ export default function MOOCListPage({ moocs }) {
 									<td className='align-baseline px-4 py-4 text-lg font-medium'>
 										{name}
 									</td>
-
-									<td className='align-baseline px-4 py-4 text-lg font-medium whitespace-nowrap text-center'>
-										{platform}
-									</td>
-
 									<td className='align-baseline px-4 py-4 text-lg font-medium min-w-[15vw]'>
 										<NextLink
 											href={url}

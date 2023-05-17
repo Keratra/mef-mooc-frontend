@@ -8,6 +8,7 @@ import { useAuth } from 'contexts/auth/AuthProvider';
 import { useApp, useAppUpdate } from 'contexts/AppContext';
 import { USER_TYPE_STUDENT } from 'utils/constants';
 import SignForm from '@components/SignForm';
+import { notify } from 'utils/notify';
 
 const loginType = USER_TYPE_STUDENT;
 
@@ -43,7 +44,8 @@ export default function Login() {
 			Router.replace('/student/courses');
 		} catch (error) {
 			console.log(error);
-			alert(
+			notify(
+				'error',
 				error?.response?.data?.message?.message ??
 					error?.response?.data?.message ??
 					error?.message ??
