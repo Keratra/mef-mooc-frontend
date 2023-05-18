@@ -193,21 +193,26 @@ export default function CoordinatorCoursePage({
 						<KTableBody>
 							{!!waiting_students &&
 								waiting_students.map(
-									({
-										id,
-										name,
-										surname,
-										email,
-										student_no,
-										pass_date,
-										course_code,
-										course_name,
-										credits,
-										semester,
-									}) => (
+									(
+										{
+											id,
+											name,
+											surname,
+											email,
+											student_no,
+											pass_date,
+											course_code,
+											course_name,
+											credits,
+											semester,
+										},
+										idx
+									) => (
 										<tr
 											key={id}
-											className='border-solid border-0 border-b border-neutral-200'
+											className={
+												idx % 2 === 0 ? 'bg-zinc-100' : 'bg-zinc-200/[0.75]'
+											}
 										>
 											<td className='align-baseline px-4 py-4 text-lg font-medium whitespace-nowrap text-center'>
 												{student_no}
@@ -252,22 +257,26 @@ export default function CoordinatorCoursePage({
 						></KTableHead>
 						<KTableBody>
 							{!!students &&
-								students.map(({ id, name, surname, email, student_no }) => (
-									<tr
-										key={id}
-										className='border-solid border-0 border-b border-neutral-200'
-									>
-										<td className='align-baseline px-4 py-4 text-lg font-medium whitespace-nowrap text-center'>
-											{student_no}
-										</td>
-										<td className='align-baseline px-4 py-4 text-lg font-medium whitespace-nowrap text-center'>
-											{name} {surname}
-										</td>
-										<td className='align-baseline px-4 py-4 text-lg font-medium whitespace-nowrap text-center'>
-											{email}
-										</td>
-									</tr>
-								))}
+								students.map(
+									({ id, name, surname, email, student_no }, idx) => (
+										<tr
+											key={id}
+											className={
+												idx % 2 === 0 ? 'bg-zinc-100' : 'bg-zinc-200/[0.75]'
+											}
+										>
+											<td className='align-baseline px-4 py-4 text-lg font-medium whitespace-nowrap text-center'>
+												{student_no}
+											</td>
+											<td className='align-baseline px-4 py-4 text-lg font-medium whitespace-nowrap text-center'>
+												{name} {surname}
+											</td>
+											<td className='align-baseline px-4 py-4 text-lg font-medium whitespace-nowrap text-center'>
+												{email}
+											</td>
+										</tr>
+									)
+								)}
 							{students?.length === 0 && (
 								<EmptyTableMessage
 									cols={6}
@@ -312,6 +321,8 @@ export async function getServerSideProps({ req, query }) {
 
 		const { students } = dataST;
 		const { students: waiting_students } = dataEN;
+
+		console.log(dataEN);
 
 		return {
 			props: {

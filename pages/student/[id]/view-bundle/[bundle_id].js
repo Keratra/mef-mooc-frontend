@@ -1,7 +1,7 @@
 import NextLink from 'next/link';
 import { useState } from 'react';
 import { Formik } from 'formik';
-import { editMOOCModel, loginStudentModel } from 'lib/yupmodels';
+import { submitBundleModel } from 'lib/yupmodels';
 import axios from 'axios';
 import { useRouter } from 'next/router';
 import EmptyTableMessage from '@components/EmptyTableMessage';
@@ -80,15 +80,13 @@ export default function BundleViewPage({ course_id, bundle_id, bundle }) {
 		}
 	};
 
-	const handleBundleComplete = async () => {
+	const handleBundleComplete = async ({ comment }, { setSubmitting }) => {
 		try {
-			if (!confirm('Are you sure?')) throw Error('Action cancelled by user');
-
 			await axios.post('/api/student/bundle-complete', {
 				course_id,
 				bundle_id,
+				comment,
 			});
-
 			Router.push(`/student/${course_id}/bundles`);
 		} catch (error) {
 			console.log(error);
@@ -99,8 +97,31 @@ export default function BundleViewPage({ course_id, bundle_id, bundle }) {
 					error?.message ??
 					'Error'
 			);
+		} finally {
+			setSubmitting(false);
+			closeModalSub();
 		}
 	};
+
+	const classLabel = `
+		md:col-span-2
+		mt-3 p-2 -mb-4 rounded-lg
+		text-xl font-semibold
+	`;
+
+	const classInput = `
+		md:col-span-2
+		p-2 rounded-lg
+		border-solid border-2 border-neutral-400
+		text-base bg-neutral-50
+	`;
+
+	const classError = `
+		md:col-span-2
+		ml-2 rounded-lg
+		text-base text-red-600
+		drop-shadow-md
+	`;
 
 	return (
 		<div className='flex flex-col justify-center items-center'>
@@ -191,10 +212,7 @@ export default function BundleViewPage({ course_id, bundle_id, bundle }) {
 
 				<div className=' px-4 py-4 text-lg font-medium text-center '>
 					<button
-						onClick={() => {
-							setIsOpenSub();
-							handleBundleComplete();
-						}}
+						onClick={openModalSub}
 						className={` py-1 px-3 shadow-md text-white text-center text-lg font-thin rounded-full bg-zinc-800 hover:bg-zinc-600 border-none cursor-pointer transition-colors `}
 					>
 						COMPLETE BUNDLE
@@ -222,8 +240,8 @@ export default function BundleViewPage({ course_id, bundle_id, bundle }) {
 			>
 				<div className={` transition-all mt-2 `}>
 					<Formik
-						initialValues={editMOOCModel.initials}
-						validationSchema={editMOOCModel.schema}
+						initialValues={submitBundleModel.initials}
+						validationSchema={submitBundleModel.schema}
 						onSubmit={handleBundleComplete}
 					>
 						{({
@@ -239,51 +257,21 @@ export default function BundleViewPage({ course_id, bundle_id, bundle }) {
 								onSubmit={handleSubmit}
 								className={`grid grid-cols-1 md:grid-cols-2 gap-2 content-center place-content-center px-4`}
 							>
-								<label className={classLabel} htmlFor='name'>
-									MOOC Name
+								<label className={classLabel} htmlFor='comment'>
+									Bundle Feedback
 								</label>
-								<input
+
+								<textarea
 									className={classInput}
 									type='text'
-									name='name'
-									id='name'
-									value={values.name}
+									name='comment'
+									id='comment'
+									style={{ resize: 'vertical' }}
+									value={values.comment}
 									onChange={handleChange}
 								/>
 								<span className={classError}>
-									{errors.name && touched.name && errors.name}
-								</span>
-
-								<label className={classLabel} htmlFor='url'>
-									MOOC URL
-								</label>
-								<input
-									className={classInput}
-									type='text'
-									name='url'
-									id='url'
-									value={values.url}
-									onChange={handleChange}
-								/>
-								<span className={classError}>
-									{errors.url && touched.url && errors.url}
-								</span>
-
-								<label className={classLabel} htmlFor='average_hours'>
-									Average Hours
-								</label>
-								<input
-									className={classInput}
-									type='number'
-									name='average_hours'
-									id='average_hours'
-									value={values.average_hours}
-									onChange={handleChange}
-								/>
-								<span className={classError}>
-									{errors.average_hours &&
-										touched.average_hours &&
-										errors.average_hours}
+									{errors.comment && touched.comment && errors.comment}
 								</span>
 
 								<button
@@ -299,7 +287,7 @@ export default function BundleViewPage({ course_id, bundle_id, bundle }) {
 											isSubmitting && 'w-4 h-4 mr-2 animate-spin'
 										}`}
 									></div>
-									<span>{isSubmitting ? 'EDITING...' : 'EDIT'}</span>
+									<span>{isSubmitting ? 'SUBMITING...' : 'SUBMIT'}</span>
 								</button>
 							</form>
 						)}

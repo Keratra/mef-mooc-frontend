@@ -17,7 +17,7 @@ import { FiChevronLeft, FiChevronRight } from 'react-icons/fi';
 export default function CoordinatorCoursePage({
 	students,
 	bundlesWB,
-	bundlesWC,
+	bundlesWA,
 	is_active,
 	dictBundlesWB,
 	dictBundlesWA,
@@ -157,9 +157,18 @@ export default function CoordinatorCoursePage({
 		drop-shadow-md
 	`;
 
+	const bundleSubAmount = Object.keys(dictBundlesWB)?.length;
+	const certificateSubAmount = Object.keys(dictBundlesWA)?.length;
+
+	const bundleSubTab = 'Student Bundle Submissions';
+	const certificateSubTab = 'Student Certificate Submissions';
+
 	const tabs = [
-		{ name: 'Student Bundle Submissions' },
-		{ name: 'Student Certificate Submissions' },
+		{
+			name: bundleSubTab,
+			amount: bundleSubAmount,
+		},
+		{ name: certificateSubTab, amount: certificateSubAmount },
 	];
 
 	return (
@@ -420,8 +429,21 @@ export default function CoordinatorCoursePage({
 								)
 							)}
 
+							<div className='max-w-4xl mx-auto mt-2 px-2 text-center text-neutral-700 drop-shadow-md'>
+								<span className='font-semibold'>
+									Bundle Feedback of Student
+								</span>
+							</div>
+
+							<div className='max-w-4xl mx-auto mt-2 px-2 text-justify text-neutral-700 drop-shadow-md'>
+								{value[0]?.comment}
+							</div>
+
 							<div className='mt-2 px-2 text-center text-neutral-700 drop-shadow-md'>
-								Accepted by {value[0]?.coordinator_name} at{' '}
+								Accepted by{' '}
+								<span className='font-semibold'>
+									Coordinator {value[0]?.coordinator_name} at
+								</span>{' '}
 								{new Date(value[0]?.bundle_created_at).toLocaleDateString(
 									'en-US',
 									{
@@ -472,33 +494,10 @@ export async function getServerSideProps({ req, query }) {
 	try {
 		const token = req.cookies.token;
 		const { course_id } = query;
-		const backendURLst = `${process.env.NEXT_PUBLIC_API_URL}/coordinator/course/${course_id}/students`;
 		const backendURLwb = `${process.env.NEXT_PUBLIC_API_URL}/coordinator/course/${course_id}/waiting-bundles`;
-		const backendURLrb = `${process.env.NEXT_PUBLIC_API_URL}/coordinator/course/${course_id}/rejected-bundles`;
-		const backendURLwc = `${process.env.NEXT_PUBLIC_API_URL}/coordinator/course/${course_id}/waiting-certificates`;
 		const backendURLwa = `${process.env.NEXT_PUBLIC_API_URL}/coordinator/course/${course_id}/waiting-approval`;
-		const backendURLrc = `${process.env.NEXT_PUBLIC_API_URL}/coordinator/course/${course_id}/rejected-certificates`;
-		const backendURLac = `${process.env.NEXT_PUBLIC_API_URL}/coordinator/course/${course_id}/accepted-certificates`;
-
-		const { data: dataST } = await axios.get(backendURLst, {
-			headers: {
-				Authorization: `Bearer ${token}`,
-			},
-		});
 
 		const { data: dataWB } = await axios.get(backendURLwb, {
-			headers: {
-				Authorization: `Bearer ${token}`,
-			},
-		});
-
-		const { data: dataRB } = await axios.get(backendURLrb, {
-			headers: {
-				Authorization: `Bearer ${token}`,
-			},
-		});
-
-		const { data: dataWC } = await axios.get(backendURLwc, {
 			headers: {
 				Authorization: `Bearer ${token}`,
 			},
@@ -510,81 +509,34 @@ export async function getServerSideProps({ req, query }) {
 			},
 		});
 
-		const { data: dataRC } = await axios.get(backendURLrc, {
-			headers: {
-				Authorization: `Bearer ${token}`,
-			},
-		});
-
-		const { data: dataAC } = await axios.get(backendURLac, {
-			headers: {
-				Authorization: `Bearer ${token}`,
-			},
-		});
-
-		const { students } = dataST;
 		const { bundles: bundlesWB, is_active } = dataWB;
-		const { bundles: bundlesRB } = dataRB;
-		const { bundles: bundlesWC } = dataWC;
 		const { bundles: bundlesWA } = dataWA;
-		const { bundles: bundlesRC } = dataRC;
-		const { bundles: bundlesAC } = dataAC;
 
 		const dictBundlesWB = groupBy(bundlesWB, (bundle) => {
-			return bundle.bundle_id;
-		});
-		const dictBundlesRB = groupBy(bundlesRB, (bundle) => {
-			return bundle.bundle_id;
-		});
-		const dictBundlesWC = groupBy(bundlesWC, (bundle) => {
 			return bundle.bundle_id;
 		});
 		const dictBundlesWA = groupBy(bundlesWA, (bundle) => {
 			return bundle.bundle_id;
 		});
-		const dictBundlesRC = groupBy(bundlesRC, (bundle) => {
-			return bundle.bundle_id;
-		});
-		const dictBundlesAC = groupBy(bundlesAC, (bundle) => {
-			return bundle.bundle_id;
-		});
 
 		return {
 			props: {
-				students,
 				bundlesWB,
-				bundlesRB,
-				bundlesWC,
 				bundlesWA,
-				bundlesRC,
-				bundlesAC,
 				is_active,
 				dictBundlesWB,
-				dictBundlesRB,
-				dictBundlesWC,
 				dictBundlesWA,
-				dictBundlesRC,
-				dictBundlesAC,
 			},
 		};
 	} catch (error) {
 		console.log(error);
 		return {
 			props: {
-				students: [],
 				bundlesWB: [],
-				bundlesRB: [],
-				bundlesWC: [],
 				bundlesWA: [],
-				bundlesRC: [],
-				bundlesAC: [],
-				is_active: false,
+				is_active: true,
 				dictBundlesWB: {},
-				dictBundlesRB: {},
-				dictBundlesWC: {},
 				dictBundlesWA: {},
-				dictBundlesRC: {},
-				dictBundlesAC: {},
 			},
 		};
 	}

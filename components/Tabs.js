@@ -11,7 +11,7 @@ export default function Tabs({
 		<section className='w-full max-w-7xl px-2 pb-8 sm:px-0 font-sans transition-all '>
 			<div className='flex space-x-1 rounded-xl bg-zinc-200/[0.8]  p-1'>
 				{!!tabs &&
-					tabs.map(({ name }, idx) => (
+					tabs.map((tab, idx) => (
 						<div
 							key={idx}
 							onClick={() => setSelectedTabs(idx)}
@@ -28,7 +28,13 @@ export default function Tabs({
 							}
 						`}
 						>
-							<span className='drop-shadow-md select-none '>{name}</span>
+							<span className='drop-shadow-md select-none '>{tab?.name}</span>
+							{!!tab?.amount && (
+								<span className='text-sm bg-orange-400/[0.8] ml-2 px-2 py-0.5 rounded-full font-semibold drop-shadow-md'>
+									{tab?.amount}
+									<span className='font-normal ml-1'>submissions waiting</span>
+								</span>
+							)}
 						</div>
 					))}
 				{children}
