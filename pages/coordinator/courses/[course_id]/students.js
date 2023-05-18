@@ -99,16 +99,69 @@ export default function CoordinatorCoursePage({
 
 	return (
 		<div className='flex flex-col justify-center items-center'>
-			<PageTitle>
-				<NextLink href={`/coordinator/courses/${course_id}`}>
-					<FiChevronLeft size={34} className='  align-text-bottom' />
-				</NextLink>
-				Students
-				<FiChevronRight
-					size={34}
-					className=' text-zinc-300 align-text-bottom'
-				/>
-			</PageTitle>
+			<section className='w-full max-w-7xl px-2 py-4 sm:px-0 font-sans transition-all '>
+				<div className='flex space-x-1 rounded-xl bg-zinc-200/[0.8]  p-1'>
+					<NextLink
+						href={`/coordinator/courses/${course_id}/reports`}
+						className={`
+							w-full rounded-lg py-2.5 text-lg
+							font-semibold leading-5 text-zinc-700 text-center
+							border-0 cursor-pointer 
+							ring-opacity-60 ring-white  ring-offset-2 ring-offset-zinc-400 
+							focus:outline-none focus:ring-2
+							${
+								false
+									? 'bg-white text-zinc-900 shadow'
+									: 'text-zinc-400 bg-white/[0.35] hover:bg-white hover:text-black'
+							}
+						`}
+					>
+						<div>
+							<span className='drop-shadow-md select-none '>Reports</span>
+						</div>
+					</NextLink>
+					<NextLink
+						href={`/coordinator/courses/${course_id}`}
+						className={`
+							w-full rounded-lg py-2.5 text-lg
+							font-semibold leading-5 text-zinc-700 text-center
+							border-0 cursor-pointer 
+							ring-opacity-60 ring-white  ring-offset-2 ring-offset-zinc-400 
+							focus:outline-none focus:ring-2
+							${
+								false
+									? 'bg-white text-zinc-900 shadow'
+									: 'text-zinc-400 bg-white/[0.35] hover:bg-white hover:text-black'
+							}
+						`}
+					>
+						<div>
+							<span className='drop-shadow-md select-none '>
+								Action Required Bundles
+							</span>
+						</div>
+					</NextLink>
+					<NextLink
+						href={`/coordinator/courses/${course_id}/students`}
+						className={`
+							w-full rounded-lg py-2.5 text-lg
+							font-semibold leading-5 text-zinc-700 text-center
+							border-0 cursor-pointer 
+							ring-opacity-60 ring-white  ring-offset-2 ring-offset-zinc-400 
+							focus:outline-none focus:ring-2
+							${
+								true
+									? 'bg-white text-zinc-900 shadow'
+									: 'text-zinc-400 bg-white/[0.35] hover:bg-white hover:text-black'
+							}
+						`}
+					>
+						<div>
+							<span className='drop-shadow-md select-none '>Students</span>
+						</div>
+					</NextLink>
+				</div>
+			</section>
 
 			<Tabs {...{ selectedTabs, setSelectedTabs, tabs }} />
 

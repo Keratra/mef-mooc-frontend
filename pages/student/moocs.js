@@ -5,61 +5,63 @@ import { loginStudentModel } from 'lib/yupmodels';
 import axios from 'axios';
 import { useRouter } from 'next/router';
 import EmptyTableMessage from '@components/EmptyTableMessage';
+import PageTitle from '@components/PageTitle';
+import Modal from '@components/Modal';
+import {
+	UsersIcon,
+	UserMinusIcon,
+	PencilSquareIcon,
+	ChevronDoubleRightIcon,
+	PauseIcon,
+} from '@heroicons/react/24/solid';
+import KTable from '@components/KTable';
+import KTableHead from '@components/KTableHead';
+import KTableBody from '@components/KTableBody';
+import Tabs from '@components/Tabs';
+import { notify } from 'utils/notify';
 
 export default function MOOCListPage({ moocs }) {
 	const Router = useRouter();
 
 	return (
-		<div className='min-h-[80vh] flex flex-col justify-center items-center'>
-			<h1 className='text-center text-5xl mt-16 mb-4 drop-shadow-md'>
-				MOOC List
-			</h1>
+		<div className='flex flex-col justify-center items-center'>
+			<PageTitle>MOOC List</PageTitle>
 
-			<div className='flex flex-col overflow-x-auto p-1.5 w-full align-middle overflow-hidden border'>
-				<table className='min-w-full border-solid border-0 border-b-2 border-collapse'>
-					<thead className='bg-gradient-to-t from-[#212021] to-[#414041] text-white'>
-						<tr>
-							<th
-								scope='col'
-								className={`min-w-[170px] px-4 py-2 font-bold text-center text-2xl`}
-							>
-								<span className='text-center drop-shadow-md'>MOOC ID</span>
-							</th>
-							<th
-								scope='col'
-								className={`min-w-[20vw]  px-4 py-2 font-bold text-center text-2xl`}
-							>
-								<span className='text-center drop-shadow-md'>MOOC Name</span>
-							</th>
-							<th
-								scope='col'
-								className={`min-w-[170px] px-4 py-2 font-bold text-center text-2xl`}
-							>
-								<span className='text-center drop-shadow-md'>Platform</span>
-							</th>
-							<th
-								scope='col'
-								className={`min-w-[170px] px-4 py-2 font-bold text-center text-2xl`}
-							>
-								<span className='text-center drop-shadow-md'>Link</span>
-							</th>
-						</tr>
-					</thead>
-
-					<tbody className='divide-y divide-gray-200'>
+			<div className='max-w-7xl mx-auto  flex flex-col overflow-x-auto w-full align-middle overflow-hidden border shadow-lg'>
+				<KTable>
+					<KTableHead
+						tableHeaders={[
+							{
+								name: 'MOOC ID',
+								alignment: 'left',
+								className: 'rounded-tl-md',
+							},
+							{ name: 'MOOC Name', alignment: 'left' },
+							{ name: 'Average Hours', alignment: 'left' },
+							{
+								name: 'Link',
+								alignment: 'left',
+								className: 'rounded-tr-md',
+							},
+						]}
+					></KTableHead>
+					<KTableBody>
 						{!!moocs &&
-							moocs.map(({ id, url, platform, name }) => (
+							moocs.map(({ id, url, average_hours, name }, idx) => (
 								<tr
 									key={id}
-									className='border-solid border-0 border-b border-neutral-200'
+									className={
+										idx % 2 === 0 ? 'bg-zinc-100' : 'bg-zinc-200/[0.75]'
+									}
 								>
-									<td className='align-baseline px-4 py-4 text-lg font-medium whitespace-nowrap text-center'>
+									<td className='px-4 py-4 text-lg font-medium whitespace-nowrap '>
 										{id}
 									</td>
-									<td className='align-baseline px-4 py-4 text-lg font-medium'>
-										{name}
+									<td className='px-4 py-4 text-lg font-medium'>{name}</td>
+									<td className='px-4 py-4 text-lg font-medium'>
+										{average_hours}
 									</td>
-									<td className='align-baseline px-4 py-4 text-lg font-medium min-w-[15vw]'>
+									<td className='px-4 py-4 text-lg font-medium min-w-[15vw]'>
 										<NextLink
 											href={url}
 											className='text-blue-600 hover:underline underline-offset-2'
@@ -72,8 +74,8 @@ export default function MOOCListPage({ moocs }) {
 						{moocs?.length === 0 && (
 							<EmptyTableMessage cols={4} message='No MOOCs were found...' />
 						)}
-					</tbody>
-				</table>
+					</KTableBody>
+				</KTable>
 			</div>
 		</div>
 	);

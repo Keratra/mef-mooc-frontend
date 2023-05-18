@@ -12,6 +12,7 @@ import {
 	UserMinusIcon,
 	PencilSquareIcon,
 	ChevronDoubleRightIcon,
+	PauseIcon,
 } from '@heroicons/react/24/solid';
 import KTable from '@components/KTable';
 import KTableHead from '@components/KTableHead';
@@ -70,26 +71,36 @@ export default function CourseSelectionPage({ courses, enrollments }) {
 						></KTableHead>
 						<KTableBody>
 							{!!enrollments &&
-								enrollments.map(({ course_id, name, course_code }) => (
-									<tr
-										key={course_id}
-										className='border-solid border-0 border-b border-neutral-200'
-									>
-										<td className=' px-4 py-4 text-lg font-medium whitespace-nowrap'>
-											{course_code}
-										</td>
-										<td className=' px-4 py-4 text-lg font-medium whitespace-nowrap'>
-											{name}
-										</td>
-										<td className=' px-4 py-4 text-lg font-medium text-center whitespace-nowrap'>
-											<NextLink href={`/student/${course_id}/bundles`}>
-												<button className=' inline-flex justify-center items-center text-center text-lg py-2 px-2 bg-transparent shadow-none text-white font-thin rounded-full border-none cursor-pointer transition-colors'>
-													<ChevronDoubleRightIcon className='h-7 w-7 text-indigo-700 hover:text-indigo-500 cursor-pointer transition-colors' />
-												</button>
-											</NextLink>
-										</td>
-									</tr>
-								))}
+								enrollments.map(
+									({ course_id, name, course_code, is_waiting }, idx) => (
+										<tr
+											key={course_id}
+											className={
+												idx % 2 === 0 ? 'bg-zinc-100' : 'bg-zinc-200/[0.75]'
+											}
+										>
+											<td className=' px-4 py-4 text-lg font-medium whitespace-nowrap'>
+												{course_code}
+											</td>
+											<td className=' px-4 py-4 text-lg font-medium whitespace-nowrap'>
+												{name}
+											</td>
+											<td className=' px-4 py-4 text-lg font-medium text-center whitespace-nowrap'>
+												{!is_waiting ? (
+													<NextLink href={`/student/${course_id}/bundles`}>
+														<button className=' inline-flex justify-center items-center text-center text-lg py-2 px-2 bg-transparent shadow-none text-white font-thin rounded-full border-none cursor-pointer transition-colors'>
+															<ChevronDoubleRightIcon className='h-7 w-7 text-indigo-700 hover:text-indigo-500 cursor-pointer transition-colors' />
+														</button>
+													</NextLink>
+												) : (
+													<div className='py-2 px-2 text-rose-700 animate-pulse'>
+														Not approved
+													</div>
+												)}
+											</td>
+										</tr>
+									)
+								)}
 							{enrollments?.length === 0 && (
 								<EmptyTableMessage
 									cols={3}
@@ -121,10 +132,12 @@ export default function CourseSelectionPage({ courses, enrollments }) {
 						></KTableHead>
 						<KTableBody>
 							{!!courses &&
-								courses.map(({ id, name, course_code }) => (
+								courses.map(({ id, name, course_code }, idx) => (
 									<tr
 										key={id}
-										className='border-solid border-0 border-b border-neutral-200'
+										className={
+											idx % 2 === 0 ? 'bg-zinc-100' : 'bg-zinc-200/[0.75]'
+										}
 									>
 										<td className='px-4 py-4 text-lg font-medium whitespace-nowrap'>
 											{course_code}
