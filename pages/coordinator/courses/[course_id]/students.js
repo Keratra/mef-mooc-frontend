@@ -99,7 +99,7 @@ export default function CoordinatorCoursePage({
 
 	return (
 		<div className='flex flex-col justify-center items-center'>
-			<section className='w-full max-w-7xl px-2 py-4 sm:px-0 font-sans transition-all '>
+			<section className='w-[95%] px-2 py-4 sm:px-0 font-sans transition-all '>
 				<div className='flex space-x-1 rounded-xl bg-zinc-200/[0.8]  p-1'>
 					<NextLink
 						href={`/coordinator/courses/${course_id}/reports`}
@@ -163,7 +163,7 @@ export default function CoordinatorCoursePage({
 				</div>
 			</section>
 
-			<Tabs {...{ selectedTabs, setSelectedTabs, tabs }} />
+			<Tabs {...{ selectedTabs, setSelectedTabs, tabs, fullWidth: false }} />
 
 			{!is_active && (
 				<div className='min-w-[95%] mt-4 mx-4 p-3 bg-gradient-to-t from-rose-100 to-rose-50 rounded-lg shadow-md text-3xl text-rose-600 text-center font-bold'>
@@ -172,7 +172,7 @@ export default function CoordinatorCoursePage({
 			)}
 
 			{selectedTabs === 0 && (
-				<div className='max-w-7xl mx-auto  flex flex-col overflow-x-auto w-full align-middle overflow-hidden border shadow-lg'>
+				<div className='flex flex-col overflow-x-auto w-[95%] align-middle overflow-hidden border shadow-lg'>
 					<KTable>
 						<KTableHead
 							tableHeaders={[
@@ -242,7 +242,7 @@ export default function CoordinatorCoursePage({
 			)}
 
 			{selectedTabs === 1 && (
-				<div className='max-w-7xl mx-auto  flex flex-col overflow-x-auto w-full align-middle overflow-hidden border shadow-lg'>
+				<div className='flex flex-col overflow-x-auto w-[95%] align-middle overflow-hidden border shadow-lg'>
 					<KTable>
 						<KTableHead
 							tableHeaders={[
@@ -321,8 +321,6 @@ export async function getServerSideProps({ req, query }) {
 
 		const { students } = dataST;
 		const { students: waiting_students } = dataEN;
-
-		console.log(dataEN);
 
 		return {
 			props: {

@@ -469,8 +469,6 @@ export async function getServerSideProps({ req }) {
 		const { courses: inactive_courses } = dataInactive;
 		const { semesters } = dataSemesters;
 
-		console.log(dataSemesters);
-
 		return {
 			props: {
 				active_courses: active_courses ?? [],

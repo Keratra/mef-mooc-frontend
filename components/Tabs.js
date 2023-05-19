@@ -6,9 +6,15 @@ export default function Tabs({
 	setSelectedTabs,
 	tabs,
 	children,
+	fullWidth = true,
 }) {
 	return (
-		<section className='w-full max-w-7xl px-2 pb-8 sm:px-0 font-sans transition-all '>
+		<section
+			className={
+				(fullWidth ? 'w-full max-w-7xl' : 'w-[95%]') +
+				' px-2 pb-8 sm:px-0 font-sans transition-all '
+			}
+		>
 			<div className='flex space-x-1 rounded-xl bg-zinc-200/[0.8]  p-1'>
 				{!!tabs &&
 					tabs.map((tab, idx) => (
@@ -30,9 +36,11 @@ export default function Tabs({
 						>
 							<span className='drop-shadow-md select-none '>{tab?.name}</span>
 							{!!tab?.amount && (
-								<span className='text-sm bg-orange-400/[0.8] ml-2 px-2 py-0.5 rounded-full font-semibold drop-shadow-md'>
+								<span className='select-none text-sm bg-orange-400/[0.8] ml-2 px-2 py-0.5 rounded-full font-semibold drop-shadow-md'>
 									{tab?.amount}
-									<span className='font-normal ml-1'>submissions waiting</span>
+									<span className='select-none font-normal ml-1'>
+										submissions waiting
+									</span>
 								</span>
 							)}
 						</div>

@@ -8,6 +8,13 @@ import { useRouter } from 'next/router';
 import { groupBy } from 'lodash';
 import PageTitle from '@components/PageTitle';
 import Modal from '@components/Modal';
+import {
+	UsersIcon,
+	UserMinusIcon,
+	PencilSquareIcon,
+	TrashIcon,
+	ChevronDoubleRightIcon,
+} from '@heroicons/react/24/solid';
 import Tabs from '@components/Tabs';
 import KTable from '@components/KTable';
 import KTableHead from '@components/KTableHead';
@@ -173,7 +180,7 @@ export default function CoordinatorCoursePage({
 
 	return (
 		<div className='flex flex-col justify-center items-center'>
-			<section className='w-full max-w-7xl px-2 py-4 sm:px-0 font-sans transition-all '>
+			<section className='w-[95%] px-2 py-4 sm:px-0 font-sans transition-all '>
 				<div className='flex space-x-1 rounded-xl bg-zinc-200/[0.8]  p-1'>
 					<NextLink
 						href={`/coordinator/courses/${course_id}/reports`}
@@ -237,7 +244,7 @@ export default function CoordinatorCoursePage({
 				</div>
 			</section>
 
-			<Tabs {...{ selectedTabs, setSelectedTabs, tabs }} />
+			<Tabs {...{ selectedTabs, setSelectedTabs, tabs, fullWidth: false }} />
 
 			{!is_active && (
 				<div className='min-w-[95%] mt-4 mx-4 p-3 bg-gradient-to-t from-rose-100 to-rose-50 rounded-lg shadow-md text-3xl text-rose-600 text-center font-bold'>
@@ -246,7 +253,136 @@ export default function CoordinatorCoursePage({
 			)}
 
 			{selectedTabs === 0 && (
-				<div className='w-full'>
+				<div className='w-[95%]'>
+					<KTable className=''>
+						<KTableHead
+							tableHeaders={[
+								{
+									name: 'Student',
+									alignment: 'left',
+									className: 'rounded-tl-md',
+								},
+								{
+									name: 'Bundles',
+									alignment: 'left',
+									className: '',
+								},
+								{
+									name: 'Actions',
+									alignment: 'center',
+									className: 'rounded-tr-md',
+								},
+							]}
+						></KTableHead>
+						<KTableBody>
+							{Object.entries(dictBundlesWB).map(([key, value], idx) => (
+								<tr
+									key={idx}
+									className={
+										idx % 2 === 0 ? 'bg-zinc-100' : 'bg-zinc-200/[0.75]'
+									}
+								>
+									<td className='px-4 py-4 text-lg font-medium whitespace-nowrap '>
+										<div className='flex flex-col justify-center items-start'>
+											<span className='font-normal'>
+												{value[0]?.student_name} {value[0]?.student_surname}
+											</span>
+											<span className='font-semibold'>
+												{value[0]?.student_no}
+											</span>
+										</div>
+									</td>
+									<td className=' px-4 py-4 text-lg font-medium whitespace-nowrap '>
+										{value?.map(
+											(
+												{
+													bundle_id,
+													student_no,
+													student_name,
+													student_surname,
+													mooc_name,
+													mooc_url,
+													certificate_url,
+													bundle_created_at,
+												},
+												index
+											) => (
+												<div
+													key={index}
+													className='mt-2 py-1 w-full grid grid-cols-4 '
+												>
+													<NextLink
+														href={mooc_url ?? ''}
+														target='_blank'
+														className='col-span-3'
+													>
+														<span className='select-none text-black no-underline'>
+															-&gt;
+														</span>{' '}
+														<span className='text-blue-600 hover:underline underline-offset-2'>
+															{mooc_name}
+														</span>
+													</NextLink>
+
+													{!!certificate_url && (
+														<NextLink
+															href={certificate_url ?? ''}
+															target='_blank'
+															className='font-semibold text-indigo-600/[0.65] hover:underline underline-offset-2 '
+														>
+															Certificate
+														</NextLink>
+													)}
+												</div>
+											)
+										)}
+									</td>
+									<td className='   px-4 py-4 text-lg font-medium whitespace-nowrap '>
+										{/* <button
+											onClick={() => alert(id)}
+											className={`inline-flex justify-center items-center  py-1 px-3 shadow-none text-white text-center text-lg font-thin rounded-full bg-transparent border-none`}
+										>
+											<TrashIcon className='h-7 w-7 text-rose-700 hover:text-rose-500 cursor-pointer transition-colors' />
+										</button>
+
+										<button
+											onClick={() => alert(JSON.stringify(value, 2))}
+											className=' inline-flex justify-center items-center text-center text-lg py-2 px-2 bg-transparent shadow-none text-white font-thin rounded-full border-none cursor-pointer transition-colors'
+										>
+											<ChevronDoubleRightIcon className='h-7 w-7 text-indigo-700 hover:text-indigo-500 cursor-pointer transition-colors' />
+										</button> */}
+										{!!is_active && (
+											<div className='my-4 flex justify-evenly items-center'>
+												<button
+													onClick={() => handleRejectBundle(key)}
+													className='px-5 py-1 font-semibold text-xl uppercase border-none shadow-lg cursor-pointer rounded-lg hover:bg-rose-500 bg-rose-700 text-rose-50 transition-colors'
+												>
+													<span className='drop-shadow-md'>Reject</span>
+												</button>
+												<button
+													onClick={() => handleApproveBundle(key)}
+													className='px-5 py-1 font-semibold text-xl uppercase border-none shadow-lg cursor-pointer rounded-lg hover:bg-emerald-500 bg-emerald-700 text-emerald-50 transition-colors'
+												>
+													<span className='drop-shadow-md'>Approve</span>
+												</button>
+											</div>
+										)}
+									</td>
+								</tr>
+							))}
+							{Object.keys(dictBundlesWA)?.length === 0 && (
+								<EmptyTableMessage
+									cols={6}
+									message='No active courses were found...'
+								/>
+							)}
+						</KTableBody>
+					</KTable>
+				</div>
+			)}
+
+			{/* {selectedTabs === 0 && (
+				<div className='w-[95%]'>
 					{Object.keys(dictBundlesWB)?.length === 0 && (
 						<div className='mt-4 w-full text-center text-neutral-700'>
 							No bundles were found...
@@ -256,7 +392,7 @@ export default function CoordinatorCoursePage({
 						<div
 							key={i}
 							className='
-								max-w-7xl mx-auto 
+								w-full
 								mt-4 mb-8 p-2 hover:mb-12
 								flex flex-col
 								bg-slate-100 rounded-lg
@@ -353,10 +489,140 @@ export default function CoordinatorCoursePage({
 						</div>
 					))}
 				</div>
-			)}
+			)} */}
 
 			{selectedTabs === 1 && (
-				<div className='w-full'>
+				<div className='w-[95%]'>
+					<KTable className=''>
+						<KTableHead
+							tableHeaders={[
+								{
+									name: 'Student',
+									alignment: 'left',
+									className: 'rounded-tl-md',
+								},
+								{
+									name: 'Bundle',
+									alignment: 'left',
+									className: '',
+								},
+								{
+									name: 'Bundle Feedback of Student',
+									alignment: 'center',
+									className: 'max-w-xs',
+								},
+								{
+									name: 'Actions',
+									alignment: 'center',
+									className: 'rounded-tr-md',
+								},
+							]}
+						></KTableHead>
+						<KTableBody>
+							{Object.entries(dictBundlesWA).map(([key, value], idx) => (
+								<tr
+									key={idx}
+									className={
+										idx % 2 === 0 ? 'bg-zinc-100' : 'bg-zinc-200/[0.75]'
+									}
+								>
+									<td className='px-4 py-4 text-lg font-medium whitespace-nowrap '>
+										<div className='flex flex-col justify-start items-start'>
+											<span className='font-normal'>
+												{value[0]?.student_name} {value[0]?.student_surname}
+											</span>
+											<span className='font-semibold'>
+												{value[0]?.student_no}
+											</span>
+										</div>
+									</td>
+									<td className='px-4 py-4 text-lg font-medium '>
+										{value?.map(
+											(
+												{
+													bundle_id,
+													student_no,
+													student_name,
+													student_surname,
+													mooc_name,
+													mooc_url,
+													certificate_url,
+													bundle_created_at,
+												},
+												index
+											) => (
+												<div
+													key={index}
+													className='mt-2 py-1 w-full grid grid-cols-4 '
+												>
+													<NextLink
+														href={mooc_url ?? ''}
+														target='_blank'
+														className='col-span-3'
+													>
+														<span className='select-none text-black no-underline'>
+															-&gt;
+														</span>{' '}
+														<span className='text-blue-600 hover:underline underline-offset-2'>
+															{mooc_name}
+														</span>
+													</NextLink>
+
+													{!!certificate_url && (
+														<NextLink
+															href={certificate_url ?? ''}
+															target='_blank'
+															className='font-semibold text-indigo-600/[0.65] hover:underline underline-offset-2 '
+														>
+															Certificate
+														</NextLink>
+													)}
+												</div>
+											)
+										)}
+									</td>
+									<td className='max-w-xs px-4 py-4 text-lg font-medium  '>
+										<div className=' max-w-max mt-2 px-2 text-justify text-neutral-700 '>
+											{value[0]?.comment}
+										</div>
+									</td>
+									<td className='   px-4 py-4 text-lg font-medium whitespace-nowrap '>
+										{!!is_active && (
+											<div className='my-4 flex flex-col gap-4 justify-evenly items-center'>
+												<button
+													onClick={() => handleRejectBundle(key)}
+													className='px-5 py-1 font-semibold text-xl uppercase border-none shadow-lg cursor-pointer rounded-lg hover:bg-rose-500 bg-rose-700 text-rose-50 transition-colors'
+												>
+													<span className='drop-shadow-md select-none'>
+														Reject
+													</span>
+												</button>
+												<button
+													onClick={() => handleApproveBundle(key)}
+													className='px-5 py-1 font-semibold text-xl uppercase border-none shadow-lg cursor-pointer rounded-lg hover:bg-emerald-500 bg-emerald-700 text-emerald-50 transition-colors'
+												>
+													<span className='drop-shadow-md select-none'>
+														Approve
+													</span>
+												</button>
+											</div>
+										)}
+									</td>
+								</tr>
+							))}
+							{Object.keys(dictBundlesWA)?.length === 0 && (
+								<EmptyTableMessage
+									cols={6}
+									message='No active courses were found...'
+								/>
+							)}
+						</KTableBody>
+					</KTable>
+				</div>
+			)}
+
+			{/* {selectedTabs === 1 && (
+				<div className='w-[95%]'>
 					{Object.keys(dictBundlesWA)?.length === 0 && (
 						<div className='mt-4 w-full text-center text-neutral-700'>
 							No bundles were found...
@@ -366,7 +632,7 @@ export default function CoordinatorCoursePage({
 						<div
 							key={i}
 							className='
-								max-w-7xl mx-auto 
+								w-full
 								mt-4 mb-8 p-2 hover:mb-12
 								flex flex-col
 								bg-slate-100 rounded-lg
@@ -439,7 +705,7 @@ export default function CoordinatorCoursePage({
 								{value[0]?.comment}
 							</div>
 
-							<div className='mt-2 px-2 text-center text-neutral-700 drop-shadow-md'>
+							<div className='mt-6 px-2 text-center text-neutral-700 drop-shadow-md'>
 								Accepted by{' '}
 								<span className='font-semibold'>
 									Coordinator {value[0]?.coordinator_name} at
@@ -485,7 +751,7 @@ export default function CoordinatorCoursePage({
 						</div>
 					))}
 				</div>
-			)}
+			)} */}
 		</div>
 	);
 }
