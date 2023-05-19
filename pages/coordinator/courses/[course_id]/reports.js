@@ -48,7 +48,7 @@ export default function CoordinatorCoursePage({
 				{
 					header: 'Student Name',
 					key: 'sname',
-					width: 16,
+					width: 24,
 					style: {
 						font: {
 							bold: true,
@@ -63,7 +63,7 @@ export default function CoordinatorCoursePage({
 				{
 					header: 'Student ID',
 					key: 'sid',
-					width: 24,
+					width: 16,
 					style: {
 						font: {
 							bold: true,
@@ -78,7 +78,7 @@ export default function CoordinatorCoursePage({
 				{
 					header: 'Dept.',
 					key: 'dept',
-					width: 16,
+					width: 24,
 					style: {
 						font: {
 							bold: true,
@@ -222,7 +222,7 @@ export default function CoordinatorCoursePage({
 				const row = worksheet.addRow([
 					value[0]?.student_name + ' ' + value[0]?.student_surname,
 					value[0]?.student_no,
-					'department here',
+					currentCourse?.department_name,
 					studentBundleMOOCs,
 					currentCourse?.credits,
 					currentCourse?.course_code,
@@ -1012,6 +1012,8 @@ export async function getServerSideProps({ req, query }) {
 		const backendURLActive = `${process.env.NEXT_PUBLIC_API_URL}/coordinator/active-courses`;
 		const backendURLInactive = `${process.env.NEXT_PUBLIC_API_URL}/coordinator/inactive-courses`;
 
+		const backendURLdep = `${process.env.NEXT_PUBLIC_API_URL}/general/all-departments`;
+
 		const { data: dataRB } = await axios.get(backendURLrb, {
 			headers: {
 				Authorization: `Bearer ${token}`,
@@ -1048,6 +1050,12 @@ export async function getServerSideProps({ req, query }) {
 			},
 		});
 
+		const { data: dataDep } = await axios.get(backendURLdep, {
+			headers: {
+				Authorization: `Bearer ${token}`,
+			},
+		});
+
 		const { bundles: bundlesRB } = dataRB;
 		const { bundles: bundlesWC } = dataWC;
 		const { bundles: bundlesRC } = dataRC;
@@ -1055,6 +1063,8 @@ export async function getServerSideProps({ req, query }) {
 
 		const { courses: active_courses } = dataActive;
 		const { courses: inactive_courses } = dataInactive;
+
+		const { departments } = dataDep;
 
 		let currentCourse;
 
@@ -1067,6 +1077,10 @@ export async function getServerSideProps({ req, query }) {
 				(course) => parseInt(course.id) === parseInt(course_id)
 			)[0];
 		}
+
+		currentCourse['department_name'] = departments.filter(
+			(department) => department.id === currentCourse.department_id
+		)[0].name;
 
 		const dictBundlesRB = groupBy(bundlesRB, (bundle) => {
 			return bundle.bundle_id;

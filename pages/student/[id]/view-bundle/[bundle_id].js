@@ -154,18 +154,23 @@ export default function BundleViewPage({ course_id, bundle_id, bundle }) {
 					<KTableBody>
 						{!!bundle &&
 							bundle.map(
-								({
-									bundle_detail_id,
-									certificate_url,
-									mooc_id,
-									mooc_name,
-									feedback_id,
-								}) => (
+								(
+									{
+										bundle_detail_id,
+										certificate_url,
+										mooc_id,
+										mooc_name,
+										feedback_id,
+									},
+									idx
+								) => (
 									<tr
 										key={bundle_detail_id}
-										className='border-solid border-0 border-b border-neutral-200'
+										className={
+											idx % 2 === 0 ? 'bg-zinc-100' : 'bg-zinc-200/[0.75]'
+										}
 									>
-										<td className='px-4 py-4 text-lg font-medium whitespace-nowrap text-center'>
+										<td className='px-4 py-4 text-lg font-medium whitespace-nowrap'>
 											{mooc_id}
 										</td>
 										<td className='px-4 py-4 text-lg font-medium'>

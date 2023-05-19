@@ -94,7 +94,7 @@ export default function CourseSelectionPage({ courses, enrollments }) {
 													</NextLink>
 												) : (
 													<div className='py-2 px-2 text-rose-700 animate-pulse'>
-														Not approved
+														Enrollment awaiting approval
 													</div>
 												)}
 											</td>
