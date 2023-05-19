@@ -223,20 +223,7 @@ export default function CoordinatorCoursePage({
 					value[0]?.student_name + ' ' + value[0]?.student_surname,
 					value[0]?.student_no,
 					'department here',
-					studentBundleMOOCs +
-						' ' +
-						studentBundleMOOCs +
-						' ' +
-						studentBundleMOOCs +
-						' ' +
-						studentBundleMOOCs +
-						' ' +
-						studentBundleMOOCs +
-						' ' +
-						studentBundleMOOCs +
-						' ' +
-						studentBundleMOOCs +
-						' ',
+					studentBundleMOOCs,
 					currentCourse?.credits,
 					currentCourse?.course_code,
 					currentCourse?.name,
