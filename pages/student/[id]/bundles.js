@@ -21,9 +21,9 @@ import Tabs from '@components/Tabs';
 const bundleStatus = {
 	'Waiting Bundle': 'Bundle waiting for approval',
 	'Waiting Approval': 'Certificates waiting for approval',
-	'Waiting Certificate': 'Upload your certificates',
+	'Waiting Certificates': 'Upload your certificates',
 	'Rejected Bundle': 'Bundle rejected',
-	'Rejected Certificate': 'Certificates rejected',
+	'Rejected Certificates': 'Certificates rejected',
 	'Accepted Certificates': 'Certificates accepted',
 };
 

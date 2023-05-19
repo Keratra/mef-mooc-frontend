@@ -590,7 +590,9 @@ export default function CoordinatorCoursePage({
 										{!!is_active && (
 											<div className='my-4 flex flex-col gap-4 justify-evenly items-center'>
 												<button
-													onClick={() => handleRejectBundle(key)}
+													onClick={() =>
+														handleRejectCertificate(key, value[0]?.student_id)
+													}
 													className='px-5 py-1 font-semibold text-xl uppercase border-none shadow-lg cursor-pointer rounded-lg hover:bg-rose-500 bg-rose-700 text-rose-50 transition-colors'
 												>
 													<span className='drop-shadow-md select-none'>
@@ -598,7 +600,9 @@ export default function CoordinatorCoursePage({
 													</span>
 												</button>
 												<button
-													onClick={() => handleApproveBundle(key)}
+													onClick={() =>
+														handleApproveCertificate(key, value[0]?.student_id)
+													}
 													className='px-5 py-1 font-semibold text-xl uppercase border-none shadow-lg cursor-pointer rounded-lg hover:bg-emerald-500 bg-emerald-700 text-emerald-50 transition-colors'
 												>
 													<span className='drop-shadow-md select-none'>
