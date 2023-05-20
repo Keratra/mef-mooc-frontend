@@ -19,7 +19,12 @@ import Tabs from '@components/Tabs';
 import KTable from '@components/KTable';
 import KTableHead from '@components/KTableHead';
 import KTableBody from '@components/KTableBody';
-import { FiChevronLeft, FiChevronRight } from 'react-icons/fi';
+import {
+	FiChevronLeft,
+	FiChevronRight,
+	FiChevronDown,
+	FiChevronUp,
+} from 'react-icons/fi';
 import { FiCheckCircle, FiXCircle } from 'react-icons/fi';
 import { RiFileExcel2Fill } from 'react-icons/ri';
 import { notify } from 'utils/notify';
@@ -28,6 +33,8 @@ const ExcelJS = require('exceljs');
 import { saveAs } from 'file-saver';
 
 export default function CoordinatorCoursePage({
+	bundlesWB,
+	bundlesWA,
 	bundlesRB,
 	bundlesWC,
 	bundlesRC,
@@ -37,6 +44,8 @@ export default function CoordinatorCoursePage({
 	dictBundlesWC,
 	dictBundlesRC,
 	dictBundlesAC,
+	dictBundlesWB,
+	dictBundlesWA,
 	currentCourse,
 	course,
 	students,
@@ -45,6 +54,7 @@ export default function CoordinatorCoursePage({
 	const Router = useRouter();
 
 	const [selectedTabs, setSelectedTabs] = useState(0); // tabs
+	const [selectedDetail, setSelectedDetail] = useState(0); // tabs
 
 	const { course_id } = Router.query;
 
@@ -599,39 +609,132 @@ export default function CoordinatorCoursePage({
 			)}
 
 			{selectedTabs === 0 && (
-				<div className='flex flex-col overflow-x-auto w-[95%] align-middle overflow-hidden border shadow-lg'>
+				<div className='w-[95%] flex flex-col overflow-x-auto shadow-lg mb-12'>
 					<KTable>
 						<KTableHead
 							tableHeaders={[
 								{
-									name: 'Student No',
-									col: 'student_no',
-									className: 'rounded-tl-md',
+									name: 'History',
+									alignment: 'center',
+									className: 'rounded-tl-md w-[2.5rem]',
 								},
-								{ name: 'Name', col: 'name' },
-								{ name: 'Email', col: 'email', className: 'rounded-tr-md' },
+								{
+									name: 'Student No',
+									alignment: 'left',
+									className: '',
+								},
+								{ name: 'Name', alignment: 'left' },
+								{ name: 'Email', alignment: 'left', className: '' },
+								{ name: 'Status', alignment: 'left', className: '' },
+								{
+									name: 'Enroll Date',
+									alignment: 'left',
+									className: 'rounded-tr-md',
+								},
 							]}
 						></KTableHead>
 						<KTableBody>
 							{!!students &&
 								students.map(
-									({ id, name, surname, email, student_no }, idx) => (
-										<tr
-											key={id}
-											className={
-												idx % 2 === 0 ? 'bg-zinc-100' : 'bg-zinc-200/[0.75]'
-											}
-										>
-											<td className='align-baseline px-4 py-4 text-lg font-medium whitespace-nowrap text-center'>
-												{student_no}
-											</td>
-											<td className='align-baseline px-4 py-4 text-lg font-medium whitespace-nowrap text-center'>
-												{name} {surname}
-											</td>
-											<td className='align-baseline px-4 py-4 text-lg font-medium whitespace-nowrap text-center'>
-												{email}
-											</td>
-										</tr>
+									(
+										{ id, name, surname, email, student_no, enroll_date },
+										idx
+									) => (
+										<>
+											<tr
+												key={id}
+												className={
+													idx % 2 === 0 ? 'bg-zinc-100' : 'bg-zinc-200/[0.75]'
+												}
+											>
+												<td className='px-4 py-4 text-lg font-medium whitespace-nowrap text-center '>
+													{parseInt(selectedDetail) === parseInt(id) ? (
+														<FiChevronUp
+															onClick={() => setSelectedDetail(0)}
+															className='
+																w-9 h-9 
+																text-zinc-600 hover:bg-white 
+																border-solid border 
+																border-transparent hover:border-zinc-400 
+																cursor-pointer rounded-sm 
+																transition-all duration-75 '
+														/>
+													) : (
+														<FiChevronDown
+															onClick={() => setSelectedDetail(id)}
+															className='
+																w-9 h-9 
+																text-zinc-600 hover:bg-white 
+																border-solid border 
+																border-transparent hover:border-zinc-400 
+																cursor-pointer rounded-sm 
+																transition-all duration-75 '
+														/>
+													)}
+												</td>
+												<td className='px-4 py-4 text-lg font-medium whitespace-nowrap '>
+													{student_no}
+												</td>
+												<td className='px-4 py-4 text-lg font-medium whitespace-nowrap '>
+													{name} {surname}
+												</td>
+												<td className='px-4 py-4 text-lg font-medium whitespace-nowrap '>
+													{email}
+												</td>
+												<td className='px-4 py-4 text-lg font-medium whitespace-nowrap '>
+													status here
+												</td>
+												<td className='px-4 py-4 text-lg font-medium whitespace-nowrap '>
+													<span>
+														{enroll_date &&
+															new Date(enroll_date).toLocaleDateString(
+																'en-US',
+																{
+																	year: 'numeric',
+																	month: 'long',
+																	day: 'numeric',
+																	timeZone: 'UTC',
+																}
+															)}
+													</span>
+													{enroll_date && ', '}
+													<span>
+														{enroll_date &&
+															new Date(enroll_date).toLocaleTimeString(
+																'en-US',
+																{
+																	timeZone: 'UTC',
+																}
+															)}
+													</span>
+													{!enroll_date && 'Date not found'}
+												</td>
+											</tr>
+
+											<tr
+												key={'d' + id}
+												className={
+													' transition-all bg-zinc-200 ' +
+													(parseInt(selectedDetail) === parseInt(id)
+														? 'h-4'
+														: 'h-0 overflow-hidden')
+												}
+											>
+												<td
+													colSpan={6}
+													className={
+														' transition-all border-solid border-0 border-zinc-700/[0.5] ' +
+														(parseInt(selectedDetail) === parseInt(id)
+															? ' p-4 border-y '
+															: '')
+													}
+												>
+													{parseInt(selectedDetail) === parseInt(id) && (
+														<div className='flex flex-col'>ananas</div>
+													)}
+												</td>
+											</tr>
+										</>
 									)
 								)}
 							{students?.length === 0 && (
@@ -1295,6 +1398,8 @@ export async function getServerSideProps({ req, query }) {
 		const backendURLwc = `${process.env.NEXT_PUBLIC_API_URL}/coordinator/course/${course_id}/waiting-certificates`;
 		const backendURLrc = `${process.env.NEXT_PUBLIC_API_URL}/coordinator/course/${course_id}/rejected-certificates`;
 		const backendURLac = `${process.env.NEXT_PUBLIC_API_URL}/coordinator/course/${course_id}/accepted-certificates`;
+		const backendURLwb = `${process.env.NEXT_PUBLIC_API_URL}/coordinator/course/${course_id}/waiting-bundles`;
+		const backendURLwa = `${process.env.NEXT_PUBLIC_API_URL}/coordinator/course/${course_id}/waiting-approval`;
 
 		const backendURLActive = `${process.env.NEXT_PUBLIC_API_URL}/coordinator/active-courses`;
 		const backendURLInactive = `${process.env.NEXT_PUBLIC_API_URL}/coordinator/inactive-courses`;
@@ -1320,6 +1425,18 @@ export async function getServerSideProps({ req, query }) {
 		});
 
 		const { data: dataAC } = await axios.get(backendURLac, {
+			headers: {
+				Authorization: `Bearer ${token}`,
+			},
+		});
+
+		const { data: dataWB } = await axios.get(backendURLwb, {
+			headers: {
+				Authorization: `Bearer ${token}`,
+			},
+		});
+
+		const { data: dataWA } = await axios.get(backendURLwa, {
 			headers: {
 				Authorization: `Bearer ${token}`,
 			},
@@ -1380,6 +1497,9 @@ export async function getServerSideProps({ req, query }) {
 		const { bundles: bundlesRC } = dataRC;
 		const { bundles: bundlesAC, is_active } = dataAC;
 
+		const { bundles: bundlesWB } = dataWB;
+		const { bundles: bundlesWA } = dataWA;
+
 		const { courses: active_courses } = dataActive;
 		const { courses: inactive_courses } = dataInactive;
 
@@ -1413,6 +1533,12 @@ export async function getServerSideProps({ req, query }) {
 		const dictBundlesAC = groupBy(bundlesAC, (bundle) => {
 			return bundle.bundle_id;
 		});
+		const dictBundlesWB = groupBy(bundlesWB, (bundle) => {
+			return bundle.bundle_id;
+		});
+		const dictBundlesWA = groupBy(bundlesWA, (bundle) => {
+			return bundle.bundle_id;
+		});
 
 		return {
 			props: {
@@ -1420,11 +1546,15 @@ export async function getServerSideProps({ req, query }) {
 				bundlesWC,
 				bundlesRC,
 				bundlesAC,
+				bundlesWB,
+				bundlesWA,
 				is_active,
 				dictBundlesRB,
 				dictBundlesWC,
 				dictBundlesRC,
 				dictBundlesAC,
+				dictBundlesWB,
+				dictBundlesWA,
 				currentCourse,
 				course,
 				students,
@@ -1439,6 +1569,10 @@ export async function getServerSideProps({ req, query }) {
 				bundlesWA: [],
 				bundlesRC: [],
 				bundlesAC: [],
+				bundlesWB: [],
+				bundlesWA: [],
+				dictBundlesWB: {},
+				dictBundlesWA: {},
 				is_active: true,
 				dictBundlesRB: {},
 				dictBundlesWC: {},
