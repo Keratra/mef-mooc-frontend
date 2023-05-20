@@ -47,6 +47,7 @@ export default function CoordinatorCoursePage({
 				bundle_id,
 			});
 
+			notify('success', 'Bundle approved successfully');
 			Router.reload();
 		} catch (error) {
 			console.log(error);
@@ -67,11 +68,22 @@ export default function CoordinatorCoursePage({
 			if (!confirm('Are you sure about approving this bundle?'))
 				throw new Error('Action refused by user');
 
+			const message = prompt(
+				'Please enter a message to the student about rejection reason'
+			);
+
+			if (!message) throw new Error('Message is required');
+
+			if (message.length > 2000)
+				throw new Error('Message is too long, max 2000 chars');
+
 			await axios.post(`/api/coordinator/reject-bundle`, {
 				course_id,
+				reason: message,
 				bundle_id,
 			});
 
+			notify('success', 'Bundle rejected successfully');
 			Router.reload();
 		} catch (error) {
 			console.log(error);
@@ -102,6 +114,7 @@ export default function CoordinatorCoursePage({
 				student_id,
 			});
 
+			notify('success', 'Certificate approved successfully');
 			Router.reload();
 		} catch (error) {
 			console.log(error);
@@ -126,12 +139,23 @@ export default function CoordinatorCoursePage({
 			)
 				throw new Error('Action refused by user');
 
+			const message = prompt(
+				'Please enter a message to the student about rejection reason'
+			);
+
+			if (!message) throw new Error('Message is required');
+
+			if (message.length > 2000)
+				throw new Error('Message is too long, max 2000 chars');
+
 			await axios.post(`/api/coordinator/reject-certificate`, {
 				course_id,
 				bundle_id,
+				reason: message,
 				student_id,
 			});
 
+			notify('success', 'Certificate rejected successfully');
 			Router.reload();
 		} catch (error) {
 			console.log(error);
@@ -503,13 +527,17 @@ export default function CoordinatorCoursePage({
 								},
 								{
 									name: 'Bundle',
-									alignment: 'left',
+									alignment: 'center',
 									className: '',
 								},
 								{
 									name: 'Bundle Feedback of Student',
 									alignment: 'center',
 									className: 'max-w-xs',
+								},
+								{
+									name: 'Completion Date',
+									alignment: 'center',
 								},
 								{
 									name: 'Actions',
@@ -584,7 +612,30 @@ export default function CoordinatorCoursePage({
 									<td className='max-w-xs px-4 py-4 text-lg font-medium  '>
 										<div className=' max-w-max mt-2 px-2 text-justify text-neutral-700 '>
 											{value[0]?.comment}
+											{console.log(value)}
 										</div>
+									</td>
+									<td className='px-4 py-4 text-lg font-medium text-center '>
+										{value[0]?.complete_date &&
+											new Date(value[0]?.complete_date).toLocaleDateString(
+												'en-US',
+												{
+													weekday: 'long',
+													year: 'numeric',
+													month: 'long',
+													day: 'numeric',
+													timeZone: 'UTC',
+												}
+											)}
+										{value[0]?.complete_date && ', '}
+										{value[0]?.complete_date &&
+											new Date(value[0]?.complete_date).toLocaleTimeString(
+												'en-US',
+												{
+													timeZone: 'UTC',
+												}
+											)}
+										{!value[0]?.complete_date && 'Date not found'}
 									</td>
 									<td className='   px-4 py-4 text-lg font-medium whitespace-nowrap '>
 										{!!is_active && (

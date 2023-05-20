@@ -24,19 +24,17 @@ export default function CoordinatorCoursePage({
 
 	const { course_id } = Router.query;
 
-	const handleApproveBundle = async (bundle_id) => {
-		// alert(JSON.stringify({ course_id, bundle_id }, null, 2));
-
+	const handleApprove = async (student_id) => {
 		try {
-			if (bundle_id === 0) throw 'Please select a bundle';
-			if (!confirm('Are you sure about approving this bundle?'))
+			if (!confirm('Are you sure about approving this enrollment?'))
 				throw new Error('Action refused by user');
 
-			await axios.post(`/api/coordinator/approve-bundle`, {
+			await axios.post(`/api/coordinator/approve-enrollment`, {
 				course_id,
-				bundle_id,
+				student_id,
 			});
 
+			notify('success', 'Enrollment approved successfully');
 			Router.reload();
 		} catch (error) {
 			console.log(error);
@@ -49,24 +47,31 @@ export default function CoordinatorCoursePage({
 		}
 	};
 
-	const handleRejectBundle = async (bundle_id) => {
-		// alert(JSON.stringify({ course_id, bundle_id }, null, 2));
-
+	const handleReject = async (student_id) => {
 		try {
-			if (bundle_id === 0) throw 'Please select a bundle';
-			if (!confirm('Are you sure about approving this bundle?'))
+			if (!confirm('Are you sure about rejecting this enrollment?'))
 				throw new Error('Action refused by user');
 
-			await axios.post(`/api/coordinator/reject-bundle`, {
+			const message = prompt(
+				'Please enter a message to the student about rejection reason'
+			);
+
+			if (!message) throw new Error('Message is required');
+
+			if (message.length > 2000)
+				throw new Error('Message is too long, max 2000 chars');
+
+			await axios.post(`/api/coordinator/reject-enrollment`, {
 				course_id,
-				bundle_id,
+				message,
+				student_id,
 			});
 
+			notify('success', 'Enrollment rejected successfully');
 			Router.reload();
 		} catch (error) {
 			console.log(error);
-			notify(
-				'error',
+			alert(
 				error?.response?.data?.message?.message ??
 					error?.response?.data?.message ??
 					error?.message ??
@@ -95,7 +100,10 @@ export default function CoordinatorCoursePage({
 		drop-shadow-md
 	`;
 
-	const tabs = [{ name: 'Awaiting Enrollments' }, { name: 'Students' }];
+	const tabs = [
+		{ name: 'Students Awaiting Enrollment Approval' },
+		{ name: 'All Students' },
+	];
 
 	return (
 		<div className='flex flex-col justify-center items-center'>
@@ -185,52 +193,123 @@ export default function CoordinatorCoursePage({
 								{ name: 'Email', alignment: 'left' },
 								{
 									name: 'Previous Courses',
-									alignment: 'left',
+									alignment: 'center',
+								},
+								{
+									name: 'Actions',
+									alignment: 'center',
 									className: 'rounded-tr-md',
 								},
 							]}
 						></KTableHead>
 						<KTableBody>
 							{!!waiting_students &&
-								waiting_students.map(
-									(
-										{
-											id,
-											name,
-											surname,
-											email,
-											student_no,
-											pass_date,
-											course_code,
-											course_name,
-											credits,
-											semester,
-										},
-										idx
-									) => (
-										<tr
-											key={id}
-											className={
-												idx % 2 === 0 ? 'bg-zinc-100' : 'bg-zinc-200/[0.75]'
-											}
-										>
-											<td className='align-baseline px-4 py-4 text-lg font-medium whitespace-nowrap text-center'>
-												{student_no}
-											</td>
-											<td className='align-baseline px-4 py-4 text-lg font-medium whitespace-nowrap text-center'>
-												{name} {surname}
-											</td>
-											<td className='align-baseline px-4 py-4 text-lg font-medium whitespace-nowrap text-center'>
-												{email}
-											</td>
-											<td className='align-baseline px-4 py-4 text-lg font-medium whitespace-nowrap text-center'>
-												{pass_date} {course_code} {course_name} {credits}{' '}
-												{semester}
-											</td>
-										</tr>
-									)
-								)}
-							{waiting_students?.length === 0 && (
+								Object.entries(waiting_students).map(([key, value], idx) => (
+									<tr
+										key={key}
+										className={
+											idx % 2 === 0 ? 'bg-zinc-100' : 'bg-zinc-200/[0.75]'
+										}
+									>
+										<td className='px-4 py-4 text-lg font-medium whitespace-nowrap'>
+											{value[0]?.student_no}
+										</td>
+										<td className='px-4 py-4 text-lg font-medium whitespace-nowrap'>
+											{value[0]?.name} {value[0]?.surname}
+										</td>
+										<td className='px-4 py-4 text-lg font-medium whitespace-nowrap'>
+											{value[0]?.email}
+										</td>
+										<td className='px-4 py-4 text-lg font-medium '>
+											{(value?.length === 0 ||
+												(value?.length === 1 && !value[0]?.course_id)) && (
+												<div className='mr-1 font-bold text-center rounded-xl text-rose-500'>
+													<span className='drop-shadow-lg'>
+														There are no previous courses
+													</span>
+												</div>
+											)}
+											{console.log(value)}
+											{value?.map(
+												(
+													{
+														pass_date,
+														course_code,
+														course_name,
+														course_id,
+														credits,
+														semester,
+														is_course_active,
+														is_passed_course,
+														is_waiting_enrollment,
+													},
+													index
+												) => (
+													<div key={index}>
+														{course_id && (
+															<div className='grid grid-cols-3 gap-y-4'>
+																<div className='w-full'>
+																	{!is_course_active ? (
+																		is_passed_course ? (
+																			<div className='mr-1 font-bold text-center rounded-xl text-white bg-green-500'>
+																				<span className='drop-shadow-lg'>
+																					PASSED COURSE
+																				</span>
+																			</div>
+																		) : (
+																			<div className='mr-1 font-bold text-center rounded-xl text-white bg-rose-500'>
+																				<span className='drop-shadow-lg'>
+																					FAILED COURSE
+																				</span>
+																			</div>
+																		)
+																	) : is_waiting_enrollment ? (
+																		<div className='mr-1 font-bold text-center rounded-xl text-white bg-yellow-500'>
+																			<span className='drop-shadow-lg'>
+																				IN WAITING LIST
+																			</span>
+																		</div>
+																	) : (
+																		<div className='mr-1 font-bold text-center rounded-xl text-white bg-sky-500'>
+																			<span className='drop-shadow-lg'>
+																				CURRENTLY ENROLLED
+																			</span>
+																		</div>
+																	)}
+																</div>
+																<div className='mb-1 col-span-2'>
+																	{pass_date} {course_code} {course_name}{' '}
+																	{credits} {semester}
+																</div>
+															</div>
+														)}
+													</div>
+												)
+											)}
+										</td>
+										<td className='px-4 py-4 text-lg font-medium text-center'>
+											<div className='my-4 flex flex-col gap-4 justify-evenly items-center'>
+												<button
+													onClick={() => handleReject(key)}
+													className='px-5 py-1 font-semibold text-xl uppercase border-none shadow-lg cursor-pointer rounded-lg hover:bg-rose-500 bg-rose-700 text-rose-50 transition-colors'
+												>
+													<span className='drop-shadow-md select-none'>
+														Reject
+													</span>
+												</button>
+												<button
+													onClick={() => handleApprove(key)}
+													className='px-5 py-1 font-semibold text-xl uppercase border-none shadow-lg cursor-pointer rounded-lg hover:bg-emerald-500 bg-emerald-700 text-emerald-50 transition-colors'
+												>
+													<span className='drop-shadow-md select-none'>
+														Approve
+													</span>
+												</button>
+											</div>
+										</td>
+									</tr>
+								))}
+							{Object.keys(waiting_students)?.length === 0 && (
 								<EmptyTableMessage
 									cols={4}
 									message='No waiting students were found...'
@@ -320,7 +399,11 @@ export async function getServerSideProps({ req, query }) {
 		const { is_active } = dataRC;
 
 		const { students } = dataST;
-		const { students: waiting_students } = dataEN;
+		const { students: waiting_students_raw } = dataEN;
+
+		const waiting_students = groupBy(waiting_students_raw, (student) => {
+			return student.student_id;
+		});
 
 		return {
 			props: {

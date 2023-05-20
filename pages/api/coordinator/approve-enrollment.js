@@ -1,15 +1,15 @@
 import axios from 'axios';
 
-export default async function rejectCertificate(req, res) {
+export default async function approveEnrollment(req, res) {
 	try {
-		const { course_id, bundle_id, reason, student_id } = req.body;
-		const backendURL = `${process.env.NEXT_PUBLIC_API_URL}/coordinator/course/${course_id}/bundle/${bundle_id}/reject-certificate`;
+		const { course_id, student_id } = req.body;
+		const backendURL = `${process.env.NEXT_PUBLIC_API_URL}/coordinator/course/${course_id}/waiting-students/accept`;
 
 		const token = req.cookies.token;
 
 		const { data } = await axios.post(
 			backendURL,
-			{ student_id, reason },
+			{ student_id },
 			{
 				headers: {
 					Authorization: `Bearer ${token}`,
