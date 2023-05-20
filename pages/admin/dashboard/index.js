@@ -30,7 +30,7 @@ export default function AdminDepartmentsPage({
 	departmentDict,
 }) {
 	const Router = useRouter();
-	const [selected, setSelected] = useState(0); // coordinator select
+	const [selected, setSelected] = useState(0);
 	const [selectedCoordinator, setSelectedCoordinator] = useState({
 		id: -1,
 		name: '',

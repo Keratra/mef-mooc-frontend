@@ -274,6 +274,7 @@ export default function BundleViewPage({ course_id, bundle_id, bundle }) {
 									style={{ resize: 'vertical' }}
 									value={values.comment}
 									onChange={handleChange}
+									maxLength={2000}
 								/>
 								<span className={classError}>
 									{errors.comment && touched.comment && errors.comment}
