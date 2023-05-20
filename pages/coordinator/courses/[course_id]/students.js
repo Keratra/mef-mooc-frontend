@@ -18,6 +18,7 @@ export default function CoordinatorCoursePage({
 	students,
 	waiting_students,
 	is_active,
+	course,
 }) {
 	const Router = useRouter();
 	const [selectedTabs, setSelectedTabs] = useState(0); // tabs
@@ -107,6 +108,14 @@ export default function CoordinatorCoursePage({
 
 	return (
 		<div className='flex flex-col justify-center items-center'>
+			<span className='text-center text-2xl font-bold mt-4'>
+				{course.course_code} {course.name}
+			</span>
+
+			<span className='text-center text-xl font-semibold mt-2'>
+				{course.semester} ({course.credits} credits)
+			</span>
+
 			<section className='w-[95%] px-2 py-4 sm:px-0 font-sans transition-all '>
 				<div className='flex space-x-1 rounded-xl bg-zinc-200/[0.8]  p-1'>
 					<NextLink
@@ -263,6 +272,12 @@ export default function CoordinatorCoursePage({
 																				</span>
 																			</div>
 																		)
+																	) : is_passed_course ? (
+																		<div className='mr-1 font-bold text-center rounded-xl text-white bg-green-500'>
+																			<span className='drop-shadow-lg'>
+																				PASSED COURSE
+																			</span>
+																		</div>
 																	) : is_waiting_enrollment ? (
 																		<div className='mr-1 font-bold text-center rounded-xl text-white bg-yellow-500'>
 																			<span className='drop-shadow-lg'>
@@ -278,8 +293,12 @@ export default function CoordinatorCoursePage({
 																	)}
 																</div>
 																<div className='mb-1 col-span-2'>
-																	{pass_date} {course_code} {course_name}{' '}
-																	{credits} {semester}
+																	{course_code} {course_name}
+																	{', '}
+																	{semester} ({credits} credits)
+																	{!!pass_date && (
+																		<div>Pass Date: {pass_date}</div>
+																	)}
 																</div>
 															</div>
 														)}
@@ -375,10 +394,16 @@ export async function getServerSideProps({ req, query }) {
 		const token = req.cookies.token;
 		const { course_id } = query;
 		const backendURLst = `${process.env.NEXT_PUBLIC_API_URL}/coordinator/course/${course_id}/students`;
-		const backendURLrc = `${process.env.NEXT_PUBLIC_API_URL}/coordinator/course/${course_id}/rejected-certificates`;
 		const backendURLen = `${process.env.NEXT_PUBLIC_API_URL}/coordinator/course/${course_id}/waiting-students`;
+		const backendURLrc = `${process.env.NEXT_PUBLIC_API_URL}/coordinator/course/${course_id}/rejected-certificates`;
 
 		const { data: dataST } = await axios.get(backendURLst, {
+			headers: {
+				Authorization: `Bearer ${token}`,
+			},
+		});
+
+		const { data: dataEN } = await axios.get(backendURLen, {
 			headers: {
 				Authorization: `Bearer ${token}`,
 			},
@@ -390,11 +415,15 @@ export async function getServerSideProps({ req, query }) {
 			},
 		});
 
-		const { data: dataEN } = await axios.get(backendURLen, {
+		const backendURLco = `${process.env.NEXT_PUBLIC_API_URL}/coordinator/course/${course_id}/info`;
+
+		const { data: dataCo } = await axios.get(backendURLco, {
 			headers: {
 				Authorization: `Bearer ${token}`,
 			},
 		});
+
+		const { course } = dataCo;
 
 		const { is_active } = dataRC;
 
@@ -410,6 +439,7 @@ export async function getServerSideProps({ req, query }) {
 				students,
 				waiting_students,
 				is_active,
+				course,
 			},
 		};
 	} catch (error) {
@@ -419,6 +449,7 @@ export async function getServerSideProps({ req, query }) {
 				students: [],
 				waiting_students: [],
 				is_active: false,
+				course: {},
 			},
 		};
 	}

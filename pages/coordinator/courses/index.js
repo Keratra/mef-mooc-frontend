@@ -17,11 +17,14 @@ import {
 import KTable from '@components/KTable';
 import KTableHead from '@components/KTableHead';
 import KTableBody from '@components/KTableBody';
+import { groupBy } from 'lodash';
 
 export default function CoordinatorCoursesPage({
 	active_courses,
 	inactive_courses,
 	semesters,
+	dictActiveCourses,
+	dictInactiveCourses,
 }) {
 	const Router = useRouter();
 
@@ -110,20 +113,11 @@ export default function CoordinatorCoursesPage({
 		drop-shadow-md
 	`;
 
-	const tableHeaders = [
-		{ name: 'Course Code', alignment: 'left', className: 'rounded-tl-md' },
-		{ name: 'Name', alignment: 'left' },
-		{ name: 'Credits', alignment: 'left' },
-		{ name: 'Semester', alignment: 'left' },
-		{ name: 'Deactivate', alignment: 'center' },
-		{ name: 'View', alignment: 'center', className: 'rounded-tr-md' },
-	];
-
 	return (
 		<div className='flex flex-col justify-center items-center'>
 			<PageTitle>Courses</PageTitle>
 
-			<section className='w-full max-w-6xl px-2 pb-8 sm:px-0 font-sans transition-all '>
+			<section className='w-full max-w-7xl px-2 pb-8 sm:px-0 font-sans transition-all '>
 				<div className='flex space-x-1 rounded-xl bg-zinc-200/[0.8]  p-1'>
 					<div
 						onClick={() => setSelectedTabs(0)}
@@ -165,60 +159,90 @@ export default function CoordinatorCoursesPage({
 			</section>
 
 			{selectedTabs === 0 && (
-				<div className='w-full max-w-6xl mx-auto'>
-					<KTable>
-						<KTableHead {...{ tableHeaders }}></KTableHead>
-						<KTableBody>
-							{!!active_courses &&
-								active_courses.map(
-									(
-										{ id, course_code, name, semester, credits, is_active },
-										idx
-									) => (
-										<tr
-											key={id}
-											className={
-												idx % 2 === 0 ? 'bg-zinc-100' : 'bg-zinc-200/[0.75]'
-											}
-										>
-											<td className=' px-4 py-4 text-lg font-medium whitespace-nowrap '>
-												{course_code}
-											</td>
-											<td className=' px-4 py-4 text-lg font-medium whitespace-nowrap '>
-												{name}
-											</td>
-											<td className=' px-4 py-4 text-lg font-medium whitespace-nowrap '>
-												{credits}
-											</td>
-											<td className=' px-4 py-4 text-lg font-medium whitespace-nowrap '>
-												{semester}
-											</td>
-											<td className='  px-4 py-4 text-lg font-medium text-center whitespace-nowrap '>
-												<button
-													onClick={() => handleDeactivate(id)}
-													className={`inline-flex justify-center items-center  py-1 px-3 shadow-none text-white text-center text-lg font-thin rounded-full bg-transparent border-none`}
-												>
-													<TrashIcon className='h-7 w-7 text-rose-700 hover:text-rose-500 cursor-pointer transition-colors' />
-												</button>
-											</td>
-											<td className=' px-4 py-4 text-lg font-medium text-center whitespace-nowrap '>
-												<NextLink href={`/coordinator/courses/${id}`}>
-													<button className=' inline-flex justify-center items-center text-center text-lg py-2 px-2 bg-transparent shadow-none text-white font-thin rounded-full border-none cursor-pointer transition-colors'>
-														<ChevronDoubleRightIcon className='h-7 w-7 text-indigo-700 hover:text-indigo-500 cursor-pointer transition-colors' />
-													</button>
-												</NextLink>
-											</td>
-										</tr>
-									)
-								)}
-							{active_courses?.length === 0 && (
-								<EmptyTableMessage
-									cols={6}
-									message='No active courses were found...'
-								/>
-							)}
-						</KTableBody>
-					</KTable>
+				<div className='w-full max-w-7xl mx-auto'>
+					{Object.entries(dictActiveCourses)
+						.map(([key, value], idx) => (
+							<div key={idx} className='w-full'>
+								<div className='flex justify-between items-center w-full mb-2'>
+									<h1 className='text-2xl font-semibold text-zinc-700'>
+										{key} Semester
+									</h1>
+								</div>
+
+								<div className='w-full overflow-x-auto mb-12'>
+									<KTable>
+										<KTableHead
+											tableHeaders={[
+												{
+													name: 'Course Code',
+													alignment: 'left',
+													className: 'rounded-tl-md',
+												},
+												{ name: 'Name', alignment: 'left' },
+												{ name: 'Credits', alignment: 'left' },
+												{ name: 'Deactivate', alignment: 'center' },
+												{
+													name: 'View',
+													alignment: 'center',
+													className: 'rounded-tr-md',
+												},
+											]}
+										></KTableHead>
+										<KTableBody>
+											{!!value &&
+												value.map(
+													(
+														{
+															id,
+															course_code,
+															name,
+															semester,
+															credits,
+															is_active,
+														},
+														idx
+													) => (
+														<tr
+															key={id}
+															className={
+																idx % 2 === 0
+																	? 'bg-zinc-100'
+																	: 'bg-zinc-200/[0.75]'
+															}
+														>
+															<td className=' px-4 py-4 text-lg font-medium whitespace-nowrap '>
+																{course_code}
+															</td>
+															<td className=' px-4 py-4 text-lg font-medium whitespace-nowrap '>
+																{name}
+															</td>
+															<td className=' px-4 py-4 text-lg font-medium whitespace-nowrap '>
+																{credits}
+															</td>
+															<td className='  px-4 py-4 text-lg font-medium text-center whitespace-nowrap '>
+																<button
+																	onClick={() => handleDeactivate(id)}
+																	className={`inline-flex justify-center items-center  py-1 px-3 shadow-none text-white text-center text-lg font-thin rounded-full bg-transparent border-none`}
+																>
+																	<TrashIcon className='h-7 w-7 text-rose-700 hover:text-rose-500 cursor-pointer transition-colors' />
+																</button>
+															</td>
+															<td className=' px-4 py-4 text-lg font-medium text-center whitespace-nowrap '>
+																<NextLink href={`/coordinator/courses/${id}`}>
+																	<button className=' inline-flex justify-center items-center text-center text-lg py-2 px-2 bg-transparent shadow-none text-white font-thin rounded-full border-none cursor-pointer transition-colors'>
+																		<ChevronDoubleRightIcon className='h-7 w-7 text-indigo-700 hover:text-indigo-500 cursor-pointer transition-colors' />
+																	</button>
+																</NextLink>
+															</td>
+														</tr>
+													)
+												)}
+										</KTableBody>
+									</KTable>
+								</div>
+							</div>
+						))
+						.reverse()}
 
 					<div className=' px-4 py-4 text-lg font-medium text-center '>
 						<button
@@ -232,93 +256,81 @@ export default function CoordinatorCoursesPage({
 			)}
 
 			{selectedTabs === 1 && (
-				<div className='w-full max-w-6xl mx-auto'>
-					<table className='w-full border-spacing-0 rounded-lg border-solid border-2 border-zinc-300 shadow-lg  '>
-						<thead className='bg-gradient-to-t from-zinc-300 to-zinc-200 text-black'>
-							<tr>
-								<th
-									scope='col'
-									align='left'
-									className={`min-w-[170px] px-4 py-2 font-semibold text-xl rounded-tl-md `}
-								>
-									<span className='text-center drop-shadow-md'>
-										Course Code
-									</span>
-								</th>
-								<th
-									scope='col'
-									align='left'
-									className={`min-w-[170px] px-4 py-2 font-semibold text-xl`}
-								>
-									<span className='text-center drop-shadow-md'>Name</span>
-								</th>
-								<th
-									scope='col'
-									align='left'
-									className={`min-w-[170px] px-4 py-2 font-semibold text-xl`}
-								>
-									<span className='text-center drop-shadow-md'>Credits</span>
-								</th>
-								<th
-									scope='col'
-									align='left'
-									className={`min-w-[170px] px-4 py-2 font-semibold text-xl`}
-								>
-									<span className='text-center drop-shadow-md'>Semester</span>
-								</th>
-								<th
-									scope='col'
-									align='center'
-									className={`min-w-[170px] px-4 py-2 font-semibold text-xl rounded-tr-md`}
-								>
-									<span className='text-center drop-shadow-md'>View</span>
-								</th>
-							</tr>
-						</thead>
+				<div className='w-full max-w-7xl mx-auto'>
+					{Object.entries(dictInactiveCourses)
+						.map(([key, value], idx) => (
+							<div key={idx} className='w-full'>
+								<div className='flex justify-between items-center w-full mb-2'>
+									<h1 className='text-2xl font-semibold text-zinc-700'>
+										{key} Semester
+									</h1>
+								</div>
 
-						<tbody className='divide-y divide-gray-200'>
-							{!!inactive_courses &&
-								inactive_courses.map(
-									(
-										{ id, course_code, name, semester, credits, is_active },
-										idx
-									) => (
-										<tr
-											key={id}
-											className={
-												idx % 2 === 0 ? 'bg-zinc-100' : 'bg-zinc-200/[0.75]'
-											}
-										>
-											<td className=' px-4 py-4 text-lg font-medium whitespace-nowrap '>
-												{course_code}
-											</td>
-											<td className=' px-4 py-4 text-lg font-medium whitespace-nowrap '>
-												{name}
-											</td>
-											<td className=' px-4 py-4 text-lg font-medium whitespace-nowrap '>
-												{credits}
-											</td>
-											<td className=' px-4 py-4 text-lg font-medium whitespace-nowrap '>
-												{semester}
-											</td>
-											<td className=' px-4 py-4 text-lg font-medium text-center whitespace-nowrap '>
-												<NextLink href={`/coordinator/courses/${id}`}>
-													<button className=' inline-flex justify-center items-center text-center text-lg py-2 px-2 bg-transparent shadow-none text-white font-thin rounded-full border-none cursor-pointer transition-colors'>
-														<ChevronDoubleRightIcon className='h-7 w-7 text-indigo-700 hover:text-indigo-500 cursor-pointer transition-colors' />
-													</button>
-												</NextLink>
-											</td>
-										</tr>
-									)
-								)}
-							{inactive_courses?.length === 0 && (
-								<EmptyTableMessage
-									cols={5}
-									message='No inactive courses were found...'
-								/>
-							)}
-						</tbody>
-					</table>
+								<div className='w-full overflow-x-auto mb-12'>
+									<KTable>
+										<KTableHead
+											tableHeaders={[
+												{
+													name: 'Course Code',
+													alignment: 'left',
+													className: 'rounded-tl-md',
+												},
+												{ name: 'Name', alignment: 'left' },
+												{ name: 'Credits', alignment: 'left' },
+												{
+													name: 'View',
+													alignment: 'center',
+													className: 'rounded-tr-md',
+												},
+											]}
+										></KTableHead>
+										<KTableBody>
+											{!!value &&
+												value.map(
+													(
+														{
+															id,
+															course_code,
+															name,
+															semester,
+															credits,
+															is_active,
+														},
+														idx
+													) => (
+														<tr
+															key={id}
+															className={
+																idx % 2 === 0
+																	? 'bg-zinc-100'
+																	: 'bg-zinc-200/[0.75]'
+															}
+														>
+															<td className=' px-4 py-4 text-lg font-medium whitespace-nowrap '>
+																{course_code}
+															</td>
+															<td className=' px-4 py-4 text-lg font-medium whitespace-nowrap '>
+																{name}
+															</td>
+															<td className=' px-4 py-4 text-lg font-medium whitespace-nowrap '>
+																{credits}
+															</td>
+															<td className=' px-4 py-4 text-lg font-medium text-center whitespace-nowrap '>
+																<NextLink href={`/coordinator/courses/${id}`}>
+																	<button className=' inline-flex justify-center items-center text-center text-lg py-2 px-2 bg-transparent shadow-none text-white font-thin rounded-full border-none cursor-pointer transition-colors'>
+																		<ChevronDoubleRightIcon className='h-7 w-7 text-indigo-700 hover:text-indigo-500 cursor-pointer transition-colors' />
+																	</button>
+																</NextLink>
+															</td>
+														</tr>
+													)
+												)}
+										</KTableBody>
+									</KTable>
+								</div>
+							</div>
+						))
+						.reverse()}
 				</div>
 			)}
 
@@ -469,11 +481,23 @@ export async function getServerSideProps({ req }) {
 		const { courses: inactive_courses } = dataInactive;
 		const { semesters } = dataSemesters;
 
+		const dictActiveCourses = groupBy(active_courses, (course) => {
+			return course.semester;
+		});
+
+		const dictInactiveCourses = groupBy(inactive_courses, (course) => {
+			return course.semester;
+		});
+
+		// {Object.entries(dictBundlesWA).map(([key, value], idx) => (
+
 		return {
 			props: {
 				active_courses: active_courses ?? [],
 				inactive_courses: inactive_courses ?? [],
 				semesters: semesters ?? [],
+				dictActiveCourses,
+				dictInactiveCourses,
 			},
 		};
 	} catch (error) {
@@ -482,6 +506,8 @@ export async function getServerSideProps({ req }) {
 				active_courses: [],
 				inactive_courses: [],
 				semesters: [],
+				dictActiveCourses: {},
+				dictInactiveCourses: {},
 			},
 		};
 	}

@@ -29,9 +29,7 @@ const people = [
 export default function CreateBundlePage({ course_id, moocs, mooc_details }) {
 	const Router = useRouter();
 
-	const [cart, setCart] = useState([]);
 	const [selected, setSelected] = useState([]);
-	const [selectedPeople, setSelectedPeople] = useState([people[0], people[1]]);
 
 	const handleSelect = (selectedList, selectedItem) => {
 		try {

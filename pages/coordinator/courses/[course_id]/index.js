@@ -1,7 +1,7 @@
 import NextLink from 'next/link';
 import { useState, useEffect } from 'react';
 import { Formik } from 'formik';
-import { addCourseModel, editBundleFeedbackModel } from 'lib/yupmodels';
+import { editBundleFeedbackModel, editBundleMoocAddModel } from 'lib/yupmodels';
 import axios from 'axios';
 import EmptyTableMessage from '@components/EmptyTableMessage';
 import { useRouter } from 'next/router';
@@ -20,22 +20,28 @@ import KTable from '@components/KTable';
 import KTableHead from '@components/KTableHead';
 import KTableBody from '@components/KTableBody';
 import { FiChevronLeft, FiChevronRight } from 'react-icons/fi';
-import { GrAddCircle } from 'react-icons/gr';
 import { MdDeleteForever } from 'react-icons/md';
+import Multiselect from 'multiselect-react-dropdown';
 import { notify } from 'utils/notify';
+import { BsChevronCompactDown } from 'react-icons/bs';
 
 export default function CoordinatorCoursePage({
-	students,
 	bundlesWB,
 	bundlesWA,
 	is_active,
 	dictBundlesWB,
 	dictBundlesWA,
-	token,
+	moocs,
+	mooc_details,
+	course,
+	students,
+	waiting_students,
 }) {
 	const Router = useRouter();
 	const [selectedTabs, setSelectedTabs] = useState(0); // tabs
+	const [selectedModalTab, setSelectedModalTab] = useState(0);
 	const [isOpen, setIsOpen] = useState(false);
+	const [selectedMooc, setSelectedMooc] = useState([]);
 	const [selected, setSelected] = useState(0);
 	const [selectedBundle, setSelectedBundle] = useState([
 		{
@@ -221,13 +227,15 @@ export default function CoordinatorCoursePage({
 
 	const handleAddMooc = async (values, { setSubmitting }) => {
 		try {
-			// const { data } = await axios.post(`/api/coordinator/add-bundle-mooc-`, {
-			// 	course_id,
-			// 	...values,
-			// });
+			const { data } = await axios.post(`/api/coordinator/add-bundle-mooc`, {
+				course_id,
+				bundle_id: selected,
+				mooc_id: selectedMooc[0].id,
+			});
 
 			notify('success', 'MOOC added successfully');
-			// Router.reload();
+
+			Router.reload();
 		} catch (error) {
 			console.log(error);
 			notify(
@@ -238,7 +246,34 @@ export default function CoordinatorCoursePage({
 					'Error'
 			);
 		} finally {
+			setSelectedMooc([]);
 			setSubmitting(false);
+		}
+	};
+
+	const handleDeleteMooc = async (bundle_detail_id) => {
+		try {
+			if (!confirm('Are you sure about removing this MOOC?'))
+				throw new Error('Action refused by user');
+
+			await axios.post(`/api/coordinator/remove-bundle-mooc`, {
+				course_id,
+				bundle_id: selected,
+				bundle_detail_id,
+			});
+
+			notify('success', 'MOOC removed successfully');
+
+			Router.reload();
+		} catch (error) {
+			console.log(error);
+			notify(
+				'error',
+				error?.response?.data?.message?.message ??
+					error?.response?.data?.message ??
+					error?.message ??
+					'Error'
+			);
 		}
 	};
 
@@ -246,7 +281,7 @@ export default function CoordinatorCoursePage({
 		try {
 			const certificate_url = prompt('Please enter the new certificate url');
 
-			if (!certificate_url) throw new Error('Certificate url is required');
+			// if (!certificate_url) throw new Error('Certificate url is required');
 
 			await axios.post(`/api/coordinator/edit-certificate`, {
 				course_id,
@@ -300,8 +335,90 @@ export default function CoordinatorCoursePage({
 		}
 	};
 
+	const handleApprove = async (student_id) => {
+		try {
+			if (!confirm('Are you sure about approving this enrollment?'))
+				throw new Error('Action refused by user');
+
+			await axios.post(`/api/coordinator/approve-enrollment`, {
+				course_id,
+				student_id,
+			});
+
+			notify('success', 'Enrollment approved successfully');
+			Router.reload();
+		} catch (error) {
+			console.log(error);
+			alert(
+				error?.response?.data?.message?.message ??
+					error?.response?.data?.message ??
+					error?.message ??
+					'Error'
+			);
+		}
+	};
+
+	const handleReject = async (student_id) => {
+		try {
+			if (!confirm('Are you sure about rejecting this enrollment?'))
+				throw new Error('Action refused by user');
+
+			const message = prompt(
+				'Please enter a message to the student about rejection reason'
+			);
+
+			if (!message) throw new Error('Message is required');
+
+			if (message.length > 2000)
+				throw new Error('Message is too long, max 2000 chars');
+
+			await axios.post(`/api/coordinator/reject-enrollment`, {
+				course_id,
+				message,
+				student_id,
+			});
+
+			notify('success', 'Enrollment rejected successfully');
+			Router.reload();
+		} catch (error) {
+			console.log(error);
+			alert(
+				error?.response?.data?.message?.message ??
+					error?.response?.data?.message ??
+					error?.message ??
+					'Error'
+			);
+		}
+	};
+
+	const handleSelect = (selectedList, selectedItem) => {
+		try {
+			if (
+				Object.values(selectedMooc)
+					.map(({ id }) => id)
+					.includes(selectedItem.id)
+			) {
+				notify('warning', 'Already added the selected MOOC');
+				return;
+			}
+			setSelectedMooc(() => [selectedItem]);
+		} catch (error) {
+			notify('error', 'Error adding MOOC');
+		}
+	};
+
+	const handleRemove = (selectedList, selectedItem) => {
+		try {
+			setSelectedMooc(() =>
+				selectedMooc.filter((item) => item.id !== selectedItem.id)
+			);
+		} catch (error) {
+			notify('error', 'Error removing MOOC');
+		}
+	};
+
 	const classLabel = `
-		md:col-span-2
+		md:col-span-full
 		mt-3 p-2 -mb-4 rounded-lg
 		text-xl font-semibold
 	`;
@@ -320,13 +437,16 @@ export default function CoordinatorCoursePage({
 		drop-shadow-md
 	`;
 
+	const enrollAwaitAmount = Object.keys(waiting_students)?.length;
 	const bundleSubAmount = Object.keys(dictBundlesWB)?.length;
 	const certificateSubAmount = Object.keys(dictBundlesWA)?.length;
 
+	const enrollAwaitSubTab = 'Students Awaiting Enrollment Approval';
 	const bundleSubTab = 'Student Bundle Submissions';
 	const certificateSubTab = 'Student Certificate Submissions';
 
 	const tabs = [
+		{ name: enrollAwaitSubTab, amount: enrollAwaitAmount },
 		{
 			name: bundleSubTab,
 			amount: bundleSubAmount,
@@ -336,6 +456,18 @@ export default function CoordinatorCoursePage({
 
 	return (
 		<div className='flex flex-col justify-center items-center'>
+			<span className='text-center text-2xl font-bold mt-4'>
+				{course.course_code} {course.name}
+			</span>
+
+			<span className='text-center text-xl font-semibold mt-2'>
+				{course.semester} ({course.credits} credits)
+			</span>
+
+			{/* <div className='m-0'>
+				<BsChevronCompactDown size={48} />
+			</div> */}
+
 			<section className='w-[95%] px-2 py-4 sm:px-0 font-sans transition-all '>
 				<div className='flex space-x-1 rounded-xl bg-zinc-200/[0.8]  p-1'>
 					<NextLink
@@ -373,32 +505,15 @@ export default function CoordinatorCoursePage({
 						`}
 					>
 						<div>
-							<span className='drop-shadow-md select-none '>
-								Action Required Bundles
-							</span>
-						</div>
-					</NextLink>
-					<NextLink
-						href={`/coordinator/courses/${course_id}/students`}
-						className={`
-							w-full rounded-lg py-2.5 text-lg
-							font-semibold leading-5 text-zinc-700 text-center
-							border-0 cursor-pointer 
-							ring-opacity-60 ring-white  ring-offset-2 ring-offset-zinc-400 
-							focus:outline-none focus:ring-2
-							${
-								false
-									? 'bg-white text-zinc-900 shadow'
-									: 'text-zinc-400 bg-white/[0.35] hover:bg-white hover:text-black'
-							}
-						`}
-					>
-						<div>
-							<span className='drop-shadow-md select-none '>Students</span>
+							<span className='drop-shadow-md select-none '>Actions</span>
 						</div>
 					</NextLink>
 				</div>
 			</section>
+
+			{/* <div className='m-0'>
+				<BsChevronCompactDown size={48} />
+			</div> */}
 
 			<Tabs {...{ selectedTabs, setSelectedTabs, tabs, fullWidth: false }} />
 
@@ -409,6 +524,157 @@ export default function CoordinatorCoursePage({
 			)}
 
 			{selectedTabs === 0 && (
+				<div className='flex flex-col overflow-x-auto w-[95%] align-middle overflow-hidden border shadow-lg'>
+					<KTable>
+						<KTableHead
+							tableHeaders={[
+								{
+									name: 'Student No',
+									alignment: 'left',
+									className: 'rounded-tl-md',
+								},
+								{ name: 'Name', alignment: 'left' },
+								{ name: 'Email', alignment: 'left' },
+								{
+									name: 'Previous Courses',
+									alignment: 'center',
+								},
+								{
+									name: 'Actions',
+									alignment: 'center',
+									className: 'rounded-tr-md',
+								},
+							]}
+						></KTableHead>
+						<KTableBody>
+							{!!waiting_students &&
+								Object.entries(waiting_students).map(([key, value], idx) => (
+									<tr
+										key={key}
+										className={
+											idx % 2 === 0 ? 'bg-zinc-100' : 'bg-zinc-200/[0.75]'
+										}
+									>
+										<td className='px-4 py-4 text-lg font-medium whitespace-nowrap'>
+											{value[0]?.student_no}
+										</td>
+										<td className='px-4 py-4 text-lg font-medium whitespace-nowrap'>
+											{value[0]?.name} {value[0]?.surname}
+										</td>
+										<td className='px-4 py-4 text-lg font-medium whitespace-nowrap'>
+											{value[0]?.email}
+										</td>
+										<td className='px-4 py-4 text-lg font-medium '>
+											{(value?.length === 0 ||
+												(value?.length === 1 && !value[0]?.course_id)) && (
+												<div className='mr-1 font-bold text-center rounded-xl text-rose-500'>
+													<span className='drop-shadow-lg'>
+														There are no previous courses
+													</span>
+												</div>
+											)}
+											{console.log(value)}
+											{value?.map(
+												(
+													{
+														pass_date,
+														course_code,
+														course_name,
+														course_id,
+														credits,
+														semester,
+														is_course_active,
+														is_passed_course,
+														is_waiting_enrollment,
+													},
+													index
+												) => (
+													<div key={index}>
+														{course_id && (
+															<div className='grid grid-cols-3 gap-y-4'>
+																<div className='w-full'>
+																	{!is_course_active ? (
+																		is_passed_course ? (
+																			<div className='mr-1 font-bold text-center rounded-xl text-white bg-green-500'>
+																				<span className='drop-shadow-lg'>
+																					PASSED COURSE
+																				</span>
+																			</div>
+																		) : (
+																			<div className='mr-1 font-bold text-center rounded-xl text-white bg-rose-500'>
+																				<span className='drop-shadow-lg'>
+																					FAILED COURSE
+																				</span>
+																			</div>
+																		)
+																	) : is_passed_course ? (
+																		<div className='mr-1 font-bold text-center rounded-xl text-white bg-green-500'>
+																			<span className='drop-shadow-lg'>
+																				PASSED COURSE
+																			</span>
+																		</div>
+																	) : is_waiting_enrollment ? (
+																		<div className='mr-1 font-bold text-center rounded-xl text-white bg-yellow-500'>
+																			<span className='drop-shadow-lg'>
+																				IN WAITING LIST
+																			</span>
+																		</div>
+																	) : (
+																		<div className='mr-1 font-bold text-center rounded-xl text-white bg-sky-500'>
+																			<span className='drop-shadow-lg'>
+																				CURRENTLY ENROLLED
+																			</span>
+																		</div>
+																	)}
+																</div>
+																<div className='mb-1 col-span-2'>
+																	{course_code} {course_name}
+																	{', '}
+																	{semester} ({credits} credits)
+																	{!!pass_date && (
+																		<div>Pass Date: {pass_date}</div>
+																	)}
+																</div>
+															</div>
+														)}
+													</div>
+												)
+											)}
+										</td>
+										<td className='px-4 py-4 text-lg font-medium text-center'>
+											<div className='my-4 flex flex-col gap-4 justify-evenly items-center'>
+												<button
+													onClick={() => handleReject(key)}
+													className='px-5 py-1 font-semibold text-xl uppercase border-none shadow-lg cursor-pointer rounded-lg hover:bg-rose-500 bg-rose-700 text-rose-50 transition-colors'
+												>
+													<span className='drop-shadow-md select-none'>
+														Reject
+													</span>
+												</button>
+												<button
+													onClick={() => handleApprove(key)}
+													className='px-5 py-1 font-semibold text-xl uppercase border-none shadow-lg cursor-pointer rounded-lg hover:bg-emerald-500 bg-emerald-700 text-emerald-50 transition-colors'
+												>
+													<span className='drop-shadow-md select-none'>
+														Approve
+													</span>
+												</button>
+											</div>
+										</td>
+									</tr>
+								))}
+							{Object.keys(waiting_students)?.length === 0 && (
+								<EmptyTableMessage
+									cols={4}
+									message='No waiting students were found...'
+								/>
+							)}
+						</KTableBody>
+					</KTable>
+				</div>
+			)}
+
+			{selectedTabs === 1 && (
 				<div className='w-[95%]'>
 					<KTable className=''>
 						<KTableHead
@@ -423,7 +689,12 @@ export default function CoordinatorCoursePage({
 									alignment: 'left',
 								},
 								{
-									name: 'Bundles',
+									name: 'Chosen MOOCs',
+									alignment: 'center',
+									className: '',
+								},
+								{
+									name: 'Total Hours',
 									alignment: 'center',
 									className: '',
 								},
@@ -505,6 +776,11 @@ export default function CoordinatorCoursePage({
 											)
 										)}
 									</td>
+									<td className=' px-4 py-4 text-lg font-medium whitespace-nowrap text-center '>
+										{value
+											.map(({ average_hours }) => average_hours)
+											.reduce((partialSum, a) => partialSum + a, 0)}
+									</td>
 									<td className=' text-center  px-4 py-4 text-lg font-medium whitespace-nowrap '>
 										{!!is_active && (
 											<button
@@ -538,10 +814,10 @@ export default function CoordinatorCoursePage({
 									</td>
 								</tr>
 							))}
-							{Object.keys(dictBundlesWA)?.length === 0 && (
+							{Object.keys(dictBundlesWB)?.length === 0 && (
 								<EmptyTableMessage
 									cols={6}
-									message='No active courses were found...'
+									message='No submissions were found...'
 								/>
 							)}
 						</KTableBody>
@@ -659,7 +935,7 @@ export default function CoordinatorCoursePage({
 				</div>
 			)} */}
 
-			{selectedTabs === 1 && (
+			{selectedTabs === 2 && (
 				<div className='w-[95%]'>
 					<KTable className=''>
 						<KTableHead
@@ -670,7 +946,7 @@ export default function CoordinatorCoursePage({
 									className: 'rounded-tl-md',
 								},
 								{
-									name: 'Bundle',
+									name: 'MOOCs & Certificates',
 									alignment: 'center',
 									className: '',
 								},
@@ -682,6 +958,11 @@ export default function CoordinatorCoursePage({
 								{
 									name: 'Completion Date',
 									alignment: 'center',
+								},
+								{
+									name: 'Edit Bundle',
+									alignment: 'center',
+									className: '',
 								},
 								{
 									name: 'Actions',
@@ -781,6 +1062,20 @@ export default function CoordinatorCoursePage({
 											)}
 										{!value[0]?.complete_date && 'Date not found'}
 									</td>
+
+									<td className=' text-center  px-4 py-4 text-lg font-medium whitespace-nowrap '>
+										{!!is_active && (
+											<button
+												onClick={() => {
+													setSelected(key);
+													getBundleDetails(key);
+												}}
+												className={` bg-transparent  text-center font-thin border-none cursor-pointer transition-colors`}
+											>
+												<PencilSquareIcon className='h-7 w-7 text-zinc-700' />
+											</button>
+										)}
+									</td>
 									<td className='   px-4 py-4 text-lg font-medium whitespace-nowrap '>
 										{!!is_active && (
 											<div className='my-4 flex flex-col gap-4 justify-evenly items-center'>
@@ -812,7 +1107,7 @@ export default function CoordinatorCoursePage({
 							{Object.keys(dictBundlesWA)?.length === 0 && (
 								<EmptyTableMessage
 									cols={6}
-									message='No active courses were found...'
+									message='No submissions were found...'
 								/>
 							)}
 						</KTableBody>
@@ -963,182 +1258,354 @@ export default function CoordinatorCoursePage({
 				extraLarge={true}
 			>
 				<div className={`transition-all mt-2 `}>
-					{!!selectedBundle && (
-						<div className='flex flex-col items-center justify-center'>
-							<div className='grid grid-cols-2 gap-1 my-2'>
-								<h3 className='col-span-full text-center'>Student</h3>
-								<span>
-									{selectedBundle[0]?.student_name}{' '}
-									{selectedBundle[0]?.student_surname}
-								</span>
-								<span>{selectedBundle[0]?.student_email}</span>
-							</div>
-							<div className=''>
-								<div className='grid grid-cols-1 gap-2 my-4'>
-									{Object.entries(selectedBundle[0] ?? {}).map(
-										([key, value], index) => (
-											<div key={index} className='grid grid-cols-2 gap-1'>
-												<span>{key}:</span>
-												<span>{value ?? '-'}</span>
-											</div>
-										)
-									)}
+					{/* <section className='w-[95%] px-2 py-4 sm:px-0 font-sans transition-all '>
+						<div className='flex space-x-1 rounded-xl bg-zinc-200/[0.8]  p-1'>
+							<div
+								onClick={() => setSelectedModalTab(0)}
+								className={`
+							w-full rounded-lg py-2.5 text-lg
+							font-semibold leading-5 text-zinc-700 text-center
+							border-0 cursor-pointer 
+							ring-opacity-60 ring-white  ring-offset-2 ring-offset-zinc-400 
+							focus:outline-none focus:ring-2
+							${
+								selectedModalTab === 0
+									? 'bg-white text-zinc-900 shadow'
+									: 'text-zinc-400 bg-white/[0.35] hover:bg-white hover:text-black'
+							}
+						`}
+							>
+								<div>
+									<span className='drop-shadow-md select-none '>
+										View MOOCs
+									</span>
 								</div>
 							</div>
-							<div className='mt-2 w-full overflow-x-auto'>
-								<KTable>
-									<KTableHead
-										tableHeaders={[
-											{
-												name: 'MOOC',
-												alignment: 'left',
-												className: 'rounded-tl-md',
-												extra: (
-													<span onClick={handleAddMooc} className=''>
-														<GrAddCircle
-															size={24}
-															className='align-text-bottom text-blue-600 cursor-pointer hover:text-blue-800 '
-														/>
-													</span>
-												),
-											},
-											{ name: 'Certificate', alignment: 'left' },
-											{
-												name: 'Change Certificate URL',
-												alignment: 'center',
-												className: 'rounded-tr-md',
-											},
-										]}
-									></KTableHead>
-									<KTableBody>
-										{selectedBundle.map((bundle, idx) => (
-											<tr
-												key={idx}
-												className={
-													idx % 2 === 0 ? 'bg-zinc-100' : 'bg-zinc-200/[0.75]'
-												}
-											>
-												<td className='px-4 py-2'>
-													<MdDeleteForever
-														size={24}
-														onClick={() => handleDeleteMooc(bundle)}
-														className=' drop-shadow-md align-bottom text-red-700 cursor-pointer mr-2'
-													/>
-													{bundle.mooc_name}
-												</td>
-												<td className='px-4 py-2'>
-													{bundle?.certificate_url && (
-														<NextLink
-															href={bundle.certificate_url}
-															target='_blank'
-															className='text-blue-500'
-														>
-															{bundle.certificate_url}
-														</NextLink>
-													)}
-												</td>
-												<td className='px-4 py-2'>
-													<div className='flex justify-center'>
-														<button
-															onClick={() =>
-																handleEditCertificate(bundle.bundle_detail_id)
-															}
-															className={` bg-transparent  text-center font-thin border-none cursor-pointer transition-colors`}
-														>
-															<PencilSquareIcon className='h-7 w-7 text-zinc-700' />
-														</button>
-													</div>
-												</td>
-											</tr>
-										))}
-									</KTableBody>
-								</KTable>
+							<div
+								onClick={() => setSelectedModalTab(1)}
+								className={`
+							w-full rounded-lg py-2.5 text-lg
+							font-semibold leading-5 text-zinc-700 text-center
+							border-0 cursor-pointer 
+							ring-opacity-60 ring-white  ring-offset-2 ring-offset-zinc-400 
+							focus:outline-none focus:ring-2
+							${
+								selectedModalTab === 1
+									? 'bg-white text-zinc-900 shadow'
+									: 'text-zinc-400 bg-white/[0.35] hover:bg-white hover:text-black'
+							}
+						`}
+							>
+								<div>
+									<span className='drop-shadow-md select-none '>
+										Add a MOOC
+									</span>
+								</div>
+							</div>
+							<div
+								onClick={() => setSelectedModalTab(2)}
+								className={`
+							w-full rounded-lg py-2.5 text-lg
+							font-semibold leading-5 text-zinc-700 text-center
+							border-0 cursor-pointer 
+							ring-opacity-60 ring-white  ring-offset-2 ring-offset-zinc-400 
+							focus:outline-none focus:ring-2
+							${
+								selectedModalTab === 2
+									? 'bg-white text-zinc-900 shadow'
+									: 'text-zinc-400 bg-white/[0.35] hover:bg-white hover:text-black'
+							}
+						`}
+							>
+								<div>
+									<span className='drop-shadow-md select-none '>
+										Change Bundle Feedback
+									</span>
+								</div>
 							</div>
 						</div>
+					</section> */}
+
+					<div className='flex flex-col items-center justify-center'>
+						<div className='w-full text-lg flex justify-evenly items-center gap-1 my-2'>
+							<span>
+								<span className='font-semibold'>Name:</span>{' '}
+								{selectedBundle[0]?.student_name}{' '}
+								{selectedBundle[0]?.student_surname}
+							</span>
+							<span>
+								<span className='font-semibold'>Student No: </span>
+								{selectedBundle[0]?.student_no}
+							</span>
+							<span>
+								<span className='font-semibold'>Email: </span>
+								{selectedBundle[0]?.student_email}
+							</span>
+						</div>
+						{/* <div className='grid grid-cols-1 gap-2 my-4'>
+								{Object.entries(selectedBundle[0] ?? {}).map(
+									([key, value], index) => (
+										<div key={index} className='grid grid-cols-2 gap-1'>
+											<span>{key}:</span>
+											<span>{value ?? '-'}</span>
+										</div>
+									)
+								)}
+							</div> */}
+					</div>
+
+					{selectedModalTab === 0 && (
+						<div className='mt-2 w-full overflow-x-auto'>
+							<KTable>
+								<KTableHead
+									tableHeaders={
+										selectedTabs === 0
+											? [
+													{
+														name: 'MOOC',
+														alignment: 'left',
+														className: 'rounded-tl-md rounded-tr-md',
+													},
+											  ]
+											: [
+													{
+														name: 'MOOC',
+														alignment: 'left',
+														className: 'rounded-tl-md',
+													},
+													{ name: 'Certificate', alignment: 'left' },
+													{
+														name: 'Change Certificate URL',
+														alignment: 'center',
+														className: 'rounded-tr-md',
+													},
+											  ]
+									}
+								></KTableHead>
+								<KTableBody>
+									{selectedBundle.map((bundle, idx) => (
+										<tr
+											key={idx}
+											className={
+												idx % 2 === 0 ? 'bg-zinc-100' : 'bg-zinc-200/[0.75]'
+											}
+										>
+											<td className='px-4 py-2'>
+												<MdDeleteForever
+													size={24}
+													onClick={() =>
+														handleDeleteMooc(bundle.bundle_detail_id)
+													}
+													className=' drop-shadow-md align-bottom text-red-700 cursor-pointer mr-2'
+												/>
+												{bundle.mooc_name}
+											</td>
+											{selectedTabs !== 0 && (
+												<>
+													<td className='px-4 py-2'>
+														{bundle?.certificate_url && (
+															<NextLink
+																href={bundle.certificate_url}
+																target='_blank'
+																className='text-blue-500'
+															>
+																{bundle.certificate_url}
+															</NextLink>
+														)}
+													</td>
+													<td className='px-4 py-2'>
+														<div className='flex justify-center'>
+															<button
+																onClick={() =>
+																	handleEditCertificate(bundle.bundle_detail_id)
+																}
+																className={` bg-transparent  text-center font-thin border-none cursor-pointer transition-colors`}
+															>
+																<PencilSquareIcon className='h-7 w-7 text-zinc-700' />
+															</button>
+														</div>
+													</td>
+												</>
+											)}
+										</tr>
+									))}
+								</KTableBody>
+							</KTable>
+						</div>
 					)}
-					<Formik
-						initialValues={{ comment: selectedBundle[0].comment }}
-						validationSchema={editBundleFeedbackModel.schema}
-						onSubmit={handleCommentChange}
-					>
-						{({
-							setFieldValue,
-							values,
-							errors,
-							touched,
-							handleChange,
-							handleSubmit,
-							isSubmitting,
-						}) => (
-							<form
-								onSubmit={handleSubmit}
-								className={`grid grid-cols-1 md:grid-cols-2 gap-2 content-center place-content-center px-4`}
-							>
-								{/* <label className={classLabel} htmlFor='name'>
-									Name
-								</label>
-								<input
-									className={classInput}
-									type='text'
-									name='name'
-									id='name'
-									value={values.name}
-									onChange={handleChange}
-								/>
-								<span className={classError}>
-									{errors.name && touched.name && errors.name}
-								</span>
 
-								<label className={classLabel} htmlFor='surname'>
-									Surname
-								</label>
-								<input
-									className={classInput}
-									type='text'
-									name='surname'
-									id='surname'
-									value={values.surname}
-									onChange={handleChange}
-								/>
-								<span className={classError}>
-									{errors.surname && touched.surname && errors.surname}
-								</span> */}
-
-								<label className={classLabel} htmlFor='comment'>
-									Bundle Feedback
-								</label>
-
-								<textarea
-									className={classInput}
-									type='text'
-									name='comment'
-									id='comment'
-									style={{ resize: 'vertical' }}
-									value={values.comment}
-									onChange={handleChange}
-								/>
-								<span className={classError}>
-									{errors.comment && touched.comment && errors.comment}
-								</span>
-
-								<button
-									variant='contained'
-									color='primary'
-									size='large'
-									type='submit'
-									className={`mx-auto  my-4 md:col-span-2 tracking-wider text-center text-xl py-2 px-4 bg-[#212021] hover:bg-[#414041] shadow-md text-white font-bold rounded-xl border-none cursor-pointer transition-colors`}
-									disabled={isSubmitting}
+					{selectedModalTab === 0 && (
+						<Formik
+							initialValues={editBundleMoocAddModel.initials}
+							validationSchema={editBundleMoocAddModel.schema}
+							onSubmit={handleAddMooc}
+						>
+							{({
+								setFieldValue,
+								values,
+								errors,
+								touched,
+								handleChange,
+								handleSubmit,
+								isSubmitting,
+							}) => (
+								<form
+									onSubmit={handleSubmit}
+									className={`grid grid-cols-1 md:grid-cols-4 gap-2 content-center place-content-center px-4 mb-8`}
 								>
+									<label className={classLabel} htmlFor='addmooc'>
+										Add a MOOC
+									</label>
 									<div
-										className={`inline-block rounded-sm bg-purple-500 ${
-											isSubmitting && 'w-4 h-4 mr-2 animate-spin'
-										}`}
-									></div>
-									<span>{isSubmitting ? 'Editing...' : 'EDIT FEEDBACK'}</span>
-								</button>
-							</form>
-						)}
-					</Formik>
+										name='addmooc'
+										id='addmooc'
+										className='col-span-3 flex flex-col justify-center overflow-visible'
+									>
+										<Multiselect
+											className='w-full '
+											options={moocs} // Options to display in the dropdown
+											selectedValues={selectedMooc} // Preselected value to persist in dropdown
+											onSelect={handleSelect} // Function will trigger on select event
+											onRemove={handleRemove} // Function will trigger on remove event
+											displayValue='name' // Property name to display in the dropdown options
+											placeholder='Select a MOOC'
+											style={{
+												chips: {
+													padding: '0.5rem 1rem',
+													background: '#212021',
+													borderRadius: '4rem',
+													color: '#f2f2f2',
+													fontSize: '1rem',
+												},
+												multiselectContainer: {
+													color: '#212021',
+													fontSize: '1rem',
+												},
+												searchBox: {
+													padding: '0.5rem',
+													color: '#f2f2f2',
+													border: '1px solid #212021',
+													borderBottom: '1px solid #212021',
+													borderRadius: '5px',
+													fontSize: '1rem',
+												},
+												inputField: {
+													fontSize: '1rem',
+												},
+												option: {
+													border: 'none',
+													borderBottom: '1px solid #ccc',
+													borderRadius: '0',
+												},
+											}}
+										/>
+									</div>
+
+									<button
+										variant='contained'
+										color='primary'
+										size='large'
+										type='submit'
+										className={`mx-auto my-4 col-span-1 tracking-wider text-center text-xl py-1 px-4 bg-[#212021] hover:bg-[#414041] shadow-md text-white font-bold rounded-xl border-none cursor-pointer transition-colors`}
+										disabled={isSubmitting}
+									>
+										<div
+											className={`inline-block rounded-sm bg-purple-500 ${
+												isSubmitting && 'w-4 h-4 mr-2 animate-spin'
+											}`}
+										></div>
+										<span>{isSubmitting ? 'ADDING...' : 'ADD MOOC'}</span>
+									</button>
+								</form>
+							)}
+						</Formik>
+					)}
+
+					{selectedModalTab === 0 && (
+						<Formik
+							initialValues={{ comment: selectedBundle[0].comment }}
+							validationSchema={editBundleFeedbackModel.schema}
+							onSubmit={handleCommentChange}
+						>
+							{({
+								setFieldValue,
+								values,
+								errors,
+								touched,
+								handleChange,
+								handleSubmit,
+								isSubmitting,
+							}) => (
+								<form
+									onSubmit={handleSubmit}
+									className={`grid grid-cols-1 md:grid-cols-2 gap-2 content-center place-content-center px-4`}
+								>
+									{/* <label className={classLabel} htmlFor='name'>
+								Name
+							</label>
+							<input
+								className={classInput}
+								type='text'
+								name='name'
+								id='name'
+								value={values.name}
+								onChange={handleChange}
+							/>
+							<span className={classError}>
+								{errors.name && touched.name && errors.name}
+							</span>
+
+							<label className={classLabel} htmlFor='surname'>
+								Surname
+							</label>
+							<input
+								className={classInput}
+								type='text'
+								name='surname'
+								id='surname'
+								value={values.surname}
+								onChange={handleChange}
+							/>
+							<span className={classError}>
+								{errors.surname && touched.surname && errors.surname}
+							</span> */}
+
+									<label className={classLabel} htmlFor='comment'>
+										Bundle Feedback
+									</label>
+
+									<textarea
+										className={classInput}
+										type='text'
+										name='comment'
+										id='comment'
+										style={{ resize: 'vertical' }}
+										value={values.comment}
+										onChange={handleChange}
+									/>
+									<span className={classError}>
+										{errors.comment && touched.comment && errors.comment}
+									</span>
+
+									<button
+										variant='contained'
+										color='primary'
+										size='large'
+										type='submit'
+										className={`mx-auto  my-4 md:col-span-2 tracking-wider text-center text-xl py-2 px-4 bg-[#212021] hover:bg-[#414041] shadow-md text-white font-bold rounded-xl border-none cursor-pointer transition-colors`}
+										disabled={isSubmitting}
+									>
+										<div
+											className={`inline-block rounded-sm bg-purple-500 ${
+												isSubmitting && 'w-4 h-4 mr-2 animate-spin'
+											}`}
+										></div>
+										<span>{isSubmitting ? 'Editing...' : 'EDIT FEEDBACK'}</span>
+									</button>
+								</form>
+							)}
+						</Formik>
+					)}
 				</div>
 			</Modal>
 		</div>
@@ -1152,6 +1619,8 @@ export async function getServerSideProps({ req, query }) {
 		const backendURLwb = `${process.env.NEXT_PUBLIC_API_URL}/coordinator/course/${course_id}/waiting-bundles`;
 		const backendURLwa = `${process.env.NEXT_PUBLIC_API_URL}/coordinator/course/${course_id}/waiting-approval`;
 
+		const backendURLmo = `${process.env.NEXT_PUBLIC_API_URL}/coordinator/moocs`;
+
 		const { data: dataWB } = await axios.get(backendURLwb, {
 			headers: {
 				Authorization: `Bearer ${token}`,
@@ -1162,6 +1631,52 @@ export async function getServerSideProps({ req, query }) {
 			headers: {
 				Authorization: `Bearer ${token}`,
 			},
+		});
+
+		const { data: dataMo } = await axios.get(backendURLmo, {
+			headers: {
+				Authorization: `Bearer ${token}`,
+			},
+		});
+
+		const backendURLco = `${process.env.NEXT_PUBLIC_API_URL}/coordinator/course/${course_id}/info`;
+
+		const { data: dataCo } = await axios.get(backendURLco, {
+			headers: {
+				Authorization: `Bearer ${token}`,
+			},
+		});
+
+		const { course } = dataCo;
+
+		const backendURLst = `${process.env.NEXT_PUBLIC_API_URL}/coordinator/course/${course_id}/students`;
+		const backendURLen = `${process.env.NEXT_PUBLIC_API_URL}/coordinator/course/${course_id}/waiting-students`;
+
+		const { data: dataST } = await axios.get(backendURLst, {
+			headers: {
+				Authorization: `Bearer ${token}`,
+			},
+		});
+
+		const { data: dataEN } = await axios.get(backendURLen, {
+			headers: {
+				Authorization: `Bearer ${token}`,
+			},
+		});
+
+		const { students } = dataST;
+		const { students: waiting_students_raw } = dataEN;
+
+		const waiting_students = groupBy(waiting_students_raw, (student) => {
+			return student.student_id;
+		});
+
+		const { moocs } = dataMo;
+
+		const mooc_details = {};
+
+		moocs?.forEach(({ id, name, url, average_hours }, index) => {
+			mooc_details[id] = { id, name, url, average_hours };
 		});
 
 		const { bundles: bundlesWB, is_active } = dataWB;
@@ -1181,7 +1696,11 @@ export async function getServerSideProps({ req, query }) {
 				is_active,
 				dictBundlesWB,
 				dictBundlesWA,
-				token,
+				moocs,
+				mooc_details,
+				course,
+				students,
+				waiting_students,
 			},
 		};
 	} catch (error) {
@@ -1193,7 +1712,11 @@ export async function getServerSideProps({ req, query }) {
 				is_active: true,
 				dictBundlesWB: {},
 				dictBundlesWA: {},
-				token: '',
+				moocs: [],
+				mooc_details: {},
+				course: {},
+				students: [],
+				waiting_students: [],
 			},
 		};
 	}

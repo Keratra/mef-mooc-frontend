@@ -38,16 +38,17 @@ export default function Modal({
 						>
 							<Dialog.Panel
 								className={
-									(extraLarge ? 'max-w-7xl ' : 'max-w-md ') +
-									' w-full transform overflow-hidden rounded-2xl bg-white p-6 text-left align-middle shadow-xl transition-all'
+									(extraLarge ? 'max-w-4xl ' : 'max-w-md ') +
+									' w-full transform overflow-visible rounded-2xl bg-white p-6 text-left align-middle shadow-xl transition-all'
 								}
 							>
-								<Dialog.Title
+								{/* <Dialog.Title
 									as='h1'
 									className='text-center text-xl font-semibold leading-6 text-gray-900 uppercase '
 								>
-									<h2>{title}</h2>
-								</Dialog.Title>
+									.
+								</Dialog.Title> */}
+								<h2 className='text-center uppercase'>{title}</h2>
 								{children}
 							</Dialog.Panel>
 						</Transition.Child>

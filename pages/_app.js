@@ -81,11 +81,11 @@ function Sidebar({ items, open, setOpen, children }) {
 				open={open}
 				setOpen={setOpen}
 			/>
-			<div className='flex-row lg:flex'>
+			<div className='h-[94vh] flex-row lg:flex'>
 				<div
 					className={` ${
 						open ? 'lg:w-0' : 'lg:w-60 '
-					}  flex flex-col lg:h-screen  w-full bg-zinc-200/[0.75] shadow duration-100 border-solid border-0 border-r border-zinc-300  `}
+					}  flex flex-col lg:h-full  w-full bg-zinc-200/[0.75] shadow duration-100 border-solid border-0 border-r border-zinc-300  `}
 				>
 					<div
 						className={`px-3 py-1 space-y-3 h-full ${open ? 'hidden ' : '  '}`}
@@ -112,7 +112,7 @@ function Sidebar({ items, open, setOpen, children }) {
 						</div>
 					</div>
 				</div>
-				<div className='w-full mx-auto '>{children}</div>
+				<div className='overflow-y-auto w-full mx-auto '>{children}</div>
 			</div>
 		</div>
 	);
