@@ -77,7 +77,7 @@ export default function CreateBundlePage({ course_id, moocs, mooc_details }) {
 
 	return (
 		<div className='flex flex-col justify-center items-center'>
-			<PageTitle>Create your Bundle</PageTitle>
+			<PageTitle>Create Your Bundle</PageTitle>
 
 			<div className='min-w-[64rem] mb-4'>
 				<Multiselect
@@ -125,16 +125,16 @@ export default function CreateBundlePage({ course_id, moocs, mooc_details }) {
 						tableHeaders={[
 							{
 								name: 'MOOC ID',
-								alignment: 'left',
+								alignment: 'center',
 								className: 'rounded-tl-md',
 							},
 							{ name: 'MOOC Name', alignment: 'left' },
 							{
 								name: 'Average Hours',
-								alignment: 'left',
+								alignment: 'center',
 							},
 							{
-								name: 'Link',
+								name: 'MOOC Link',
 								alignment: 'left',
 								className: 'rounded-tr-md',
 							},
@@ -142,13 +142,18 @@ export default function CreateBundlePage({ course_id, moocs, mooc_details }) {
 					></KTableHead>
 					<KTableBody>
 						{!!selected &&
-							selected.map(({ id, name }) => (
-								<tr key={id}>
+							selected.map(({ id, name }, idx) => (
+								<tr
+									key={id}
+									className={
+										idx % 2 === 0 ? 'bg-zinc-100' : 'bg-zinc-200/[0.75]'
+									}
+								>
 									<td className=' px-4 py-4 text-lg font-medium whitespace-nowrap text-center'>
 										{id}
 									</td>
 									<td className=' px-4 py-4 text-lg font-medium'>{name}</td>
-									<td className=' px-4 py-4 text-lg font-medium'>
+									<td className=' px-4 py-4 text-lg font-medium text-center'>
 										{mooc_details[id]?.average_hours}
 									</td>
 
@@ -166,6 +171,24 @@ export default function CreateBundlePage({ course_id, moocs, mooc_details }) {
 
 						{selected?.length === 0 && (
 							<EmptyTableMessage cols={4} message='No MOOCs were added...' />
+						)}
+						{selected?.length !== 0 && (
+							<tr>
+								<td
+									colSpan={4}
+									className='p-4 text-center border-0 border-y border-solid border-zinc-500/[0.3] bg-zinc-100'
+								>
+									<span className='text-xl'>
+										Total of{' '}
+										<span className='font-semibold'>
+											{selected
+												.map(({ average_hours }) => average_hours)
+												.reduce((a, b) => a + b, 0)}
+										</span>{' '}
+										hours
+									</span>
+								</td>
+							</tr>
 						)}
 					</KTableBody>
 				</KTable>

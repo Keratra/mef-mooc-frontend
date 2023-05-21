@@ -182,6 +182,8 @@ export async function getServerSideProps({ req, query }) {
 			})
 	);
 
+	console.log(rawData);
+
 	return {
 		props: {
 			course_id: id,

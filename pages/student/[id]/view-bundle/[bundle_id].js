@@ -19,6 +19,15 @@ import KTableHead from '@components/KTableHead';
 import KTableBody from '@components/KTableBody';
 import { notify } from 'utils/notify';
 
+const bundleStatus = {
+	'Waiting Bundle': 'Bundle waiting for approval',
+	'Waiting Approval': 'Certificates waiting for approval',
+	'Waiting Certificates': 'Upload your certificates',
+	'Rejected Bundle': 'Bundle rejected',
+	'Rejected Certificates': 'Certificates rejected',
+	'Accepted Certificates': 'Certificates accepted',
+};
+
 export default function BundleViewPage({ course_id, bundle_id, bundle }) {
 	const Router = useRouter();
 	const [isOpenSub, setIsOpenSub] = useState(false);
@@ -127,29 +136,60 @@ export default function BundleViewPage({ course_id, bundle_id, bundle }) {
 		<div className='flex flex-col justify-center items-center'>
 			<PageTitle>Selected Bundle</PageTitle>
 
-			<div className='mb-4 text-center'>
-				<span className='text-center'>
-					You can upload your certification links here. Once you have uploaded
-					all the links, you can mark the bundle as complete.
-					<br />
-					However, you can only upload certificates once your bundle is approved
-					by your coordinator.
+			{bundle[0]?.bundle_status === 'Waiting Certificates' && (
+				<div className='mb-4 text-center'>
+					<span className='text-center'>
+						You can upload your certification links here. Once you have uploaded
+						all the links, you can mark the bundle as complete.
+						<br />
+						However, you can only upload certificates once your bundle is
+						approved by your coordinator.
+					</span>
+				</div>
+			)}
+
+			<div className='mt-12 mb-4 text-2xl font-semibold text-center'>
+				This bundle&apos;s status:{' '}
+				<span className='font-medium text-center'>
+					{bundleStatus[bundle[0]?.bundle_status]}
 				</span>
 			</div>
 
 			<div className='w-full max-w-7xl mx-auto'>
 				<KTable>
 					<KTableHead
-						tableHeaders={[
-							{
-								name: 'MOOC ID',
-								alignment: 'left',
-								className: 'rounded-tl-md',
-							},
-							{ name: 'MOOC Name', alignment: 'left' },
-							{ name: 'Certificate Link', alignment: 'left' },
-							{ name: 'Add Certificate', alignment: 'center' },
-						]}
+						tableHeaders={
+							bundle[0]?.bundle_status === 'Waiting Certificates'
+								? [
+										{
+											name: 'MOOC ID',
+											alignment: 'left',
+											className: 'rounded-tl-md',
+										},
+										{ name: 'MOOC Name', alignment: 'left' },
+										{ name: 'Certificate Link', alignment: 'left' },
+										{ name: 'Average Hours', alignment: 'center' },
+										{
+											name: 'Add Certificate',
+											alignment: 'center',
+											className: 'rounded-tr-md',
+										},
+								  ]
+								: [
+										{
+											name: 'MOOC ID',
+											alignment: 'left',
+											className: 'rounded-tl-md',
+										},
+										{ name: 'MOOC Name', alignment: 'left' },
+										{ name: 'Certificate Link', alignment: 'left' },
+										{
+											name: 'Average Hours',
+											alignment: 'center',
+											className: 'rounded-tr-md',
+										},
+								  ]
+						}
 					></KTableHead>
 					<KTableBody>
 						{!!bundle &&
@@ -161,6 +201,7 @@ export default function BundleViewPage({ course_id, bundle_id, bundle }) {
 										mooc_id,
 										mooc_name,
 										feedback_id,
+										average_hours,
 									},
 									idx
 								) => (
@@ -178,34 +219,57 @@ export default function BundleViewPage({ course_id, bundle_id, bundle }) {
 										</td>
 
 										<td className='px-4 py-4 text-lg font-medium min-w-[15vw]'>
-											<NextLink
-												href={certificate_url ?? ''}
-												className='text-blue-600 hover:underline underline-offset-2'
-											>
-												{certificate_url}
-											</NextLink>
+											{!!certificate_url ? (
+												<NextLink
+													href={certificate_url ?? ''}
+													className='text-blue-600 hover:underline underline-offset-2'
+												>
+													{certificate_url}
+												</NextLink>
+											) : (
+												<span className='text-rose-700'>
+													No certificate uploaded
+												</span>
+											)}
 										</td>
 
 										<td className='px-4 py-4 text-lg font-medium text-center whitespace-nowrap'>
-											<button
-												onClick={() => handleLinkUpdate(bundle_detail_id)}
-												className=' inline-flex justify-center items-center text-center text-lg py-2 px-2 bg-transparent shadow-none text-white font-thin rounded-full border-none cursor-pointer transition-colors'
-											>
-												<PlusIcon className='h-7 w-7 text-zinc-900 hover:text-zinc-500 cursor-pointer transition-colors' />
-											</button>
-											<button className=' inline-flex justify-center items-center text-center text-lg py-2 px-2 bg-transparent shadow-none text-white font-thin rounded-full border-none cursor-pointer transition-colors'></button>
+											{average_hours}
 										</td>
-										{/* <td className='px-4 py-4 text-lg font-medium text-center whitespace-nowrap'>
-											<button
-												onClick={() => handleFeedbackUpdate(feedback_id)}
-												className='text-center text-lg py-1 px-3 bg-[#212021] hover:bg-[#414041] shadow-md text-white font-thin rounded-full border-none cursor-pointer transition-colors'
-											>
-												Update Feedback
-											</button>
-										</td> */}
+
+										{bundle[0]?.bundle_status === 'Waiting Certificates' && (
+											<td className='px-4 py-4 text-lg font-medium text-center whitespace-nowrap'>
+												<button
+													onClick={() => handleLinkUpdate(bundle_detail_id)}
+													className=' inline-flex justify-center items-center text-center text-lg py-2 px-2 bg-transparent shadow-none text-white font-thin rounded-full border-none cursor-pointer transition-colors'
+												>
+													<PlusIcon className='h-7 w-7 text-zinc-900 hover:text-zinc-500 cursor-pointer transition-colors' />
+												</button>
+											</td>
+										)}
 									</tr>
 								)
 							)}
+						{bundle?.length !== 0 && (
+							<tr>
+								<td
+									colSpan={
+										bundle[0]?.bundle_status === 'Waiting Certificates' ? 5 : 4
+									}
+									className=' p-4 text-center border-0 border-y border-solid border-zinc-500/[0.3] bg-zinc-100'
+								>
+									<span className='text-xl'>
+										Total of{' '}
+										<span className='font-semibold'>
+											{bundle
+												.map(({ average_hours }) => average_hours)
+												.reduce((a, b) => a + b, 0)}
+										</span>{' '}
+										hours
+									</span>
+								</td>
+							</tr>
+						)}
 						{bundle?.length === 0 && (
 							<EmptyTableMessage
 								cols={4}
@@ -215,23 +279,27 @@ export default function BundleViewPage({ course_id, bundle_id, bundle }) {
 					</KTableBody>
 				</KTable>
 
-				<div className=' px-4 py-4 text-lg font-medium text-center '>
-					<button
-						onClick={openModalSub}
-						className={` py-1 px-3 shadow-md text-white text-center text-lg font-thin rounded-full bg-zinc-800 hover:bg-zinc-600 border-none cursor-pointer transition-colors `}
-					>
-						COMPLETE BUNDLE
-					</button>
-				</div>
+				{bundle[0]?.bundle_status === 'Waiting Certificates' && (
+					<>
+						<div className='mt-4 px-4 py-4 text-lg font-medium text-center '>
+							<button
+								onClick={openModalSub}
+								className={` py-1 px-3 shadow-md text-white text-center text-lg font-thin rounded-full bg-zinc-800 hover:bg-zinc-600 border-none cursor-pointer transition-colors `}
+							>
+								COMPLETE BUNDLE
+							</button>
+						</div>
 
-				<div className='text-center'>
-					<span className='text-center'>
-						By clicking the “Submit Bundle” button, you send your bundle to your
-						coordinator for confirmation. <br />
-						Please make sure you entered valid links that directs to your
-						certificates.
-					</span>
-				</div>
+						<div className='text-center'>
+							<span className='text-center'>
+								By clicking the “Submit Bundle” button, you send your bundle to
+								your coordinator for confirmation. <br />
+								Please make sure you entered valid links that directs to your
+								certificates.
+							</span>
+						</div>
+					</>
+				)}
 			</div>
 
 			<Modal
@@ -317,7 +385,7 @@ export async function getServerSideProps({ req, query }) {
 
 	const { bundle } = data;
 
-	// console.log(bundle);
+	console.log(bundle);
 
 	return {
 		props: {
