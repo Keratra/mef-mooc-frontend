@@ -1,7 +1,7 @@
 import NextLink from 'next/link';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Formik } from 'formik';
-import { addCourseModel } from 'lib/yupmodels';
+import { editBundleFeedbackModel, editBundleMoocAddModel } from 'lib/yupmodels';
 import axios from 'axios';
 import EmptyTableMessage from '@components/EmptyTableMessage';
 import { useRouter } from 'next/router';
@@ -28,6 +28,8 @@ import {
 import { FiCheckCircle, FiXCircle } from 'react-icons/fi';
 import { RiFileExcel2Fill } from 'react-icons/ri';
 import { notify } from 'utils/notify';
+import Multiselect from 'multiselect-react-dropdown';
+import { MdDeleteForever } from 'react-icons/md';
 
 const ExcelJS = require('exceljs');
 import { saveAs } from 'file-saver';
@@ -50,13 +52,106 @@ export default function CoordinatorCoursePage({
 	course,
 	students,
 	waiting_students,
+	moocs,
 }) {
 	const Router = useRouter();
 
-	const [selectedTabs, setSelectedTabs] = useState(0); // tabs
-	const [selectedDetail, setSelectedDetail] = useState(0); // tabs
+	const [selectedTabs, setSelectedTabs] = useState(0);
+	const [selectedDetail, setSelectedDetail] = useState(1);
+	const [selectedModalTab, setSelectedModalTab] = useState(0);
+	const [dateHolder, setDateHolder] = useState({});
+	const [isOpen, setIsOpen] = useState(false);
+	const [selected, setSelected] = useState(0);
+	const [selectedMooc, setSelectedMooc] = useState([]);
+	const [selectedBundle, setSelectedBundle] = useState([
+		{
+			bundle_id: '',
+			student_id: '',
+			student_no: '',
+			student_name: '',
+			student_surname: '',
+			mooc_name: '',
+			mooc_url: '',
+			certificate_url: '',
+			bundle_created_at: '',
+		},
+	]);
 
 	const { course_id } = Router.query;
+
+	useEffect(() => {
+		// Object.entries(dictBundlesAC)
+		// 	.filter(
+		// 		([key, value]) =>
+		// 			parseInt(value[0].student_id) === parseInt(selectedDetail)
+		// 	)
+		// 	.map(([key, value], idx) => value)[0][0];
+
+		{
+			Object.entries(dictBundlesAC).filter(
+				([key, value]) =>
+					parseInt(value[0].student_id) === parseInt(selectedDetail)
+			).length !== 0
+				? setDateHolder(
+						Object.entries(dictBundlesAC)
+							.filter(
+								([key, value]) =>
+									parseInt(value[0].student_id) === parseInt(selectedDetail)
+							)
+							.map(([key, value], idx) => value)[0][0]
+				  )
+				: Object.entries(dictBundlesWA).filter(
+						([key, value]) =>
+							parseInt(value[0].student_id) === parseInt(selectedDetail)
+				  ).length !== 0
+				? setDateHolder(
+						Object.entries(dictBundlesWA)
+							.filter(
+								([key, value]) =>
+									parseInt(value[0].student_id) === parseInt(selectedDetail)
+							)
+							.map(([key, value], idx) => value)[0][0]
+				  )
+				: Object.entries(dictBundlesWC).filter(
+						([key, value]) =>
+							parseInt(value[0].student_id) === parseInt(selectedDetail)
+				  ).length !== 0
+				? setDateHolder(
+						Object.entries(dictBundlesWC)
+							.filter(
+								([key, value]) =>
+									parseInt(value[0].student_id) === parseInt(selectedDetail)
+							)
+							.map(([key, value], idx) => value)[0][0]
+				  )
+				: Object.entries(dictBundlesWB).filter(
+						([key, value]) =>
+							parseInt(value[0].student_id) === parseInt(selectedDetail)
+				  ).length !== 0
+				? setDateHolder(
+						Object.entries(dictBundlesWB)
+							.filter(
+								([key, value]) =>
+									parseInt(value[0].student_id) === parseInt(selectedDetail)
+							)
+							.map(([key, value], idx) => value)[0][0]
+				  )
+				: Object.entries(dictBundlesRB).filter(
+						([key, value]) =>
+							parseInt(value[0].student_id) === parseInt(selectedDetail)
+				  ).length !== 0
+				? setDateHolder(
+						Object.entries(dictBundlesRB)
+							.filter(
+								([key, value]) =>
+									parseInt(value[0].student_id) === parseInt(selectedDetail)
+							)
+							.map(([key, value], idx) => value)[0][0]
+				  )
+				: setDateHolder(0);
+		}
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [selectedDetail]);
 
 	const handleDownload = async () => {
 		try {
@@ -465,6 +560,38 @@ export default function CoordinatorCoursePage({
 		}
 	};
 
+	function openModal() {
+		setIsOpen(true);
+	}
+	function closeModal() {
+		setIsOpen(false);
+	}
+
+	const getBundleDetails = async (bundle_id) => {
+		try {
+			const { data } = await axios.get(`/api/coordinator/get-bundle`, {
+				params: {
+					course_id,
+					bundle_id,
+				},
+			});
+
+			const bundle = data?.bundle;
+
+			setSelectedBundle(bundle);
+			openModal();
+		} catch (error) {
+			console.log(error);
+			notify(
+				'error',
+				error?.response?.data?.message?.message ??
+					error?.response?.data?.message ??
+					error?.message ??
+					'Error'
+			);
+		}
+	};
+
 	const handleApprove = async (student_id) => {
 		try {
 			if (!confirm('Are you sure about approving this enrollment?'))
@@ -521,6 +648,142 @@ export default function CoordinatorCoursePage({
 		}
 	};
 
+	const handleAddMooc = async (values, { setSubmitting }) => {
+		try {
+			const { data } = await axios.post(`/api/coordinator/add-bundle-mooc`, {
+				course_id,
+				bundle_id: selected,
+				mooc_id: selectedMooc[0].id,
+			});
+
+			notify('success', 'MOOC added successfully');
+
+			Router.reload();
+		} catch (error) {
+			console.log(error);
+			notify(
+				'error',
+				error?.response?.data?.message?.message ??
+					error?.response?.data?.message ??
+					error?.message ??
+					'Error'
+			);
+		} finally {
+			setSelectedMooc([]);
+			setSubmitting(false);
+		}
+	};
+
+	const handleDeleteMooc = async (bundle_detail_id) => {
+		try {
+			if (!confirm('Are you sure about removing this MOOC?'))
+				throw new Error('Action refused by user');
+
+			await axios.post(`/api/coordinator/remove-bundle-mooc`, {
+				course_id,
+				bundle_id: selected,
+				bundle_detail_id,
+			});
+
+			notify('success', 'MOOC removed successfully');
+
+			Router.reload();
+		} catch (error) {
+			console.log(error);
+			notify(
+				'error',
+				error?.response?.data?.message?.message ??
+					error?.response?.data?.message ??
+					error?.message ??
+					'Error'
+			);
+		}
+	};
+
+	const handleEditCertificate = async (bundle_detail_id) => {
+		try {
+			const certificate_url = prompt('Please enter the new certificate url');
+
+			// if (!certificate_url) throw new Error('Certificate url is required');
+
+			await axios.post(`/api/coordinator/edit-certificate`, {
+				course_id,
+				bundle_id: selected,
+				bundle_detail_id,
+				certificate_url,
+			});
+
+			notify('success', 'Certificate url updated successfully');
+
+			Router.reload();
+		} catch (error) {
+			console.log(error);
+			notify(
+				'error',
+				error?.response?.data?.message?.message ??
+					error?.response?.data?.message ??
+					error?.message ??
+					'Error'
+			);
+		}
+	};
+
+	const handleCommentChange = async ({ comment }, { setSubmitting }) => {
+		try {
+			if (!comment) throw new Error('Comment is required');
+
+			if (comment.length > 2000)
+				throw new Error('Comment is too long, max 2000 chars');
+
+			await axios.post(`/api/coordinator/edit-feedback`, {
+				course_id,
+				bundle_id: selected,
+				comment,
+			});
+
+			notify('success', 'Feedback updated successfully');
+
+			Router.reload();
+		} catch (error) {
+			console.log(error);
+			notify(
+				'error',
+				error?.response?.data?.message?.message ??
+					error?.response?.data?.message ??
+					error?.message ??
+					'Error'
+			);
+		} finally {
+			setSubmitting(false);
+		}
+	};
+
+	const handleSelect = (selectedList, selectedItem) => {
+		try {
+			if (
+				Object.values(selectedMooc)
+					.map(({ id }) => id)
+					.includes(selectedItem.id)
+			) {
+				notify('warning', 'Already added the selected MOOC');
+				return;
+			}
+			setSelectedMooc(() => [selectedItem]);
+		} catch (error) {
+			notify('error', 'Error adding MOOC');
+		}
+	};
+
+	const handleRemove = (selectedList, selectedItem) => {
+		try {
+			setSelectedMooc(() =>
+				selectedMooc.filter((item) => item.id !== selectedItem.id)
+			);
+		} catch (error) {
+			notify('error', 'Error removing MOOC');
+		}
+	};
+
 	const classLabel = `
 		md:col-span-2
 		mt-3 p-2 -mb-4 rounded-lg
@@ -541,11 +804,7 @@ export default function CoordinatorCoursePage({
 		drop-shadow-md
 	`;
 
-	const tabs = [
-		{ name: 'All Students' },
-		{ name: 'General Report' },
-		{ name: 'Finished Report' },
-	];
+	const tabs = [{ name: 'All Students' }, { name: 'Passed Students Report' }];
 
 	return (
 		<div className='flex flex-col justify-center items-center'>
@@ -556,6 +815,12 @@ export default function CoordinatorCoursePage({
 			<span className='text-center text-xl font-semibold mt-2'>
 				{course.semester} ({course.credits} credits)
 			</span>
+
+			{!is_active && (
+				<div className='min-w-[95%] my-4 mx-4 p-3 bg-gradient-to-t from-rose-100 to-rose-50 rounded-lg shadow-md text-3xl text-rose-600 text-center font-bold'>
+					This is an inactive course!
+				</div>
+			)}
 
 			<section className='w-[95%] px-2 py-4 sm:px-0 font-sans transition-all '>
 				<div className='flex space-x-1 rounded-xl bg-zinc-200/[0.8]  p-1'>
@@ -602,12 +867,6 @@ export default function CoordinatorCoursePage({
 
 			<Tabs {...{ selectedTabs, setSelectedTabs, tabs, fullWidth: false }} />
 
-			{!is_active && (
-				<div className='min-w-[95%] mt-4 mx-4 p-3 bg-gradient-to-t from-rose-100 to-rose-50 rounded-lg shadow-md text-3xl text-rose-600 text-center font-bold'>
-					This is an inactive course!
-				</div>
-			)}
-
 			{selectedTabs === 0 && (
 				<div className='w-[95%] flex flex-col overflow-x-auto shadow-lg mb-12'>
 					<KTable>
@@ -625,7 +884,7 @@ export default function CoordinatorCoursePage({
 								},
 								{ name: 'Name', alignment: 'left' },
 								{ name: 'Email', alignment: 'left', className: '' },
-								{ name: 'Status', alignment: 'left', className: '' },
+								{ name: 'Status', alignment: 'center', className: '' },
 								{
 									name: 'Enroll Date',
 									alignment: 'left',
@@ -681,8 +940,59 @@ export default function CoordinatorCoursePage({
 												<td className='px-4 py-4 text-lg font-medium whitespace-nowrap '>
 													{email}
 												</td>
-												<td className='px-4 py-4 text-lg font-medium whitespace-nowrap '>
-													status here
+												<td className='px-4 py-4 text-lg font-medium whitespace-nowrap text-center '>
+													{Object.entries(dictBundlesAC).filter(
+														([key, value]) =>
+															parseInt(value[0].student_id) === parseInt(id)
+													).length !== 0 ? (
+														<span className='uppercase py-1 px-2 font-bold text-center rounded-xl text-white bg-emerald-500'>
+															<span className='drop-shadow-lg'>
+																PASSED COURSE
+															</span>
+														</span>
+													) : Object.entries(dictBundlesWA).filter(
+															([key, value]) =>
+																parseInt(value[0].student_id) === parseInt(id)
+													  ).length !== 0 ? (
+														<span className='uppercase py-1 px-2 font-bold text-center rounded-xl text-white bg-sky-500'>
+															<span className='drop-shadow-lg'>
+																Waiting Certificates Approval
+															</span>
+														</span>
+													) : Object.entries(dictBundlesWC).filter(
+															([key, value]) =>
+																parseInt(value[0].student_id) === parseInt(id)
+													  ).length !== 0 ? (
+														<span className='uppercase py-1 px-2 font-bold text-center rounded-xl text-white bg-yellow-500'>
+															<span className='drop-shadow-lg'>
+																Waiting Certificates Upload
+															</span>
+														</span>
+													) : Object.entries(dictBundlesWB).filter(
+															([key, value]) =>
+																parseInt(value[0].student_id) === parseInt(id)
+													  ).length !== 0 ? (
+														<span className='uppercase py-1 px-2 font-bold text-center rounded-xl text-white bg-amber-600'>
+															<span className='drop-shadow-lg'>
+																Waiting Bundle Approval
+															</span>
+														</span>
+													) : Object.entries(dictBundlesRB).filter(
+															([key, value]) =>
+																parseInt(value[0].student_id) === parseInt(id)
+													  ).length !== 0 ? (
+														<span className='uppercase py-1 px-2 font-bold text-center rounded-xl text-white bg-rose-500'>
+															<span className='drop-shadow-lg'>
+																Rejected Bundle Submission
+															</span>
+														</span>
+													) : (
+														<span className='uppercase py-1 px-2 font-bold text-center rounded-xl text-white bg-zinc-500'>
+															<span className='drop-shadow-lg'>
+																JUST ENROLLED
+															</span>
+														</span>
+													)}
 												</td>
 												<td className='px-4 py-4 text-lg font-medium whitespace-nowrap '>
 													<span>
@@ -710,7 +1020,7 @@ export default function CoordinatorCoursePage({
 													{!enroll_date && 'Date not found'}
 												</td>
 											</tr>
-
+											{/* DETAILS OF STUDENTS BUNDLE HISTORY */}
 											<tr
 												key={'d' + id}
 												className={
@@ -725,12 +1035,1399 @@ export default function CoordinatorCoursePage({
 													className={
 														' transition-all border-solid border-0 border-zinc-700/[0.5] ' +
 														(parseInt(selectedDetail) === parseInt(id)
-															? ' p-4 border-y '
+															? ' p-4 px-28 border-y '
 															: '')
 													}
 												>
 													{parseInt(selectedDetail) === parseInt(id) && (
-														<div className='flex flex-col'>ananas</div>
+														<section className=''>
+															<div className='grid grid-cols-7 gap-2 gap-y-4'>
+																<div className='text-right font-semibold'>
+																	Enroll Date:
+																</div>
+																<div className='col-span-6'>
+																	<span>
+																		{enroll_date &&
+																			new Date(enroll_date).toLocaleTimeString(
+																				'en-US',
+																				{
+																					timeZone: 'UTC',
+																				}
+																			)}
+																		{enroll_date && ', '}
+																		{enroll_date &&
+																			new Date(enroll_date).toLocaleDateString(
+																				'en-US',
+																				{
+																					year: 'numeric',
+																					month: 'long',
+																					day: 'numeric',
+																					timeZone: 'UTC',
+																				}
+																			)}
+																	</span>
+																	{!enroll_date && 'Date not found'}
+																</div>
+
+																<div className='text-right font-semibold'>
+																	{Object.entries(dictBundlesAC).filter(
+																		([key, value]) =>
+																			parseInt(value[0].student_id) ===
+																			parseInt(id)
+																	).length !== 0
+																		? 'Bundle Create Date:'
+																		: Object.entries(dictBundlesWA).filter(
+																				([key, value]) =>
+																					parseInt(value[0].student_id) ===
+																					parseInt(id)
+																		  ).length !== 0
+																		? 'Bundle Create Date:'
+																		: Object.entries(dictBundlesWC).filter(
+																				([key, value]) =>
+																					parseInt(value[0].student_id) ===
+																					parseInt(id)
+																		  ).length !== 0
+																		? 'Bundle Create Date:'
+																		: Object.entries(dictBundlesWB).filter(
+																				([key, value]) =>
+																					parseInt(value[0].student_id) ===
+																					parseInt(id)
+																		  ).length !== 0
+																		? 'Bundle Create Date:'
+																		: Object.entries(dictBundlesRB).filter(
+																				([key, value]) =>
+																					parseInt(value[0].student_id) ===
+																					parseInt(id)
+																		  ).length !== 0
+																		? ''
+																		: ''}
+																</div>
+																<div className='col-span-6'>
+																	{Object.entries(dictBundlesAC).filter(
+																		([key, value]) =>
+																			parseInt(value[0].student_id) ===
+																			parseInt(id)
+																	).length !== 0 ? (
+																		<div>
+																			{dateHolder?.student_bundle_create_date &&
+																				new Date(
+																					dateHolder?.student_bundle_create_date
+																				).toLocaleTimeString('en-US', {
+																					timeZone: 'UTC',
+																				})}
+																			{dateHolder?.student_bundle_create_date &&
+																				', '}
+																			{dateHolder?.student_bundle_create_date &&
+																				new Date(
+																					dateHolder?.student_bundle_create_date
+																				).toLocaleDateString('en-US', {
+																					year: 'numeric',
+																					month: 'long',
+																					day: 'numeric',
+																					timeZone: 'UTC',
+																				})}
+																			{!dateHolder?.student_bundle_create_date &&
+																				'Date not found'}
+																		</div>
+																	) : Object.entries(dictBundlesWA).filter(
+																			([key, value]) =>
+																				parseInt(value[0].student_id) ===
+																				parseInt(id)
+																	  ).length !== 0 ? (
+																		<div>
+																			{dateHolder?.student_bundle_create_date &&
+																				new Date(
+																					dateHolder?.student_bundle_create_date
+																				).toLocaleTimeString('en-US', {
+																					timeZone: 'UTC',
+																				})}
+																			{dateHolder?.student_bundle_create_date &&
+																				', '}
+																			{dateHolder?.student_bundle_create_date &&
+																				new Date(
+																					dateHolder?.student_bundle_create_date
+																				).toLocaleDateString('en-US', {
+																					year: 'numeric',
+																					month: 'long',
+																					day: 'numeric',
+																					timeZone: 'UTC',
+																				})}
+																			{!dateHolder?.student_bundle_create_date &&
+																				'Date not found'}
+																		</div>
+																	) : Object.entries(dictBundlesWC).filter(
+																			([key, value]) =>
+																				parseInt(value[0].student_id) ===
+																				parseInt(id)
+																	  ).length !== 0 ? (
+																		<div>
+																			{dateHolder?.student_bundle_create_date &&
+																				new Date(
+																					dateHolder?.student_bundle_create_date
+																				).toLocaleTimeString('en-US', {
+																					timeZone: 'UTC',
+																				})}
+																			{dateHolder?.student_bundle_create_date &&
+																				', '}
+																			{dateHolder?.student_bundle_create_date &&
+																				new Date(
+																					dateHolder?.student_bundle_create_date
+																				).toLocaleDateString('en-US', {
+																					year: 'numeric',
+																					month: 'long',
+																					day: 'numeric',
+																					timeZone: 'UTC',
+																				})}
+																			{!dateHolder?.student_bundle_create_date &&
+																				'Date not found'}
+																		</div>
+																	) : Object.entries(dictBundlesWB).filter(
+																			([key, value]) =>
+																				parseInt(value[0].student_id) ===
+																				parseInt(id)
+																	  ).length !== 0 ? (
+																		<div>
+																			{dateHolder?.bundle_created_at &&
+																				new Date(
+																					dateHolder?.bundle_created_at
+																				).toLocaleTimeString('en-US', {
+																					timeZone: 'UTC',
+																				})}
+																			{dateHolder?.bundle_created_at && ', '}
+																			{dateHolder?.bundle_created_at &&
+																				new Date(
+																					dateHolder?.bundle_created_at
+																				).toLocaleDateString('en-US', {
+																					year: 'numeric',
+																					month: 'long',
+																					day: 'numeric',
+																					timeZone: 'UTC',
+																				})}
+																			{!dateHolder?.bundle_created_at &&
+																				'Date not found'}
+																		</div>
+																	) : Object.entries(dictBundlesRB).filter(
+																			([key, value]) =>
+																				parseInt(value[0].student_id) ===
+																				parseInt(id)
+																	  ).length !== 0 ? (
+																		''
+																	) : (
+																		''
+																	)}
+																</div>
+
+																<div className='text-right font-semibold'>
+																	{Object.entries(dictBundlesAC).filter(
+																		([key, value]) =>
+																			parseInt(value[0].student_id) ===
+																			parseInt(id)
+																	).length !== 0
+																		? 'Bundle Accept Date:'
+																		: Object.entries(dictBundlesWA).filter(
+																				([key, value]) =>
+																					parseInt(value[0].student_id) ===
+																					parseInt(id)
+																		  ).length !== 0
+																		? 'Bundle Accept Date:'
+																		: Object.entries(dictBundlesWC).filter(
+																				([key, value]) =>
+																					parseInt(value[0].student_id) ===
+																					parseInt(id)
+																		  ).length !== 0
+																		? 'Bundle Accept Date:'
+																		: Object.entries(dictBundlesWB).filter(
+																				([key, value]) =>
+																					parseInt(value[0].student_id) ===
+																					parseInt(id)
+																		  ).length !== 0
+																		? ''
+																		: Object.entries(dictBundlesRB).filter(
+																				([key, value]) =>
+																					parseInt(value[0].student_id) ===
+																					parseInt(id)
+																		  ).length !== 0
+																		? ''
+																		: ''}
+																</div>
+																<div className='col-span-6'>
+																	{Object.entries(dictBundlesAC).filter(
+																		([key, value]) =>
+																			parseInt(value[0].student_id) ===
+																			parseInt(id)
+																	).length !== 0 ? (
+																		<div>
+																			Bundle approved by{' '}
+																			<span className='font-semibold'>
+																				{dateHolder?.bundle_coordinator &&
+																					dateHolder?.bundle_coordinator}{' '}
+																			</span>{' '}
+																			at{' '}
+																			{dateHolder?.bundle_date &&
+																				new Date(
+																					dateHolder?.bundle_date
+																				).toLocaleTimeString('en-US', {
+																					timeZone: 'UTC',
+																				})}
+																			{dateHolder?.bundle_date && ', '}
+																			{dateHolder?.bundle_date &&
+																				new Date(
+																					dateHolder?.bundle_date
+																				).toLocaleDateString('en-US', {
+																					year: 'numeric',
+																					month: 'long',
+																					day: 'numeric',
+																					timeZone: 'UTC',
+																				})}
+																			{!dateHolder?.bundle_date &&
+																				'Date not found'}
+																		</div>
+																	) : Object.entries(dictBundlesWA).filter(
+																			([key, value]) =>
+																				parseInt(value[0].student_id) ===
+																				parseInt(id)
+																	  ).length !== 0 ? (
+																		<div>
+																			Bundle approved by{' '}
+																			<span className='font-semibold'>
+																				{dateHolder?.bundle_coordinator &&
+																					dateHolder?.bundle_coordinator}{' '}
+																			</span>{' '}
+																			at{' '}
+																			{dateHolder?.bundle_date &&
+																				new Date(
+																					dateHolder?.bundle_date
+																				).toLocaleTimeString('en-US', {
+																					timeZone: 'UTC',
+																				})}
+																			{dateHolder?.bundle_date && ', '}
+																			{dateHolder?.bundle_date &&
+																				new Date(
+																					dateHolder?.bundle_date
+																				).toLocaleDateString('en-US', {
+																					year: 'numeric',
+																					month: 'long',
+																					day: 'numeric',
+																					timeZone: 'UTC',
+																				})}
+																			{!dateHolder?.bundle_date &&
+																				'Date not found'}
+																		</div>
+																	) : Object.entries(dictBundlesWC).filter(
+																			([key, value]) =>
+																				parseInt(value[0].student_id) ===
+																				parseInt(id)
+																	  ).length !== 0 ? (
+																		<div>
+																			Bundle approved by{' '}
+																			<span className='font-semibold'>
+																				{dateHolder?.coordinator_name &&
+																					dateHolder?.coordinator_name}{' '}
+																			</span>{' '}
+																			at{' '}
+																			{dateHolder?.bundle_created_at &&
+																				new Date(
+																					dateHolder?.bundle_created_at
+																				).toLocaleTimeString('en-US', {
+																					timeZone: 'UTC',
+																				})}
+																			{dateHolder?.bundle_created_at && ', '}
+																			{dateHolder?.bundle_created_at &&
+																				new Date(
+																					dateHolder?.bundle_created_at
+																				).toLocaleDateString('en-US', {
+																					year: 'numeric',
+																					month: 'long',
+																					day: 'numeric',
+																					timeZone: 'UTC',
+																				})}
+																			{!dateHolder?.bundle_created_at &&
+																				'Date not found'}
+																		</div>
+																	) : Object.entries(dictBundlesWB).filter(
+																			([key, value]) =>
+																				parseInt(value[0].student_id) ===
+																				parseInt(id)
+																	  ).length !== 0 ? (
+																		''
+																	) : Object.entries(dictBundlesRB).filter(
+																			([key, value]) =>
+																				parseInt(value[0].student_id) ===
+																				parseInt(id)
+																	  ).length !== 0 ? (
+																		''
+																	) : (
+																		''
+																	)}
+																</div>
+
+																<div className='text-right font-semibold'>
+																	{Object.entries(dictBundlesAC).filter(
+																		([key, value]) =>
+																			parseInt(value[0].student_id) ===
+																			parseInt(id)
+																	).length !== 0
+																		? 'Complete Date:'
+																		: Object.entries(dictBundlesWA).filter(
+																				([key, value]) =>
+																					parseInt(value[0].student_id) ===
+																					parseInt(id)
+																		  ).length !== 0
+																		? 'Complete Date:'
+																		: Object.entries(dictBundlesWC).filter(
+																				([key, value]) =>
+																					parseInt(value[0].student_id) ===
+																					parseInt(id)
+																		  ).length !== 0
+																		? ''
+																		: Object.entries(dictBundlesWB).filter(
+																				([key, value]) =>
+																					parseInt(value[0].student_id) ===
+																					parseInt(id)
+																		  ).length !== 0
+																		? ''
+																		: Object.entries(dictBundlesRB).filter(
+																				([key, value]) =>
+																					parseInt(value[0].student_id) ===
+																					parseInt(id)
+																		  ).length !== 0
+																		? ''
+																		: ''}
+																</div>
+																<div className='col-span-6'>
+																	{Object.entries(dictBundlesAC).filter(
+																		([key, value]) =>
+																			parseInt(value[0].student_id) ===
+																			parseInt(id)
+																	).length !== 0 ? (
+																		<div>
+																			{dateHolder?.student_complete_date &&
+																				new Date(
+																					dateHolder?.student_complete_date
+																				).toLocaleTimeString('en-US', {
+																					timeZone: 'UTC',
+																				})}
+																			{dateHolder?.student_complete_date &&
+																				', '}
+																			{dateHolder?.student_complete_date &&
+																				new Date(
+																					dateHolder?.student_complete_date
+																				).toLocaleDateString('en-US', {
+																					year: 'numeric',
+																					month: 'long',
+																					day: 'numeric',
+																					timeZone: 'UTC',
+																				})}
+																			{!dateHolder?.student_complete_date &&
+																				'Date not found'}
+																		</div>
+																	) : Object.entries(dictBundlesWA).filter(
+																			([key, value]) =>
+																				parseInt(value[0].student_id) ===
+																				parseInt(id)
+																	  ).length !== 0 ? (
+																		<div>
+																			{dateHolder?.complete_date &&
+																				new Date(
+																					dateHolder?.complete_date
+																				).toLocaleTimeString('en-US', {
+																					timeZone: 'UTC',
+																				})}
+																			{dateHolder?.complete_date && ', '}
+																			{dateHolder?.complete_date &&
+																				new Date(
+																					dateHolder?.complete_date
+																				).toLocaleDateString('en-US', {
+																					year: 'numeric',
+																					month: 'long',
+																					day: 'numeric',
+																					timeZone: 'UTC',
+																				})}
+																			{!dateHolder?.complete_date &&
+																				'Date not found'}
+																		</div>
+																	) : Object.entries(dictBundlesWC).filter(
+																			([key, value]) =>
+																				parseInt(value[0].student_id) ===
+																				parseInt(id)
+																	  ).length !== 0 ? (
+																		''
+																	) : Object.entries(dictBundlesWB).filter(
+																			([key, value]) =>
+																				parseInt(value[0].student_id) ===
+																				parseInt(id)
+																	  ).length !== 0 ? (
+																		''
+																	) : Object.entries(dictBundlesRB).filter(
+																			([key, value]) =>
+																				parseInt(value[0].student_id) ===
+																				parseInt(id)
+																	  ).length !== 0 ? (
+																		''
+																	) : (
+																		''
+																	)}
+																</div>
+
+																<div className='text-right font-semibold'>
+																	{Object.entries(dictBundlesAC)
+																		.filter(
+																			([key, value]) =>
+																				parseInt(value[0].student_id) ===
+																				parseInt(selectedDetail)
+																		)
+																		.map(([key, value], idx) => value)
+																		.length !== 0 && 'Certificates Accept:'}
+																</div>
+																<div className='col-span-6'>
+																	{Object.entries(dictBundlesAC)
+																		.filter(
+																			([key, value]) =>
+																				parseInt(value[0].student_id) ===
+																				parseInt(selectedDetail)
+																		)
+																		.map(([key, value], idx) => value)
+																		.length !== 0 && (
+																		<>
+																			<div>
+																				Certificates approved by{' '}
+																				<span className='font-semibold'>
+																					{
+																						Object.entries(dictBundlesAC)
+																							.filter(
+																								([key, value]) =>
+																									parseInt(
+																										value[0].student_id
+																									) === parseInt(selectedDetail)
+																							)
+																							.map(
+																								([key, value], idx) => value
+																							)[0][0]?.certificate_coordinator
+																					}{' '}
+																				</span>{' '}
+																				at{' '}
+																				{Object.entries(dictBundlesAC)
+																					.filter(
+																						([key, value]) =>
+																							parseInt(value[0].student_id) ===
+																							parseInt(selectedDetail)
+																					)
+																					.map(
+																						([key, value], idx) => value
+																					)[0][0]?.pass_date &&
+																					new Date(
+																						Object.entries(dictBundlesAC)
+																							.filter(
+																								([key, value]) =>
+																									parseInt(
+																										value[0].student_id
+																									) === parseInt(selectedDetail)
+																							)
+																							.map(
+																								([key, value], idx) => value
+																							)[0][0]?.pass_date
+																					).toLocaleTimeString('en-US', {
+																						timeZone: 'UTC',
+																					})}
+																				{', '}
+																				{Object.entries(dictBundlesAC)
+																					.filter(
+																						([key, value]) =>
+																							parseInt(value[0].student_id) ===
+																							parseInt(selectedDetail)
+																					)
+																					.map(
+																						([key, value], idx) => value
+																					)[0][0]?.pass_date &&
+																					new Date(
+																						Object.entries(dictBundlesAC)
+																							.filter(
+																								([key, value]) =>
+																									parseInt(
+																										value[0].student_id
+																									) === parseInt(selectedDetail)
+																							)
+																							.map(
+																								([key, value], idx) => value
+																							)[0][0]?.pass_date
+																					).toLocaleDateString('en-US', {
+																						year: 'numeric',
+																						month: 'long',
+																						day: 'numeric',
+																						timeZone: 'UTC',
+																					})}
+																			</div>
+																		</>
+																	)}
+																</div>
+															</div>
+
+															{Object.entries(dictBundlesAC).filter(
+																([key, value]) =>
+																	parseInt(value[0].student_id) ===
+																	parseInt(selectedDetail)
+															).length !== 0 && (
+																<div className='p-2 my-4'>
+																	<div className='mb-2 text-xl font-semibold drop-shadow-md'>
+																		Accepted Certificate Submission
+																	</div>
+																	<KTable>
+																		<KTableHead
+																			tableHeaders={[
+																				{
+																					name: 'MOOCs & Certificates',
+																					alignment: 'center',
+																					className: 'rounded-tl-md',
+																				},
+																				{
+																					name: 'Bundle Feedback',
+																					alignment: 'center',
+																					className: '',
+																				},
+																				{
+																					name: 'Completion Date',
+																					alignment: 'center',
+																					className: 'rounded-tr-md',
+																				},
+																			]}
+																		/>
+																		<KTableBody>
+																			{Object.entries(dictBundlesAC)
+																				.filter(
+																					([key, value]) =>
+																						parseInt(value[0].student_id) ===
+																						parseInt(selectedDetail)
+																				)
+																				.map(([key, value], idx) => (
+																					<tr
+																						key={idx}
+																						className={
+																							idx % 2 === 0
+																								? 'bg-zinc-100'
+																								: 'bg-zinc-200/[0.75]'
+																						}
+																					>
+																						<td className='px-4 py-4 text-lg font-medium '>
+																							{value?.map(
+																								(
+																									{
+																										bundle_id,
+																										student_no,
+																										student_name,
+																										student_surname,
+																										mooc_name,
+																										mooc_url,
+																										certificate_url,
+																										bundle_created_at,
+																									},
+																									index
+																								) => (
+																									<div
+																										key={index}
+																										className='mt-2 py-1 w-full grid grid-cols-4 '
+																									>
+																										<NextLink
+																											href={mooc_url ?? ''}
+																											target='_blank'
+																											className='col-span-3'
+																										>
+																											<span className='select-none text-black no-underline'>
+																												-&gt;
+																											</span>{' '}
+																											<span className='text-blue-600 hover:underline underline-offset-2'>
+																												{mooc_name}
+																											</span>
+																										</NextLink>
+
+																										{!!certificate_url && (
+																											<NextLink
+																												href={
+																													certificate_url ?? ''
+																												}
+																												target='_blank'
+																												className='font-semibold text-indigo-700/[0.8] hover:underline underline-offset-2 '
+																											>
+																												Certificate
+																											</NextLink>
+																										)}
+																									</div>
+																								)
+																							)}
+																						</td>
+																						<td className='max-w-xs px-4 py-4 text-lg font-medium  '>
+																							<div className=' max-w-max mt-2 px-2 text-justify text-neutral-700 '>
+																								{value[0]?.comment}
+																								{console.log(value)}
+																							</div>
+																						</td>
+																						<td className='px-4 py-4 text-lg font-medium text-center '>
+																							<div>
+																								Certificates approved by{' '}
+																								<span className='font-semibold'>
+																									{
+																										value[0]
+																											?.certificate_coordinator
+																									}{' '}
+																								</span>{' '}
+																							</div>
+																							<div>
+																								at{' '}
+																								{value[0]?.pass_date &&
+																									new Date(
+																										value[0]?.pass_date
+																									).toLocaleDateString(
+																										'en-US',
+																										{
+																											weekday: 'long',
+																											year: 'numeric',
+																											month: 'long',
+																											day: 'numeric',
+																											timeZone: 'UTC',
+																										}
+																									)}
+																							</div>
+																							<div>
+																								{value[0]?.pass_date &&
+																									new Date(
+																										value[0]?.pass_date
+																									).toLocaleTimeString(
+																										'en-US',
+																										{
+																											timeZone: 'UTC',
+																										}
+																									)}
+																							</div>
+																							{!value[0]?.pass_date &&
+																								'Date not found'}
+																						</td>
+																					</tr>
+																				))}
+																		</KTableBody>
+																	</KTable>
+																</div>
+															)}
+
+															{Object.entries(dictBundlesWA).filter(
+																([key, value]) =>
+																	parseInt(value[0].student_id) ===
+																	parseInt(selectedDetail)
+															).length !== 0 && (
+																<div className='p-2 my-4'>
+																	<div className='mb-2 text-xl font-semibold drop-shadow-md'>
+																		Waiting Approval for Certificate Submissions
+																	</div>
+																	<KTable>
+																		<KTableHead
+																			tableHeaders={[
+																				{
+																					name: 'MOOCs & Certificates',
+																					alignment: 'center',
+																					className: 'rounded-tl-md',
+																				},
+																				{
+																					name: 'Bundle Feedback',
+																					alignment: 'center',
+																					className: '',
+																				},
+																				{
+																					name: 'Completion Dates',
+																					alignment: 'center',
+																					className: 'rounded-tr-md',
+																				},
+																			]}
+																		/>
+																		<KTableBody>
+																			{Object.entries(dictBundlesWA)
+																				.filter(
+																					([key, value]) =>
+																						parseInt(value[0].student_id) ===
+																						parseInt(selectedDetail)
+																				)
+																				.map(([key, value], idx) => (
+																					<tr
+																						key={idx}
+																						className={
+																							idx % 2 === 0
+																								? 'bg-zinc-100'
+																								: 'bg-zinc-200/[0.75]'
+																						}
+																					>
+																						<td className='px-4 py-4 text-lg font-medium '>
+																							{value?.map(
+																								(
+																									{
+																										bundle_id,
+																										student_no,
+																										student_name,
+																										student_surname,
+																										mooc_name,
+																										mooc_url,
+																										certificate_url,
+																										bundle_created_at,
+																									},
+																									index
+																								) => (
+																									<div
+																										key={index}
+																										className='mt-2 py-1 w-full grid grid-cols-4 '
+																									>
+																										<NextLink
+																											href={mooc_url ?? ''}
+																											target='_blank'
+																											className='col-span-3'
+																										>
+																											<span className='select-none text-black no-underline'>
+																												-&gt;
+																											</span>{' '}
+																											<span className='text-blue-600 hover:underline underline-offset-2'>
+																												{mooc_name}
+																											</span>
+																										</NextLink>
+
+																										{!!certificate_url && (
+																											<NextLink
+																												href={
+																													certificate_url ?? ''
+																												}
+																												target='_blank'
+																												className='font-semibold text-indigo-700/[0.8] hover:underline underline-offset-2 '
+																											>
+																												Certificate
+																											</NextLink>
+																										)}
+																									</div>
+																								)
+																							)}
+																						</td>
+																						<td className='max-w-xs px-4 py-4 text-lg font-medium  '>
+																							<div className=' max-w-max mt-2 px-2 text-justify text-neutral-700 '>
+																								{value[0]?.comment}
+																							</div>
+																						</td>
+																						<td className='px-4 py-4 text-lg font-medium text-center '>
+																							{!!value[0].complete_date && (
+																								<div className='mb-2'>
+																									<div>
+																										Bundle completed by student
+																									</div>
+																									<div>
+																										<div>
+																											{value[0]
+																												?.complete_date && (
+																												<span>at </span>
+																											)}
+
+																											{value[0]
+																												?.complete_date &&
+																												new Date(
+																													value[0]?.complete_date
+																												).toLocaleDateString(
+																													'en-US',
+																													{
+																														weekday: 'long',
+																														year: 'numeric',
+																														month: 'long',
+																														day: 'numeric',
+																														timeZone: 'UTC',
+																													}
+																												)}
+																										</div>
+																										<div>
+																											{value[0]
+																												?.complete_date &&
+																												new Date(
+																													value[0]?.complete_date
+																												).toLocaleTimeString(
+																													'en-US',
+																													{
+																														timeZone: 'UTC',
+																													}
+																												)}
+																										</div>
+																									</div>
+																								</div>
+																							)}
+
+																							<div>
+																								Bundle approved by{' '}
+																								<span className='font-semibold'>
+																									{value[0]?.bundle_coordinator}{' '}
+																								</span>{' '}
+																							</div>
+																							<div>
+																								{value[0]?.bundle_date && (
+																									<span>at </span>
+																								)}
+
+																								{value[0]?.bundle_date &&
+																									new Date(
+																										value[0]?.bundle_date
+																									).toLocaleDateString(
+																										'en-US',
+																										{
+																											weekday: 'long',
+																											year: 'numeric',
+																											month: 'long',
+																											day: 'numeric',
+																											timeZone: 'UTC',
+																										}
+																									)}
+																							</div>
+																							<div>
+																								{value[0]?.bundle_date &&
+																									new Date(
+																										value[0]?.bundle_date
+																									).toLocaleTimeString(
+																										'en-US',
+																										{
+																											timeZone: 'UTC',
+																										}
+																									)}
+																							</div>
+																							{!value[0]?.bundle_date &&
+																								'Date not found'}
+																						</td>
+																					</tr>
+																				))}
+																		</KTableBody>
+																	</KTable>
+																</div>
+															)}
+
+															{Object.entries(dictBundlesWC).filter(
+																([key, value]) =>
+																	parseInt(value[0].student_id) ===
+																	parseInt(selectedDetail)
+															).length !== 0 && (
+																<div className='p-2 my-4'>
+																	<div className='mb-2 text-xl font-semibold drop-shadow-md'>
+																		Waiting for Student to Upload Certificates
+																	</div>
+																	<KTable>
+																		<KTableHead
+																			tableHeaders={[
+																				{
+																					name: 'MOOCs & Certificates',
+																					alignment: 'center',
+																					className: 'rounded-tl-md',
+																				},
+																				{
+																					name: 'Completion Date',
+																					alignment: 'center',
+																					className: 'rounded-tr-md',
+																				},
+																			]}
+																		/>
+																		<KTableBody>
+																			{Object.entries(dictBundlesWC)
+																				.filter(
+																					([key, value]) =>
+																						parseInt(value[0].student_id) ===
+																						parseInt(selectedDetail)
+																				)
+																				.map(([key, value], idx) => (
+																					<tr
+																						key={idx}
+																						className={
+																							idx % 2 === 0
+																								? 'bg-zinc-100'
+																								: 'bg-zinc-200/[0.75]'
+																						}
+																					>
+																						<td className='px-4 py-4 text-lg font-medium '>
+																							{value?.map(
+																								(
+																									{
+																										bundle_id,
+																										student_no,
+																										student_name,
+																										student_surname,
+																										mooc_name,
+																										mooc_url,
+																										certificate_url,
+																										bundle_created_at,
+																									},
+																									index
+																								) => (
+																									<div
+																										key={index}
+																										className='mt-2 py-1 w-full grid grid-cols-4 '
+																									>
+																										<NextLink
+																											href={mooc_url ?? ''}
+																											target='_blank'
+																											className='col-span-3'
+																										>
+																											<span className='select-none text-black no-underline'>
+																												-&gt;
+																											</span>{' '}
+																											<span className='text-blue-600 hover:underline underline-offset-2'>
+																												{mooc_name}
+																											</span>
+																										</NextLink>
+
+																										{!!certificate_url ? (
+																											<NextLink
+																												href={
+																													certificate_url ?? ''
+																												}
+																												target='_blank'
+																												className='font-semibold text-indigo-700/[0.8] hover:underline underline-offset-2 '
+																											>
+																												Certificate
+																											</NextLink>
+																										) : (
+																											<span className='text-neutral-600'>
+																												No certificate was
+																												found...
+																											</span>
+																										)}
+																									</div>
+																								)
+																							)}
+																						</td>
+																						<td className='px-4 py-4 text-lg font-medium text-center '>
+																							<div>
+																								Bundle approved by{' '}
+																								<span className='font-semibold'>
+																									{value[0]?.coordinator_name}{' '}
+																								</span>{' '}
+																							</div>
+																							<div>
+																								at{' '}
+																								{value[0]?.bundle_created_at &&
+																									new Date(
+																										value[0]?.bundle_created_at
+																									).toLocaleDateString(
+																										'en-US',
+																										{
+																											weekday: 'long',
+																											year: 'numeric',
+																											month: 'long',
+																											day: 'numeric',
+																											timeZone: 'UTC',
+																										}
+																									)}
+																							</div>
+																							<div>
+																								{value[0]?.bundle_created_at &&
+																									new Date(
+																										value[0]?.bundle_created_at
+																									).toLocaleTimeString(
+																										'en-US',
+																										{
+																											timeZone: 'UTC',
+																										}
+																									)}
+																							</div>
+																							{!value[0]?.bundle_created_at &&
+																								'Date not found'}
+																						</td>
+																					</tr>
+																				))}
+																		</KTableBody>
+																	</KTable>
+																</div>
+															)}
+
+															{Object.entries(dictBundlesWB).filter(
+																([key, value]) =>
+																	parseInt(value[0].student_id) ===
+																	parseInt(selectedDetail)
+															).length !== 0 && (
+																<div className='p-2 my-4'>
+																	<div className='mb-2 text-xl font-semibold drop-shadow-md'>
+																		Waiting Approval for Bundle Submissions
+																	</div>
+																	<KTable>
+																		<KTableHead
+																			tableHeaders={[
+																				{
+																					name: 'MOOCs',
+																					alignment: 'center',
+																					className: 'rounded-tl-md',
+																				},
+																				{
+																					name: 'Completion Date',
+																					alignment: 'center',
+																					className: 'rounded-tr-md',
+																				},
+																			]}
+																		/>
+																		<KTableBody>
+																			{Object.entries(dictBundlesWB)
+																				.filter(
+																					([key, value]) =>
+																						parseInt(value[0].student_id) ===
+																						parseInt(selectedDetail)
+																				)
+																				.map(([key, value], idx) => (
+																					<tr
+																						key={idx}
+																						className={
+																							idx % 2 === 0
+																								? 'bg-zinc-100'
+																								: 'bg-zinc-200/[0.75]'
+																						}
+																					>
+																						<td className='px-4 py-4 text-lg font-medium '>
+																							{value?.map(
+																								(
+																									{
+																										bundle_id,
+																										student_no,
+																										student_name,
+																										student_surname,
+																										mooc_name,
+																										mooc_url,
+																										certificate_url,
+																										bundle_created_at,
+																									},
+																									index
+																								) => (
+																									<div
+																										key={index}
+																										className='mt-2 py-1 w-full grid grid-cols-4 '
+																									>
+																										<NextLink
+																											href={mooc_url ?? ''}
+																											target='_blank'
+																											className='col-span-3'
+																										>
+																											<span className='select-none text-black no-underline'>
+																												-&gt;
+																											</span>{' '}
+																											<span className='text-blue-600 hover:underline underline-offset-2'>
+																												{mooc_name}
+																											</span>
+																										</NextLink>
+																									</div>
+																								)
+																							)}
+																						</td>
+																						<td className='px-4 py-4 text-lg font-medium text-center '>
+																							<div>Bundle created at </div>
+																							<div>
+																								{value[0]?.bundle_created_at &&
+																									new Date(
+																										value[0]?.bundle_created_at
+																									).toLocaleDateString(
+																										'en-US',
+																										{
+																											weekday: 'long',
+																											year: 'numeric',
+																											month: 'long',
+																											day: 'numeric',
+																											timeZone: 'UTC',
+																										}
+																									)}
+																							</div>
+																							<div>
+																								{value[0]?.bundle_created_at &&
+																									new Date(
+																										value[0]?.bundle_created_at
+																									).toLocaleTimeString(
+																										'en-US',
+																										{
+																											timeZone: 'UTC',
+																										}
+																									)}
+																							</div>
+																							{!value[0]?.bundle_created_at &&
+																								'Date not found'}
+																						</td>
+																					</tr>
+																				))}
+																		</KTableBody>
+																	</KTable>
+																</div>
+															)}
+
+															{Object.entries(dictBundlesRC).filter(
+																([key, value]) =>
+																	parseInt(value[0].student_id) ===
+																	parseInt(selectedDetail)
+															).length !== 0 && (
+																<div className='p-2 my-4'>
+																	<div className='mb-2 text-xl font-semibold drop-shadow-md'>
+																		Rejected Certificate Submissions
+																	</div>
+																	<KTable>
+																		<KTableHead
+																			tableHeaders={[
+																				{
+																					name: 'MOOCs & Certificates',
+																					alignment: 'center',
+																					className: 'rounded-tl-md',
+																				},
+																				{
+																					name: 'Bundle Feedback',
+																					alignment: 'center',
+																					className: '',
+																				},
+																				{
+																					name: 'Rejection Reason',
+																					alignment: 'center',
+																					className: '',
+																				},
+																				{
+																					name: 'Rejection Date',
+																					alignment: 'center',
+																					className: 'rounded-tr-md',
+																				},
+																			]}
+																		/>
+																		<KTableBody>
+																			{Object.entries(dictBundlesRC)
+																				.filter(
+																					([key, value]) =>
+																						parseInt(value[0].student_id) ===
+																						parseInt(selectedDetail)
+																				)
+																				.map(([key, value], idx) => (
+																					<tr
+																						key={idx}
+																						className={
+																							idx % 2 === 0
+																								? 'bg-zinc-100'
+																								: 'bg-zinc-200/[0.75]'
+																						}
+																					>
+																						<td className='px-4 py-4 text-lg font-medium '>
+																							{value?.map(
+																								(
+																									{
+																										bundle_id,
+																										student_no,
+																										student_name,
+																										student_surname,
+																										mooc_name,
+																										mooc_url,
+																										certificate_url,
+																										bundle_created_at,
+																									},
+																									index
+																								) => (
+																									<div
+																										key={index}
+																										className='mt-2 py-1 w-full grid grid-cols-4 '
+																									>
+																										<NextLink
+																											href={mooc_url ?? ''}
+																											target='_blank'
+																											className='col-span-3'
+																										>
+																											<span className='select-none text-black no-underline'>
+																												-&gt;
+																											</span>{' '}
+																											<span className='text-blue-600 hover:underline underline-offset-2'>
+																												{mooc_name}
+																											</span>
+																										</NextLink>
+
+																										{!!certificate_url && (
+																											<NextLink
+																												href={
+																													certificate_url ?? ''
+																												}
+																												target='_blank'
+																												className='font-semibold text-indigo-700/[0.8] hover:underline underline-offset-2 '
+																											>
+																												Certificate
+																											</NextLink>
+																										)}
+																									</div>
+																								)
+																							)}
+																						</td>
+																						<td className='max-w-xs px-4 py-4 text-lg font-medium  '>
+																							<div className=' max-w-max mt-2 px-2 text-justify text-neutral-700 '>
+																								{value[0]?.comment ??
+																									'No feedback was found...'}
+																							</div>
+																						</td>
+																						<td className='max-w-xs px-4 py-4 text-lg font-medium  '>
+																							<div className=' max-w-max mt-2 px-2 text-justify text-neutral-700 '>
+																								{value[0]
+																									?.reject_status_comment ??
+																									'No reject reason was found...'}
+																							</div>
+																						</td>
+																						<td className='px-4 py-4 text-lg font-medium text-center '>
+																							<div>
+																								Certificates rejected by{' '}
+																								<span className='font-semibold'>
+																									{value[0]?.coordinator_name}{' '}
+																								</span>{' '}
+																							</div>
+																							<div>
+																								at{' '}
+																								{value[0]?.bundle_created_at &&
+																									new Date(
+																										value[0]?.bundle_created_at
+																									).toLocaleDateString(
+																										'en-US',
+																										{
+																											weekday: 'long',
+																											year: 'numeric',
+																											month: 'long',
+																											day: 'numeric',
+																											timeZone: 'UTC',
+																										}
+																									)}
+																							</div>
+																							<div>
+																								{value[0]?.bundle_created_at &&
+																									new Date(
+																										value[0]?.bundle_created_at
+																									).toLocaleTimeString(
+																										'en-US',
+																										{
+																											timeZone: 'UTC',
+																										}
+																									)}
+																							</div>
+																							{!value[0]?.bundle_created_at &&
+																								'Date not found'}
+																						</td>
+																					</tr>
+																				))}
+																		</KTableBody>
+																	</KTable>
+																</div>
+															)}
+
+															{Object.entries(dictBundlesRB).filter(
+																([key, value]) =>
+																	parseInt(value[0].student_id) ===
+																	parseInt(selectedDetail)
+															).length !== 0 && (
+																<div className='p-2 my-4'>
+																	<div className='mb-2 text-xl font-semibold drop-shadow-md'>
+																		Rejected Bundle Submissions
+																	</div>
+																	<KTable>
+																		<KTableHead
+																			tableHeaders={[
+																				{
+																					name: 'MOOCs',
+																					alignment: 'center',
+																					className: 'rounded-tl-md',
+																				},
+																				{
+																					name: 'Rejection Reason',
+																					alignment: 'center',
+																					className: '',
+																				},
+																				{
+																					name: 'Rejection Date',
+																					alignment: 'center',
+																					className: 'rounded-tr-md',
+																				},
+																			]}
+																		/>
+																		<KTableBody>
+																			{Object.entries(dictBundlesRB)
+																				.filter(
+																					([key, value]) =>
+																						parseInt(value[0].student_id) ===
+																						parseInt(selectedDetail)
+																				)
+																				.map(([key, value], idx) => (
+																					<tr
+																						key={idx}
+																						className={
+																							idx % 2 === 0
+																								? 'bg-zinc-100'
+																								: 'bg-zinc-200/[0.75]'
+																						}
+																					>
+																						<td className='px-4 py-4 text-lg font-medium '>
+																							{value?.map(
+																								(
+																									{
+																										bundle_id,
+																										student_no,
+																										student_name,
+																										student_surname,
+																										mooc_name,
+																										mooc_url,
+																										certificate_url,
+																										bundle_created_at,
+																									},
+																									index
+																								) => (
+																									<div
+																										key={index}
+																										className='mt-2 py-1 w-full grid grid-cols-4 '
+																									>
+																										<NextLink
+																											href={mooc_url ?? ''}
+																											target='_blank'
+																											className='col-span-3'
+																										>
+																											<span className='select-none text-black no-underline'>
+																												-&gt;
+																											</span>{' '}
+																											<span className='text-blue-600 hover:underline underline-offset-2'>
+																												{mooc_name}
+																											</span>
+																										</NextLink>
+																									</div>
+																								)
+																							)}
+																						</td>
+																						<td className='max-w-xs px-4 py-4 text-lg font-medium  '>
+																							<div className=' max-w-max mt-2 px-2 text-justify text-neutral-700 '>
+																								{value[0]
+																									?.reject_status_comment ??
+																									'No reject reason was found...'}
+																							</div>
+																						</td>
+																						<td className='px-4 py-4 text-lg font-medium text-center '>
+																							<div>
+																								Bundle rejected by{' '}
+																								<span className='font-semibold'>
+																									{value[0]?.coordinator_name}{' '}
+																								</span>{' '}
+																							</div>
+																							<div>
+																								at{' '}
+																								{value[0]?.bundle_created_at &&
+																									new Date(
+																										value[0]?.bundle_created_at
+																									).toLocaleDateString(
+																										'en-US',
+																										{
+																											weekday: 'long',
+																											year: 'numeric',
+																											month: 'long',
+																											day: 'numeric',
+																											timeZone: 'UTC',
+																										}
+																									)}
+																							</div>
+																							<div>
+																								{value[0]?.bundle_created_at &&
+																									new Date(
+																										value[0]?.bundle_created_at
+																									).toLocaleTimeString(
+																										'en-US',
+																										{
+																											timeZone: 'UTC',
+																										}
+																									)}
+																							</div>
+																							{!value[0]?.bundle_created_at &&
+																								'Date not found'}
+																						</td>
+																					</tr>
+																				))}
+																		</KTableBody>
+																	</KTable>
+																</div>
+															)}
+														</section>
 													)}
 												</td>
 											</tr>
@@ -750,329 +2447,26 @@ export default function CoordinatorCoursePage({
 
 			{selectedTabs === 1 && (
 				<div className='w-[95%]'>
-					{
-						<PageTitle>
-							Bundles that are waiting for certificate uploads
-						</PageTitle>
-					}
-					{Object.keys(dictBundlesWC)?.length === 0 && (
-						<div className='mt-4 w-full text-center text-neutral-700'>
-							No bundles were found...
+					<div>
+						{/* Print to Excel */}
+						<div className='mb-6 flex justify-center items-center'>
+							<button
+								className='
+									p-3 bg-white 
+									border-solid border
+									border-green-600 hover:border-green-400
+									text-green-600 hover:text-green-400 
+									shadow-md hover:shadow-xl 
+									cursor-pointer rounded-full 
+									transition-all duration-300 ease-in-out 
+								'
+								onClick={handleDownload}
+							>
+								<RiFileExcel2Fill className=' text-lg ' size={36} />
+							</button>
 						</div>
-					)}
-					{Object.entries(dictBundlesWC).map(([key, value], i) => (
-						<div
-							key={i}
-							className='
-								max-w-7xl mx-auto 
-								mt-4 mb-8 p-2 hover:mb-12
-								flex flex-col
-								bg-slate-100 rounded-lg
-								border-solid border-2
-								border-slate-200 hover:border-slate-300
-								shadow-lg hover:shadow-2xl
-								transition-all
-							'
-						>
-							<div className='-mt-6 -ml-6 max-w-max h-8 px-3 flex justify-center items-center rounded-full bg-teal-200 shadow-lg text-xl font-bold'>
-								<span className='font-semibold'>{value[0]?.student_no}</span>
-								<span className='font-normal ml-2'>
-									{value[0]?.student_name} {value[0]?.student_surname}
-								</span>
-							</div>
+					</div>
 
-							{value?.map(
-								(
-									{
-										bundle_id,
-										student_no,
-										student_name,
-										student_surname,
-										mooc_name,
-										mooc_url,
-										certificate_url,
-										bundle_created_at,
-									},
-									index
-								) => (
-									<div
-										key={index}
-										className='
-											mt-2 p-1 w-full
-											grid grid-cols-3 gap-4
-										'
-									>
-										<NextLink href={mooc_url ?? ''} className=''>
-											<span className='select-none text-black no-underline'>
-												-&gt;
-											</span>
-											<span className='text-blue-600 hover:underline underline-offset-2'>
-												{mooc_name}
-											</span>
-										</NextLink>
-
-										{!!certificate_url ? (
-											<NextLink
-												href={certificate_url ?? ''}
-												className='ml-4 font-semibold text-indigo-600 hover:underline underline-offset-2'
-											>
-												Certificate
-											</NextLink>
-										) : (
-											<span className='text-neutral-600'>
-												No certificate was found...
-											</span>
-										)}
-									</div>
-								)
-							)}
-
-							<div className='mt-2 px-2 text-center text-neutral-700 drop-shadow-md'>
-								Bundle accepted by{' '}
-								<span className='font-semibold'>
-									Coordinator {value[0]?.coordinator_name} at
-								</span>{' '}
-								{new Date(value[0]?.bundle_created_at).toLocaleDateString(
-									'en-US',
-									{
-										weekday: 'long',
-										year: 'numeric',
-										month: 'long',
-										day: 'numeric',
-										timeZone: 'UTC',
-									}
-								)}{' '}
-								{new Date(value[0]?.bundle_created_at).toLocaleTimeString(
-									'en-US',
-									{
-										timeZone: 'UTC',
-									}
-								)}
-							</div>
-
-							{/* <div className='my-4 flex justify-evenly items-center'>
-								<button
-									onClick={() => handleRejectBundle(key)}
-									className='px-5 py-1 font-semibold text-xl uppercase border-none shadow-lg cursor-pointer rounded-lg hover:bg-rose-500 bg-rose-700 text-rose-50 transition-colors'
-								>
-									<span className='drop-shadow-md'>Reject</span>
-								</button>
-								<button
-									onClick={() => handleApproveBundle(key)}
-									className='px-5 py-1 font-semibold text-xl uppercase border-none shadow-lg cursor-pointer rounded-lg hover:bg-emerald-500 bg-emerald-700 text-emerald-50 transition-colors'
-								>
-									<span className='drop-shadow-md'>Approve</span>
-								</button>
-							</div> */}
-						</div>
-					))}
-				</div>
-			)}
-			{selectedTabs === 1 && (
-				<div className='w-[95%]'>
-					{
-						<PageTitle>
-							Bundles that were rejected during bundle submissions
-						</PageTitle>
-					}
-					{Object.keys(dictBundlesRB)?.length === 0 && (
-						<div className='mt-4 w-full text-center text-neutral-700'>
-							No bundles were found...
-						</div>
-					)}
-					{Object.entries(dictBundlesRB).map(([key, value], i) => (
-						<div
-							key={i}
-							className='
-								max-w-7xl mx-auto 
-								mt-4 mb-8 p-2 hover:mb-12
-								flex flex-col
-								bg-slate-100 rounded-lg
-								border-solid border-2
-								border-slate-200 hover:border-slate-300
-								shadow-lg hover:shadow-2xl
-								transition-all
-							'
-						>
-							<div className='-mt-6 -ml-6 max-w-max h-8 px-3 flex justify-center items-center rounded-full bg-teal-200 shadow-lg text-xl font-bold'>
-								<span className='font-semibold'>{value[0]?.student_no}</span>
-								<span className='font-normal ml-2'>
-									{value[0]?.student_name} {value[0]?.student_surname}
-								</span>
-							</div>
-
-							{value?.map(
-								(
-									{
-										bundle_id,
-										student_no,
-										student_name,
-										student_surname,
-										mooc_name,
-										mooc_url,
-										certificate_url,
-										bundle_created_at,
-									},
-									index
-								) => (
-									<div
-										key={index}
-										className='
-											mt-2 p-1 w-full
-											grid grid-cols-3 gap-4
-										'
-									>
-										<NextLink href={mooc_url ?? ''} className=''>
-											<span className='select-none text-black no-underline'>
-												-&gt;
-											</span>
-											<span className='text-blue-600 hover:underline underline-offset-2'>
-												{mooc_name}
-											</span>
-										</NextLink>
-
-										{!!certificate_url && (
-											<NextLink
-												href={certificate_url ?? ''}
-												className='ml-4 font-semibold text-indigo-600 hover:underline underline-offset-2'
-											>
-												Certificate
-											</NextLink>
-										)}
-									</div>
-								)
-							)}
-
-							<div className='mt-2 px-2 text-center text-neutral-700 drop-shadow-md'>
-								Bundle rejected by{' '}
-								<span className='font-semibold'>
-									Coordinator {value[0]?.coordinator_name} at
-								</span>{' '}
-								{new Date(value[0]?.bundle_created_at).toLocaleDateString(
-									'en-US',
-									{
-										weekday: 'long',
-										year: 'numeric',
-										month: 'long',
-										day: 'numeric',
-										timeZone: 'UTC',
-									}
-								)}{' '}
-								{new Date(value[0]?.bundle_created_at).toLocaleTimeString(
-									'en-US',
-									{
-										timeZone: 'UTC',
-									}
-								)}
-							</div>
-						</div>
-					))}
-				</div>
-			)}
-			{selectedTabs === 1 && (
-				<div className='w-[95%]'>
-					{
-						<PageTitle>
-							Bundles that were rejected after certificates were uploaded
-						</PageTitle>
-					}
-					{Object.keys(dictBundlesRC)?.length === 0 && (
-						<div className='mt-4 w-full text-center text-neutral-700'>
-							No bundles were found...
-						</div>
-					)}
-					{Object.entries(dictBundlesRC).map(([key, value], i) => (
-						<div
-							key={i}
-							className='
-								max-w-7xl mx-auto 
-								mt-4 mb-8 p-2 hover:mb-12
-								flex flex-col
-								bg-slate-100 rounded-lg
-								border-solid border-2
-								border-slate-200 hover:border-slate-300
-								shadow-lg hover:shadow-2xl
-								transition-all
-							'
-						>
-							<div className='-mt-6 -ml-6 max-w-max h-8 px-3 flex justify-center items-center rounded-full bg-teal-200 shadow-lg text-xl font-bold'>
-								<span className='font-semibold'>{value[0]?.student_no}</span>
-								<span className='font-normal ml-2'>
-									{value[0]?.student_name} {value[0]?.student_surname}
-								</span>
-							</div>
-
-							{value?.map(
-								(
-									{
-										bundle_id,
-										student_no,
-										student_name,
-										student_surname,
-										mooc_name,
-										mooc_url,
-										certificate_url,
-										bundle_created_at,
-									},
-									index
-								) => (
-									<div
-										key={index}
-										className='
-											mt-2 p-1 w-full
-											grid grid-cols-3 gap-4
-										'
-									>
-										<NextLink href={mooc_url ?? ''} className=''>
-											<span className='select-none text-black no-underline'>
-												-&gt;
-											</span>
-											<span className='text-blue-600 hover:underline underline-offset-2'>
-												{mooc_name}
-											</span>
-										</NextLink>
-
-										{!!certificate_url && (
-											<NextLink
-												href={certificate_url ?? ''}
-												className='ml-4 font-semibold text-indigo-600 hover:underline underline-offset-2'
-											>
-												Certificate
-											</NextLink>
-										)}
-									</div>
-								)
-							)}
-
-							<div className='mt-2 px-2 text-center text-neutral-700 drop-shadow-md'>
-								Certificates rejected by{' '}
-								<span className='font-semibold'>
-									Coordinator {value[0]?.coordinator_name} at
-								</span>{' '}
-								{new Date(value[0]?.bundle_created_at).toLocaleDateString(
-									'en-US',
-									{
-										weekday: 'long',
-										year: 'numeric',
-										month: 'long',
-										day: 'numeric',
-										timeZone: 'UTC',
-									}
-								)}{' '}
-								{new Date(value[0]?.bundle_created_at).toLocaleTimeString(
-									'en-US',
-									{
-										timeZone: 'UTC',
-									}
-								)}
-							</div>
-						</div>
-					))}
-				</div>
-			)}
-
-			{/* {selectedTabs === 2 && (
-				<div className='w-[95%]'>
 					<KTable className=''>
 						<KTableHead
 							tableHeaders={[
@@ -1097,11 +2491,6 @@ export default function CoordinatorCoursePage({
 								},
 								{
 									name: 'Edit Bundle',
-									alignment: 'center',
-									className: '',
-								},
-								{
-									name: 'Actions',
 									alignment: 'center',
 									className: 'rounded-tr-md',
 								},
@@ -1161,7 +2550,7 @@ export default function CoordinatorCoursePage({
 														<NextLink
 															href={certificate_url ?? ''}
 															target='_blank'
-															className='font-semibold text-indigo-600/[0.65] hover:underline underline-offset-2 '
+															className='font-semibold text-indigo-700/[0.8] hover:underline underline-offset-2 '
 														>
 															Certificate
 														</NextLink>
@@ -1188,14 +2577,15 @@ export default function CoordinatorCoursePage({
 													timeZone: 'UTC',
 												}
 											)}
-										{value[0]?.pass_date && ', '}
-										{value[0]?.pass_date &&
-											new Date(value[0]?.pass_date).toLocaleTimeString(
-												'en-US',
-												{
-													timeZone: 'UTC',
-												}
-											)}
+										<div>
+											{value[0]?.pass_date &&
+												new Date(value[0]?.pass_date).toLocaleTimeString(
+													'en-US',
+													{
+														timeZone: 'UTC',
+													}
+												)}
+										</div>
 										{!value[0]?.pass_date && 'Date not found'}
 									</td>
 
@@ -1208,184 +2598,381 @@ export default function CoordinatorCoursePage({
 												}}
 												className={` bg-transparent  text-center font-thin border-none cursor-pointer transition-colors`}
 											>
-												<PencilSquareIcon className='h-7 w-7 text-zinc-700' />
+												<PencilSquareIcon className='h-7 w-7 text-zin-700 ' />
 											</button>
-										)}
-									</td>
-									<td className='   px-4 py-4 text-lg font-medium whitespace-nowrap '>
-										{!!is_active && (
-											<div className='my-4 flex flex-col gap-4 justify-evenly items-center'>
-												<button
-													onClick={() =>
-														handleRejectCertificate(key, value[0]?.student_id)
-													}
-													className='px-5 py-1 font-semibold text-xl uppercase border-none shadow-lg cursor-pointer rounded-lg hover:bg-rose-500 bg-rose-700 text-rose-50 transition-colors'
-												>
-													<span className='drop-shadow-md select-none'>
-														Reject
-													</span>
-												</button>
-												<button
-													onClick={() =>
-														handleApproveCertificate(key, value[0]?.student_id)
-													}
-													className='px-5 py-1 font-semibold text-xl uppercase border-none shadow-lg cursor-pointer rounded-lg hover:bg-emerald-500 bg-emerald-700 text-emerald-50 transition-colors'
-												>
-													<span className='drop-shadow-md select-none'>
-														Approve
-													</span>
-												</button>
-											</div>
 										)}
 									</td>
 								</tr>
 							))}
 							{Object.keys(dictBundlesAC)?.length === 0 && (
-								<EmptyTableMessage
-									cols={6}
-									message='No active courses were found...'
-								/>
+								<EmptyTableMessage cols={6} message='Nothing was found...' />
 							)}
 						</KTableBody>
 					</KTable>
 				</div>
-			)} */}
+			)}
 
-			{selectedTabs === 2 && (
-				<div className='w-[95%]'>
-					<div>
-						{/* Print to Excel */}
-						<div className='flex justify-center items-center'>
-							<button
-								className='
-									p-3 bg-white 
-									border-solid border
-									border-green-600 hover:border-green-400
-									text-green-600 hover:text-green-400 
-									shadow-md hover:shadow-xl 
-									cursor-pointer rounded-full 
-									transition-all duration-300 ease-in-out 
-								'
-								onClick={handleDownload}
+			<Modal
+				{...{
+					isOpen,
+					setIsOpen,
+					closeModal,
+					openModal,
+				}}
+				title='Edit selected bundle'
+				extraLarge={true}
+			>
+				<div className={`transition-all mt-2 `}>
+					{/* <section className='w-[95%] px-2 py-4 sm:px-0 font-sans transition-all '>
+						<div className='flex space-x-1 rounded-xl bg-zinc-200/[0.8]  p-1'>
+							<div
+								onClick={() => setSelectedModalTab(0)}
+								className={`
+							w-full rounded-lg py-2.5 text-lg
+							font-semibold leading-5 text-zinc-700 text-center
+							border-0 cursor-pointer 
+							ring-opacity-60 ring-white  ring-offset-2 ring-offset-zinc-400 
+							focus:outline-none focus:ring-2
+							${
+								selectedModalTab === 0
+									? 'bg-white text-zinc-900 shadow'
+									: 'text-zinc-400 bg-white/[0.35] hover:bg-white hover:text-black'
+							}
+						`}
 							>
-								<RiFileExcel2Fill className=' text-lg ' size={36} />
-							</button>
+								<div>
+									<span className='drop-shadow-md select-none '>
+										View MOOCs
+									</span>
+								</div>
+							</div>
+							<div
+								onClick={() => setSelectedModalTab(1)}
+								className={`
+							w-full rounded-lg py-2.5 text-lg
+							font-semibold leading-5 text-zinc-700 text-center
+							border-0 cursor-pointer 
+							ring-opacity-60 ring-white  ring-offset-2 ring-offset-zinc-400 
+							focus:outline-none focus:ring-2
+							${
+								selectedModalTab === 1
+									? 'bg-white text-zinc-900 shadow'
+									: 'text-zinc-400 bg-white/[0.35] hover:bg-white hover:text-black'
+							}
+						`}
+							>
+								<div>
+									<span className='drop-shadow-md select-none '>
+										Add a MOOC
+									</span>
+								</div>
+							</div>
+							<div
+								onClick={() => setSelectedModalTab(2)}
+								className={`
+							w-full rounded-lg py-2.5 text-lg
+							font-semibold leading-5 text-zinc-700 text-center
+							border-0 cursor-pointer 
+							ring-opacity-60 ring-white  ring-offset-2 ring-offset-zinc-400 
+							focus:outline-none focus:ring-2
+							${
+								selectedModalTab === 2
+									? 'bg-white text-zinc-900 shadow'
+									: 'text-zinc-400 bg-white/[0.35] hover:bg-white hover:text-black'
+							}
+						`}
+							>
+								<div>
+									<span className='drop-shadow-md select-none '>
+										Change Bundle Feedback
+									</span>
+								</div>
+							</div>
 						</div>
+					</section> */}
+
+					<div className='flex flex-col items-center justify-center'>
+						<div className='w-full text-lg flex justify-evenly items-center gap-1 my-2'>
+							<span>
+								<span className='font-semibold'>Name:</span>{' '}
+								{selectedBundle[0]?.student_name}{' '}
+								{selectedBundle[0]?.student_surname}
+							</span>
+							<span>
+								<span className='font-semibold'>Student No: </span>
+								{selectedBundle[0]?.student_no}
+							</span>
+							<span>
+								<span className='font-semibold'>Email: </span>
+								{selectedBundle[0]?.student_email}
+							</span>
+						</div>
+						{/* <div className='grid grid-cols-1 gap-2 my-4'>
+								{Object.entries(selectedBundle[0] ?? {}).map(
+									([key, value], index) => (
+										<div key={index} className='grid grid-cols-2 gap-1'>
+											<span>{key}:</span>
+											<span>{value ?? '-'}</span>
+										</div>
+									)
+								)}
+							</div> */}
 					</div>
-					{Object.keys(dictBundlesAC)?.length === 0 && (
-						<div className='mt-4 w-full text-center text-neutral-700'>
-							No bundles were found...
+
+					{selectedModalTab === 0 && (
+						<div className='mt-2 w-full overflow-x-auto'>
+							<KTable>
+								<KTableHead
+									tableHeaders={
+										selectedTabs === 0
+											? [
+													{
+														name: 'MOOC',
+														alignment: 'left',
+														className: 'rounded-tl-md rounded-tr-md',
+													},
+											  ]
+											: [
+													{
+														name: 'MOOC',
+														alignment: 'left',
+														className: 'rounded-tl-md',
+													},
+													{ name: 'Certificate', alignment: 'left' },
+													{
+														name: 'Change Certificate URL',
+														alignment: 'center',
+														className: 'rounded-tr-md',
+													},
+											  ]
+									}
+								></KTableHead>
+								<KTableBody>
+									{selectedBundle.map((bundle, idx) => (
+										<tr
+											key={idx}
+											className={
+												idx % 2 === 0 ? 'bg-zinc-100' : 'bg-zinc-200/[0.75]'
+											}
+										>
+											<td className='px-4 py-2'>
+												<MdDeleteForever
+													size={24}
+													onClick={() =>
+														handleDeleteMooc(bundle.bundle_detail_id)
+													}
+													className=' drop-shadow-md align-bottom text-red-700 cursor-pointer mr-2'
+												/>
+												{bundle.mooc_name}
+											</td>
+											{selectedTabs !== 0 && (
+												<>
+													<td className='px-4 py-2'>
+														{bundle?.certificate_url && (
+															<NextLink
+																href={bundle.certificate_url}
+																target='_blank'
+																className='text-blue-500'
+															>
+																{bundle.certificate_url}
+															</NextLink>
+														)}
+													</td>
+													<td className='px-4 py-2'>
+														<div className='flex justify-center'>
+															<button
+																onClick={() =>
+																	handleEditCertificate(bundle.bundle_detail_id)
+																}
+																className={` bg-transparent  text-center font-thin border-none cursor-pointer transition-colors`}
+															>
+																<PencilSquareIcon className='h-7 w-7 text-zinc-700' />
+															</button>
+														</div>
+													</td>
+												</>
+											)}
+										</tr>
+									))}
+								</KTableBody>
+							</KTable>
 						</div>
 					)}
-					{Object.entries(dictBundlesAC).map(([key, value], i) => (
-						<div
-							key={i}
-							className='
-								max-w-7xl mx-auto 
-								mt-4 mb-8 p-2 hover:mb-12
-								flex flex-col
-								bg-slate-100 rounded-lg
-								border-solid border-2
-								border-slate-200 hover:border-slate-300
-								shadow-lg hover:shadow-2xl
-								transition-all
-							'
+
+					{selectedModalTab === 0 && (
+						<Formik
+							initialValues={editBundleMoocAddModel.initials}
+							validationSchema={editBundleMoocAddModel.schema}
+							onSubmit={handleAddMooc}
 						>
-							<div className='-mt-6 -ml-6 max-w-max h-8 px-3 flex justify-center items-center rounded-full bg-teal-200 shadow-lg text-xl font-bold'>
-								<span className='font-semibold'>{value[0]?.student_no}</span>
-								<span className='font-normal ml-2'>
-									{value[0]?.student_name} {value[0]?.student_surname}
-								</span>
-							</div>
-
-							{value?.map(
-								(
-									{
-										bundle_id,
-										student_no,
-										student_name,
-										student_surname,
-										mooc_name,
-										mooc_url,
-										certificate_url,
-										bundle_created_at,
-									},
-									index
-								) => (
+							{({
+								setFieldValue,
+								values,
+								errors,
+								touched,
+								handleChange,
+								handleSubmit,
+								isSubmitting,
+							}) => (
+								<form
+									onSubmit={handleSubmit}
+									className={`grid grid-cols-1 md:grid-cols-4 gap-2 content-center place-content-center px-4 mb-8`}
+								>
+									<label className={classLabel} htmlFor='addmooc'>
+										Add a MOOC
+									</label>
 									<div
-										key={index}
-										className='
-											mt-2 p-1 w-full
-											grid grid-cols-4 gap-4
-										'
+										name='addmooc'
+										id='addmooc'
+										className='col-span-3 flex flex-col justify-center overflow-visible'
 									>
-										<NextLink href={mooc_url ?? ''} className='col-span-3'>
-											<span className='select-none text-black no-underline'>
-												-&gt;
-											</span>
-											<span className='text-blue-600 hover:underline underline-offset-2'>
-												{mooc_name}
-											</span>
-										</NextLink>
-
-										{!!certificate_url && (
-											<NextLink
-												href={certificate_url ?? ''}
-												className='ml-4 font-semibold text-indigo-600 hover:underline underline-offset-2'
-											>
-												Certificate
-											</NextLink>
-										)}
+										<Multiselect
+											className='w-full '
+											options={moocs} // Options to display in the dropdown
+											selectedValues={selectedMooc} // Preselected value to persist in dropdown
+											onSelect={handleSelect} // Function will trigger on select event
+											onRemove={handleRemove} // Function will trigger on remove event
+											displayValue='name' // Property name to display in the dropdown options
+											placeholder='Select a MOOC'
+											style={{
+												chips: {
+													padding: '0.5rem 1rem',
+													background: '#212021',
+													borderRadius: '4rem',
+													color: '#f2f2f2',
+													fontSize: '1rem',
+												},
+												multiselectContainer: {
+													color: '#212021',
+													fontSize: '1rem',
+												},
+												searchBox: {
+													padding: '0.5rem',
+													color: '#f2f2f2',
+													border: '1px solid #212021',
+													borderBottom: '1px solid #212021',
+													borderRadius: '5px',
+													fontSize: '1rem',
+												},
+												inputField: {
+													fontSize: '1rem',
+												},
+												option: {
+													border: 'none',
+													borderBottom: '1px solid #ccc',
+													borderRadius: '0',
+												},
+											}}
+										/>
 									</div>
-								)
+
+									<button
+										variant='contained'
+										color='primary'
+										size='large'
+										type='submit'
+										className={`mx-auto my-4 col-span-1 tracking-wider text-center text-xl py-1 px-4 bg-[#212021] hover:bg-[#414041] shadow-md text-white font-bold rounded-xl border-none cursor-pointer transition-colors`}
+										disabled={isSubmitting}
+									>
+										<div
+											className={`inline-block rounded-sm bg-purple-500 ${
+												isSubmitting && 'w-4 h-4 mr-2 animate-spin'
+											}`}
+										></div>
+										<span>{isSubmitting ? 'ADDING...' : 'ADD MOOC'}</span>
+									</button>
+								</form>
 							)}
+						</Formik>
+					)}
 
-							<div className='max-w-4xl mx-auto mt-2 px-2 text-center text-neutral-700 drop-shadow-md'>
-								<span className='font-semibold'>
-									Bundle Feedback of Student
-								</span>
-							</div>
+					{selectedModalTab === 0 && (
+						<Formik
+							initialValues={{ comment: selectedBundle[0].comment }}
+							validationSchema={editBundleFeedbackModel.schema}
+							onSubmit={handleCommentChange}
+						>
+							{({
+								setFieldValue,
+								values,
+								errors,
+								touched,
+								handleChange,
+								handleSubmit,
+								isSubmitting,
+							}) => (
+								<form
+									onSubmit={handleSubmit}
+									className={`grid grid-cols-1 md:grid-cols-2 gap-2 content-center place-content-center px-4`}
+								>
+									{/* <label className={classLabel} htmlFor='name'>
+								Name
+							</label>
+							<input
+								className={classInput}
+								type='text'
+								name='name'
+								id='name'
+								value={values.name}
+								onChange={handleChange}
+							/>
+							<span className={classError}>
+								{errors.name && touched.name && errors.name}
+							</span>
 
-							<div className='max-w-4xl mx-auto mt-2 px-2 text-justify text-neutral-700 drop-shadow-md'>
-								{value[0]?.comment}
-							</div>
+							<label className={classLabel} htmlFor='surname'>
+								Surname
+							</label>
+							<input
+								className={classInput}
+								type='text'
+								name='surname'
+								id='surname'
+								value={values.surname}
+								onChange={handleChange}
+							/>
+							<span className={classError}>
+								{errors.surname && touched.surname && errors.surname}
+							</span> */}
 
-							<div className='mt-6 px-2 text-center text-neutral-700 drop-shadow-md'>
-								Bundle accepted by{' '}
-								<span className='font-semibold'>
-									Coordinator {value[0]?.coordinator_name} at
-								</span>{' '}
-								{new Date(value[0]?.bundle_date).toLocaleDateString('en-US', {
-									weekday: 'long',
-									year: 'numeric',
-									month: 'long',
-									day: 'numeric',
-									timeZone: 'UTC',
-								})}{' '}
-								{new Date(value[0]?.bundle_date).toLocaleTimeString('en-US', {
-									timeZone: 'UTC',
-								})}
-							</div>
-							<div className='mt-2 px-2 text-center text-neutral-700 drop-shadow-md'>
-								Certificates approved by{' '}
-								<span className='font-semibold'>
-									Coordinator {value[0]?.coordinator_name} at
-								</span>{' '}
-								{new Date(value[0]?.pass_date).toLocaleDateString('en-US', {
-									weekday: 'long',
-									year: 'numeric',
-									month: 'long',
-									day: 'numeric',
-									timeZone: 'UTC',
-								})}{' '}
-								{new Date(value[0]?.pass_date).toLocaleTimeString('en-US', {
-									timeZone: 'UTC',
-								})}
-							</div>
-						</div>
-					))}
+									<label className={classLabel} htmlFor='comment'>
+										Bundle Feedback
+									</label>
+
+									<textarea
+										className={classInput}
+										type='text'
+										name='comment'
+										id='comment'
+										style={{ resize: 'vertical' }}
+										value={values.comment}
+										onChange={handleChange}
+									/>
+									<span className={classError}>
+										{errors.comment && touched.comment && errors.comment}
+									</span>
+
+									<button
+										variant='contained'
+										color='primary'
+										size='large'
+										type='submit'
+										className={`mx-auto  my-4 md:col-span-2 tracking-wider text-center text-xl py-2 px-4 bg-[#212021] hover:bg-[#414041] shadow-md text-white font-bold rounded-xl border-none cursor-pointer transition-colors`}
+										disabled={isSubmitting}
+									>
+										<div
+											className={`inline-block rounded-sm bg-purple-500 ${
+												isSubmitting && 'w-4 h-4 mr-2 animate-spin'
+											}`}
+										></div>
+										<span>{isSubmitting ? 'Editing...' : 'EDIT FEEDBACK'}</span>
+									</button>
+								</form>
+							)}
+						</Formik>
+					)}
 				</div>
-			)}
+			</Modal>
 		</div>
 	);
 }
@@ -1540,6 +3127,15 @@ export async function getServerSideProps({ req, query }) {
 			return bundle.bundle_id;
 		});
 
+		const backendURLmo = `${process.env.NEXT_PUBLIC_API_URL}/coordinator/moocs`;
+
+		const { data: dataMo } = await axios.get(backendURLmo, {
+			headers: {
+				Authorization: `Bearer ${token}`,
+			},
+		});
+		const { moocs } = dataMo;
+
 		return {
 			props: {
 				bundlesRB,
@@ -1559,6 +3155,7 @@ export async function getServerSideProps({ req, query }) {
 				course,
 				students,
 				waiting_students,
+				moocs,
 			},
 		};
 	} catch (error) {
@@ -1582,6 +3179,7 @@ export async function getServerSideProps({ req, query }) {
 				course: {},
 				students: [],
 				waiting_students: [],
+				moocs: [],
 			},
 		};
 	}

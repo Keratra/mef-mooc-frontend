@@ -11,7 +11,7 @@ export default function CoordinatorLandingPage() {
 	return (
 		<div>
 			<h1>Information Page</h1>
-			<span>Buraya siteyi nasıl kullanabileceklerini yazalım.</span>
+			<span className='animate-pulse'>Work in progress...</span>
 		</div>
 	);
 }

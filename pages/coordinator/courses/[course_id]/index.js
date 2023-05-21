@@ -464,9 +464,11 @@ export default function CoordinatorCoursePage({
 				{course.semester} ({course.credits} credits)
 			</span>
 
-			{/* <div className='m-0'>
-				<BsChevronCompactDown size={48} />
-			</div> */}
+			{!is_active && (
+				<div className='min-w-[95%] my-4 mx-4 p-3 bg-gradient-to-t from-rose-100 to-rose-50 rounded-lg shadow-md text-3xl text-rose-600 text-center font-bold'>
+					This is an inactive course!
+				</div>
+			)}
 
 			<section className='w-[95%] px-2 py-4 sm:px-0 font-sans transition-all '>
 				<div className='flex space-x-1 rounded-xl bg-zinc-200/[0.8]  p-1'>
@@ -511,17 +513,7 @@ export default function CoordinatorCoursePage({
 				</div>
 			</section>
 
-			{/* <div className='m-0'>
-				<BsChevronCompactDown size={48} />
-			</div> */}
-
 			<Tabs {...{ selectedTabs, setSelectedTabs, tabs, fullWidth: false }} />
-
-			{!is_active && (
-				<div className='min-w-[95%] mt-4 mx-4 p-3 bg-gradient-to-t from-rose-100 to-rose-50 rounded-lg shadow-md text-3xl text-rose-600 text-center font-bold'>
-					This is an inactive course!
-				</div>
-			)}
 
 			{selectedTabs === 0 && (
 				<div className='flex flex-col overflow-x-auto w-[95%] align-middle overflow-hidden border shadow-lg'>
@@ -956,7 +948,7 @@ export default function CoordinatorCoursePage({
 									className: 'max-w-xs',
 								},
 								{
-									name: 'Completion Date',
+									name: 'Student Completion Date',
 									alignment: 'center',
 								},
 								{

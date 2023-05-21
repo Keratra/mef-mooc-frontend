@@ -165,7 +165,8 @@ export default function CoordinatorCoursesPage({
 							<div key={idx} className='w-full'>
 								<div className='flex justify-between items-center w-full mb-2'>
 									<h1 className='text-2xl font-semibold text-zinc-700'>
-										{key} Semester
+										{key}
+										<span className='font-normal'> Semester Courses</span>
 									</h1>
 								</div>
 
@@ -262,7 +263,7 @@ export default function CoordinatorCoursesPage({
 							<div key={idx} className='w-full'>
 								<div className='flex justify-between items-center w-full mb-2'>
 									<h1 className='text-2xl font-semibold text-zinc-700'>
-										{key} Semester
+										{key} <span className='font-normal'> Semester Courses</span>
 									</h1>
 								</div>
 
