@@ -114,7 +114,7 @@ export default function CoordinatorCoursesPage({
 	`;
 
 	return (
-		<div className='flex flex-col justify-center items-center'>
+		<div className={`flex flex-col justify-center items-center`}>
 			<PageTitle>Courses</PageTitle>
 
 			<section className='w-full max-w-7xl px-2 pb-8 sm:px-0 font-sans transition-all '>
@@ -230,7 +230,15 @@ export default function CoordinatorCoursesPage({
 															</td>
 															<td className=' px-4 py-4 text-lg font-medium text-center whitespace-nowrap '>
 																<NextLink href={`/coordinator/courses/${id}`}>
-																	<button className=' inline-flex justify-center items-center text-center text-lg py-2 px-2 bg-transparent shadow-none text-white font-thin rounded-full border-none cursor-pointer transition-colors'>
+																	<button
+																		className=' 
+																			inline-flex justify-center items-center 
+																			text-center text-lg text-white
+																			py-2 px-2 
+																			bg-transparent shadow-none 
+																			font-thin rounded-full 
+																			border-none cursor-pointer transition-colors'
+																	>
 																		<ChevronDoubleRightIcon className='h-7 w-7 text-indigo-700 hover:text-indigo-500 cursor-pointer transition-colors' />
 																	</button>
 																</NextLink>

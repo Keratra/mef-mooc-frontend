@@ -57,7 +57,7 @@ export default function CoordinatorCoursePage({
 	const Router = useRouter();
 
 	const [selectedTabs, setSelectedTabs] = useState(0);
-	const [selectedDetail, setSelectedDetail] = useState(1);
+	const [selectedDetail, setSelectedDetail] = useState(0);
 	const [selectedModalTab, setSelectedModalTab] = useState(0);
 	const [dateHolder, setDateHolder] = useState({});
 	const [isOpen, setIsOpen] = useState(false);
@@ -1367,13 +1367,13 @@ export default function CoordinatorCoursePage({
 																			parseInt(value[0].student_id) ===
 																			parseInt(id)
 																	).length !== 0
-																		? 'Complete Date:'
+																		? 'Student Complete Date:'
 																		: Object.entries(dictBundlesWA).filter(
 																				([key, value]) =>
 																					parseInt(value[0].student_id) ===
 																					parseInt(id)
 																		  ).length !== 0
-																		? 'Complete Date:'
+																		? 'Student Complete Date:'
 																		: Object.entries(dictBundlesWC).filter(
 																				([key, value]) =>
 																					parseInt(value[0].student_id) ===

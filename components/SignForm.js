@@ -3,7 +3,13 @@ import { useState } from 'react';
 import { Formik } from 'formik';
 import { BiLoaderAlt } from 'react-icons/bi';
 
-export default function SignForm({ title, identifier, handleLogin, yupModel }) {
+export default function SignForm({
+	title,
+	identifier,
+	handleLogin,
+	yupModel,
+	handleForgotPassword,
+}) {
 	const classLabel = `
   md:col-span-2
   mt-4 p-2 -mb-2 rounded-lg
@@ -82,6 +88,15 @@ export default function SignForm({ title, identifier, handleLogin, yupModel }) {
 						<span className={classError}>
 							{errors.password && touched.password && errors.password}
 						</span>
+
+						<div
+							onClick={handleForgotPassword}
+							className={`md:col-span-2 text-left`}
+						>
+							<span className={`cursor-pointer text-zinc-700 hover:underline`}>
+								Forgot your password?
+							</span>
+						</div>
 
 						<button
 							variant='contained'

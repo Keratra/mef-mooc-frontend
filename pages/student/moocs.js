@@ -32,11 +32,10 @@ export default function MOOCListPage({ moocs }) {
 					<KTableHead
 						tableHeaders={[
 							{
-								name: 'MOOC ID',
+								name: 'MOOC Name',
 								alignment: 'left',
 								className: 'rounded-tl-md',
 							},
-							{ name: 'MOOC Name', alignment: 'left' },
 							{ name: 'Average Hours', alignment: 'left' },
 							{
 								name: 'Link',
@@ -54,9 +53,6 @@ export default function MOOCListPage({ moocs }) {
 										idx % 2 === 0 ? 'bg-zinc-100' : 'bg-zinc-200/[0.75]'
 									}
 								>
-									<td className='px-4 py-4 text-lg font-medium whitespace-nowrap '>
-										{id}
-									</td>
 									<td className='px-4 py-4 text-lg font-medium'>{name}</td>
 									<td className='px-4 py-4 text-lg font-medium'>
 										{average_hours}
@@ -72,7 +68,7 @@ export default function MOOCListPage({ moocs }) {
 								</tr>
 							))}
 						{moocs?.length === 0 && (
-							<EmptyTableMessage cols={4} message='No MOOCs were found...' />
+							<EmptyTableMessage cols={3} message='No MOOCs were found...' />
 						)}
 					</KTableBody>
 				</KTable>

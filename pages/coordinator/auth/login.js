@@ -8,6 +8,7 @@ import { useAuth } from 'contexts/auth/AuthProvider';
 import { useApp, useAppUpdate } from 'contexts/AppContext';
 import { USER_TYPE_COORDINATOR } from 'utils/constants';
 import SignForm from '@components/SignForm';
+import { notify } from 'utils/notify';
 
 const loginType = USER_TYPE_COORDINATOR;
 
@@ -54,6 +55,35 @@ export default function Login() {
 		}
 	};
 
+	const handleForgotPassword = async () => {
+		try {
+			const email = prompt('Enter your email');
+
+			if (!email) throw new Error('No email entered');
+
+			const { data } = await axios.post(
+				`/api/coordinator/auth/forgot-password`,
+				{
+					email,
+				}
+			);
+
+			notify(
+				'success',
+				data?.message ?? 'Check your email for the new password'
+			);
+		} catch (error) {
+			console.log(error);
+			notify(
+				'error',
+				error?.response?.data?.message?.message ??
+					error?.response?.data?.message ??
+					error?.message ??
+					'Error'
+			);
+		}
+	};
+
 	const classLabel = `
     md:col-span-2
     mt-4 p-2 -mb-2 rounded-lg
@@ -81,6 +111,7 @@ export default function Login() {
 				identifier={['Email', 'email']}
 				handleLogin={handleLogin}
 				yupModel={loginCoordinatorModel}
+				handleForgotPassword={handleForgotPassword}
 			/>
 		</div>
 	);

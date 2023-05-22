@@ -8,6 +8,7 @@ import { useAuth } from 'contexts/auth/AuthProvider';
 import { useApp, useAppUpdate } from 'contexts/AppContext';
 import { USER_TYPE_ADMIN } from 'utils/constants';
 import SignForm from '@components/SignForm';
+import { notify } from 'utils/notify';
 
 const loginType = USER_TYPE_ADMIN;
 
@@ -54,6 +55,32 @@ export default function Login() {
 		}
 	};
 
+	const handleForgotPassword = async () => {
+		try {
+			const email = prompt('Enter your email');
+
+			if (!email) throw new Error('No email entered');
+
+			const { data } = await axios.post(`/api/admin/auth/forgot-password`, {
+				email,
+			});
+
+			notify(
+				'success',
+				data?.message ?? 'Check your email for the new password'
+			);
+		} catch (error) {
+			console.log(error);
+			notify(
+				'error',
+				error?.response?.data?.message?.message ??
+					error?.response?.data?.message ??
+					error?.message ??
+					'Error'
+			);
+		}
+	};
+
 	return (
 		<div>
 			<SignForm
@@ -61,6 +88,7 @@ export default function Login() {
 				identifier={['Username', 'username']}
 				handleLogin={handleLogin}
 				yupModel={loginAdminModel}
+				handleForgotPassword={handleForgotPassword}
 			/>
 		</div>
 	);

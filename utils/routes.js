@@ -7,6 +7,7 @@ import {
 	HiTag,
 	HiCube,
 	HiBriefcase,
+	HiViewGrid,
 	HiViewGridAdd,
 	HiCash,
 	HiLightBulb,
@@ -20,7 +21,12 @@ export const routes = [
 	{
 		name: 'Courses',
 		pathname: '/coordinator/courses',
-		icon: <HiViewGridAdd size={size} className={iconClass} />,
+		icon: <HiViewGrid size={size} className={iconClass} />,
+	},
+	{
+		name: 'Profile',
+		pathname: '/coordinator/profile',
+		icon: <HiUser size={size} className={iconClass} />,
 	},
 
 	{
@@ -33,6 +39,11 @@ export const routes = [
 		pathname: '/student/moocs',
 		icon: <HiCash size={size} className={iconClass} />,
 	},
+	{
+		name: 'My Profile',
+		pathname: '/student/profile',
+		icon: <HiUser size={size} className={iconClass} />,
+	},
 
 	{
 		name: 'Dashboard',
@@ -44,6 +55,11 @@ export const routes = [
 		pathname: '/admin/moocs',
 		icon: <HiCash size={size} className={iconClass} />,
 	},
+	// {
+	// 	name: 'Settings',
+	// 	pathname: '/admin/settings',
+	// 	icon: <HiUser size={size} className={iconClass} />,
+	// },
 
 	// {
 	// 	name: 'Dashboard',
@@ -112,9 +128,9 @@ export const routes = [
 	// },
 ];
 
-export const coordinatorPages = ['Courses'];
+export const coordinatorPages = ['Courses', 'Profile'];
 
-export const studentPages = ['My Courses', 'MOOC List'];
+export const studentPages = ['My Courses', 'MOOC List', 'My Profile'];
 
 export const adminPages = ['Dashboard', 'MOOCs'];
 

@@ -112,7 +112,9 @@ function Sidebar({ items, open, setOpen, children }) {
 						</div>
 					</div>
 				</div>
-				<div className='overflow-y-auto w-full mx-auto '>{children}</div>
+				<div className='overflow-y-auto w-full mx-auto shadow-inner '>
+					{children}
+				</div>
 			</div>
 		</div>
 	);
