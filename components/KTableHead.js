@@ -1,6 +1,10 @@
-export default function KTable({ tableHeaders, children }) {
+export default function KTable({ tableHeaders, className, children }) {
 	return (
-		<thead className='bg-gradient-to-t from-zinc-300 to-zinc-200 text-black'>
+		<thead
+			className={
+				'bg-gradient-to-t from-zinc-300 to-zinc-200 text-black  ' + className
+			}
+		>
 			<tr>
 				{!!tableHeaders &&
 					tableHeaders.map(({ alignment, name, className, extra }, idx) => (

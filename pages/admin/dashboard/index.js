@@ -21,6 +21,11 @@ import {
 	PencilSquareIcon,
 } from '@heroicons/react/24/solid';
 import { notify } from 'utils/notify';
+import { FiUpload, FiDelete, FiX } from 'react-icons/fi';
+import KTable from '@components/KTable';
+import KTableHead from '@components/KTableHead';
+import KTableBody from '@components/KTableBody';
+import ExcelJS from 'exceljs';
 
 export default function AdminDepartmentsPage({
 	departments,
@@ -46,6 +51,9 @@ export default function AdminDepartmentsPage({
 		department_id: -1,
 	});
 	const [selectedTabs, setSelectedTabs] = useState(1); // tabs
+
+	const [file, setFile] = useState(null);
+	const [uploadedStudents, setUploadedStudents] = useState([]);
 
 	const [isOpenAdd, setIsOpenAdd] = useState(false);
 	const [isOpenChange, setIsOpenChange] = useState(false);
@@ -283,42 +291,13 @@ export default function AdminDepartmentsPage({
 		}
 	};
 
-	const handleInviteMultipleStudent = async ({}) => {
-		try {
-			// if (department_id <= 0) throw 'Please select a valid department';
-
-			// await axios.post(`/api/admin/invite-students`, {
-			// 	students: [
-			// 		{
-			// 			name,
-			// 			surname,
-			// 			email,
-			// 			student_no,
-			// 			department_id,
-			// 		},
-			// 	],
-			// });
-
-			Router.reload();
-		} catch (error) {
-			console.log(error);
-			notify(
-				'error',
-				error?.response?.data?.message?.message ??
-					error?.response?.data?.message ??
-					error?.message
-			);
-		} finally {
-			// setSubmitting(false);
-		}
-	};
-
 	const handleInviteSingleStudent = async (
 		{ name, surname, email, student_no, department_id },
 		{ setSubmitting }
 	) => {
 		try {
-			if (department_id <= 0) throw 'Please select a valid department';
+			if (department_id <= 0 || department_id === '0')
+				throw Error('Please select a valid department');
 
 			await axios.post(`/api/admin/invite-students`, {
 				students: [
@@ -343,6 +322,101 @@ export default function AdminDepartmentsPage({
 			);
 		} finally {
 			setSubmitting(false);
+		}
+	};
+
+	const handleFileChange = async (event) => {
+		setFile(event.target.files[0]);
+
+		if (event.target.files[0]) {
+			try {
+				const workbook = new ExcelJS.Workbook();
+				await workbook.xlsx.load(event.target.files[0]);
+
+				const worksheet = workbook.getWorksheet(1);
+				let data = [];
+
+				worksheet.eachRow({ includeEmpty: false }, (row, rowNumber) => {
+					const rowData = [];
+					row.eachCell({ includeEmpty: true }, (cell, colNumber) => {
+						rowData.push(cell.value);
+					});
+					data.push(rowData);
+				});
+
+				data = data.filter(
+					([name, url, average_hours]) => !!name && !!url && !!average_hours
+				);
+
+				setUploadedStudents(data.slice(1));
+
+				// const maxColumns = worksheet.columnCount;
+				// for (let col = 1; col <= maxColumns; col++) {
+				// 	const columnData = [];
+				// 	for (let row = 1; row <= worksheet.rowCount; row++) {
+				// 		const cell = worksheet.getCell(row, col);
+				// 		columnData.push(cell.value);
+				// 	}
+				// 	data.push(columnData);
+				// }
+
+				console.log('Extracted data:', data);
+			} catch (error) {
+				console.error('Error reading Excel file:', error);
+			}
+		}
+	};
+
+	const handleRemoveUploaded = async (studentIndex) => {
+		try {
+			if (uploadedStudents?.length < studentIndex)
+				throw Error('Please select a valid student to remove');
+
+			setUploadedStudents(() =>
+				uploadedStudents.filter((_, index) => index !== studentIndex)
+			);
+		} catch (error) {
+			console.log(error);
+			notify(
+				'error',
+				error?.response?.data?.message?.message ??
+					error?.response?.data?.message ??
+					error?.message
+			);
+		}
+	};
+
+	const handleInviteMultipleStudent = async () => {
+		try {
+			if (!uploadedStudents?.length) throw Error('Please upload students');
+
+			// await axios.post(`/api/admin/add-multiple-students`, {
+			// 	students: uploadedStudents.map(([name, url, average_hours]) => {
+			// 		return { name, url, average_hours };
+			// 	}),
+			// });
+
+			await axios.post(`/api/admin/invite-students`, {
+				students: uploadedStudents,
+			});
+
+			// [{
+			// 		name,
+			// 		surname,
+			// 		email,
+			// 		student_no,
+			// 		department_id,
+			// 	}]
+
+			Router.reload();
+		} catch (error) {
+			console.log(error);
+			notify(
+				'error',
+				error?.response?.data?.message?.message ??
+					error?.response?.data?.message ??
+					error?.message
+			);
 		}
 	};
 
@@ -641,7 +715,23 @@ export default function AdminDepartmentsPage({
 
 			{selectedTabs === 2 && (
 				<div className='w-full max-w-6xl mx-auto'>
-					<table className='w-full border-spacing-0 rounded-lg border-solid border-2 border-zinc-300 shadow-lg  '>
+					<div className='flex justify-between items-center px-2 pb-6 text-lg font-medium text-center'>
+						<button
+							onClick={() => openModalInviteMultiple()}
+							className={` mx-auto py-1 px-3 shadow-md text-white text-center text-lg font-thin rounded-full bg-zinc-800 hover:bg-zinc-600 border-none cursor-pointer transition-colors `}
+						>
+							INVITE STUDENTS
+						</button>
+
+						<button
+							onClick={() => openModalInviteSingle()}
+							className={` mx-auto py-1 px-3 shadow-md text-white text-center text-lg font-thin rounded-full bg-zinc-800 hover:bg-zinc-600 border-none cursor-pointer transition-colors `}
+						>
+							INVITE A STUDENT
+						</button>
+					</div>
+
+					<table className='w-full border-spacing-0 rounded-lg border-solid border-2 border-zinc-300 shadow-lg mt-2 mb-12 '>
 						<thead className='bg-gradient-to-t from-zinc-300 to-zinc-200 text-black'>
 							<tr>
 								<th
@@ -744,22 +834,6 @@ export default function AdminDepartmentsPage({
 							)}
 						</tbody>
 					</table>
-
-					<div className=' grid grid-cols-2 gap-2 px-4 py-4 text-lg font-medium text-center '>
-						<button
-							onClick={() => openModalInviteMultiple()}
-							className={` mx-auto py-1 px-3 shadow-md text-white text-center text-lg font-thin rounded-full bg-zinc-800 hover:bg-zinc-600 border-none cursor-pointer transition-colors `}
-						>
-							INVITE STUDENTS
-						</button>
-
-						<button
-							onClick={() => openModalInviteSingle()}
-							className={` mx-auto py-1 px-3 shadow-md text-white text-center text-lg font-thin rounded-full bg-zinc-800 hover:bg-zinc-600 border-none cursor-pointer transition-colors `}
-						>
-							INVITE A STUDENT
-						</button>
-					</div>
 				</div>
 			)}
 
@@ -1287,7 +1361,126 @@ export default function AdminDepartmentsPage({
 				}}
 				title='Invite multiple students'
 			>
-				<div className={`transition-all mt-2`}>Excel Upload Here...</div>
+				<div className={`transition-all mt-2`}>
+					<div
+						className={`grid grid-cols-1 gap-2 content-center place-content-center px-4`}
+					>
+						<div className='w-full col-span-full flex justify-center items-center mt-4'>
+							<input
+								type='file'
+								onChange={handleFileChange}
+								className='
+									block
+									text-sm text-gray-500 
+									file:mr-4 file:py-2 file:px-4 
+									file:rounded-full file:border-0 
+									file:cursor-pointer file:transition-colors
+									file:text-sm file:font-semibold 
+									file:bg-blue-50 file:text-blue-700 
+									hover:file:bg-blue-100'
+							/>
+						</div>
+
+						<div
+							className='
+								col-span-full
+								max-h-[40rem] overflow-y-auto
+								max-w-4xl
+							'
+						>
+							{uploadedStudents?.length > 0 && (
+								<KTable className='my-2'>
+									<KTableHead
+										tableHeaders={[
+											{
+												name: 'Student Name',
+												alignment: 'left',
+												className: 'rounded-tl-md',
+											},
+											{ name: 'Student No', alignment: 'center' },
+											{
+												name: 'Average Hours',
+												alignment: 'center',
+											},
+											{
+												name: 'Remove',
+												alignment: 'center',
+												className: 'rounded-tr-md',
+											},
+										]}
+									/>
+									<KTableBody>
+										{!!uploadedStudents &&
+											uploadedStudents.map(([a, b, c], idx) => (
+												<tr
+													key={idx}
+													className={`
+													
+													${idx % 2 === 0 ? 'bg-zinc-100' : 'bg-zinc-200/[0.75]'}
+												`}
+												>
+													<td className='px-4 py-4 text-lg font-medium break-all'>
+														{a}
+													</td>
+													<td className='px-4 py-4 text-lg font-medium break-all'>
+														<NextLink
+															className='text-blue-700 hover:underline'
+															href={b}
+														>
+															<span>Click to open</span>
+														</NextLink>
+													</td>
+													<td className='px-4 py-4 text-lg font-medium break-all text-center'>
+														{c}
+													</td>
+													<td className='px-4 py-4 text-lg font-medium text-center'>
+														<button
+															onClick={() => handleRemoveUploaded(idx)}
+															className={` bg-transparent  text-center font-thin border-none cursor-pointer transition-colors`}
+														>
+															<FiX className='h-7 w-7 text-rose-700 drop-shadow-md' />
+														</button>
+													</td>
+												</tr>
+											))}
+									</KTableBody>
+								</KTable>
+							)}
+
+							{uploadedStudents?.length === 0 && (
+								<div className='my-8 text-center'>
+									<span className='text-zinc-700 font-semibold text-xl '>
+										No students were uploaded...
+									</span>
+								</div>
+							)}
+						</div>
+
+						{uploadedStudents?.length > 0 && (
+							<button
+								variant='contained'
+								color='primary'
+								size='large'
+								type='submit'
+								className={`
+								mx-auto  my-4 md:col-span-2 
+								tracking-wider text-center text-xl 
+								py-2 px-4 bg-[#212021] hover:bg-[#414041] 
+								shadow-md text-white font-bold 
+								rounded-xl border-none 
+								cursor-pointer transition-colors`}
+								onClick={() => handleInviteMultipleStudent()}
+							>
+								{/* <div
+								className={`inline-block rounded-sm bg-purple-500 ${
+									isSubmitting && 'w-4 h-4 mr-2 animate-spin'
+								}`}
+							></div> */}
+								<span>CREATE STUDENTS</span>
+							</button>
+						)}
+					</div>
+				</div>
 			</Modal>
 
 			<Modal
@@ -1390,6 +1583,7 @@ export default function AdminDepartmentsPage({
 										setFieldValue('department_id', e.target.value);
 									}}
 								>
+									<option value={0}>None</option>
 									{!!departments &&
 										departments.map(({ id, name }, i) => (
 											<option key={i} value={id}>
