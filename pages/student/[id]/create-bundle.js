@@ -124,11 +124,10 @@ export default function CreateBundlePage({ course_id, moocs, mooc_details }) {
 					<KTableHead
 						tableHeaders={[
 							{
-								name: 'MOOC ID',
-								alignment: 'center',
+								name: 'MOOC Name',
+								alignment: 'left',
 								className: 'rounded-tl-md',
 							},
-							{ name: 'MOOC Name', alignment: 'left' },
 							{
 								name: 'Average Hours',
 								alignment: 'center',
@@ -149,9 +148,6 @@ export default function CreateBundlePage({ course_id, moocs, mooc_details }) {
 										idx % 2 === 0 ? 'bg-zinc-100' : 'bg-zinc-200/[0.75]'
 									}
 								>
-									<td className=' px-4 py-4 text-lg font-medium whitespace-nowrap text-center'>
-										{id}
-									</td>
 									<td className=' px-4 py-4 text-lg font-medium'>{name}</td>
 									<td className=' px-4 py-4 text-lg font-medium text-center'>
 										{mooc_details[id]?.average_hours}

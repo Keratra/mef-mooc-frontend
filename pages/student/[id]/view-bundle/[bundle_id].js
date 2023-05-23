@@ -162,11 +162,10 @@ export default function BundleViewPage({ course_id, bundle_id, bundle }) {
 							bundle[0]?.bundle_status === 'Waiting Certificates'
 								? [
 										{
-											name: 'MOOC ID',
+											name: 'MOOC Name',
 											alignment: 'left',
 											className: 'rounded-tl-md',
 										},
-										{ name: 'MOOC Name', alignment: 'left' },
 										{ name: 'Certificate Link', alignment: 'left' },
 										{ name: 'Average Hours', alignment: 'center' },
 										{
@@ -177,11 +176,10 @@ export default function BundleViewPage({ course_id, bundle_id, bundle }) {
 								  ]
 								: [
 										{
-											name: 'MOOC ID',
+											name: 'MOOC Name',
 											alignment: 'left',
 											className: 'rounded-tl-md',
 										},
-										{ name: 'MOOC Name', alignment: 'left' },
 										{ name: 'Certificate Link', alignment: 'left' },
 										{
 											name: 'Average Hours',
@@ -211,9 +209,6 @@ export default function BundleViewPage({ course_id, bundle_id, bundle }) {
 											idx % 2 === 0 ? 'bg-zinc-100' : 'bg-zinc-200/[0.75]'
 										}
 									>
-										<td className='px-4 py-4 text-lg font-medium whitespace-nowrap'>
-											{mooc_id}
-										</td>
 										<td className='px-4 py-4 text-lg font-medium'>
 											{mooc_name}
 										</td>

@@ -14,7 +14,7 @@ import { useAuth } from 'contexts/auth/AuthProvider';
 import { useApp } from 'contexts/AppContext';
 import RouteGuard from '@components/RouteGuard';
 import { chooseUserType, loadState, parseJwt } from 'lib';
-import { FiMenu, FiLogOut, FiArrowRight, FiX } from 'react-icons/fi';
+import { FiMenu, FiLogOut, FiArrowRight, FiX, FiLogIn } from 'react-icons/fi';
 import { USER_TYPES } from 'utils/constants';
 import { ToastContainer } from 'react-toastify';
 import { HiUsers, HiViewGridAdd } from 'react-icons/hi';
@@ -54,14 +54,18 @@ function NavBar({ state, logout, items, open, setOpen }) {
 
 			<span className='flex-grow'></span>
 
-			{state?.isAuthenticated && (
+			{state?.isAuthenticated ? (
 				<Link onClick={logout} href='/'>
 					<span className=' mr-4 text-xl font-medium drop-shadow-lg select-none text-red-700/[0.70] hover:text-red-500 transition-all'>
-						Logout{' '}
-						<FiLogOut
-							size={24}
-							className={`inline-block rotate-180 align-text-top`}
-						/>
+						<FiLogOut size={24} className={`inline-block align-text-top`} />{' '}
+						Logout
+					</span>
+				</Link>
+			) : (
+				<Link href='/'>
+					<span className=' mr-4 text-xl font-medium drop-shadow-lg select-none text-zinc-700 hover:text-zinc-600 transition-all'>
+						Login{' '}
+						<FiLogIn size={24} className={`inline-block align-text-top`} />
 					</span>
 				</Link>
 			)}

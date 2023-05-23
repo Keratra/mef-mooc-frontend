@@ -1,15 +1,15 @@
 import axios from 'axios';
 
-export default async function addDepartment(req, res) {
+export default async function addMOOC(req, res) {
 	try {
-		const { code, name, coordinator_id } = req.body;
-		const backendURL = `${process.env.NEXT_PUBLIC_API_URL}/admin/add-department`;
+		const { mooc_id } = req.body;
+		const backendURL = `${process.env.NEXT_PUBLIC_API_URL}/admin/mooc/${mooc_id}/change-status`;
 
 		const token = req.cookies.token;
 
 		const { data } = await axios.post(
 			backendURL,
-			{ code, name, coordinator_id },
+			{},
 			{
 				headers: {
 					Authorization: `Bearer ${token}`,

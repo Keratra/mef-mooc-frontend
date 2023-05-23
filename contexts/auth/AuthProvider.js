@@ -6,6 +6,8 @@ import React, { createContext, useContext, useEffect, useReducer } from 'react';
 import { LOGINUSER, LOGOUTUSER, SETUSERTYPE } from './types';
 // import { notify } from '@components/Toast';
 import Router from 'next/router';
+import axios from 'axios';
+import { notify } from 'utils/notify';
 
 const AuthContext = createContext();
 
@@ -65,6 +67,21 @@ function AuthProvider({ children }) {
 	}
 
 	function logout() {
+		try {
+			const userType = loadState('token')?.userType;
+			axios.post('/api/logout', {
+				userType,
+			});
+		} catch (error) {
+			console.log(error);
+			notify(
+				'error',
+				error?.response?.data?.message?.message ??
+					error?.response?.data?.message ??
+					error?.message
+			);
+		}
+
 		saveState('token', {
 			...loadState('token'),
 			token: null,

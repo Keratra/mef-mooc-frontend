@@ -113,6 +113,37 @@ export default function CoordinatorCoursesPage({
 		drop-shadow-md
 	`;
 
+	const currentYear = new Date().getFullYear();
+	const currentMonth = new Date().getMonth() + 1;
+
+	// fall  : 8, 9, 10, 11, 12
+	// summer: 6, 7
+	// spring: 1, 2, 3, 4, 5
+
+	let testSemester;
+
+	if ([8, 9, 10, 11, 12].includes(currentMonth)) {
+		testSemester = currentYear + '-' + (currentYear + 1) + '-' + 'Fall';
+	} else if ([6, 7].includes(currentMonth)) {
+		testSemester = currentYear - 1 + '-' + currentYear + '-' + 'Summer';
+	} else if ([1, 2, 3, 4, 5].includes(currentMonth)) {
+		testSemester = currentYear - 1 + '-' + currentYear + '-' + 'Spring';
+	}
+
+	let defaultSemester = 0;
+	let startIndex = -1;
+
+	for (let i = 0; i < semesters.length; i++) {
+		if (semesters[i] === testSemester) {
+			defaultSemester = semesters[i];
+			startIndex = i;
+		}
+	}
+
+	if (startIndex !== -1) {
+		semesters = semesters.slice(startIndex);
+	}
+
 	return (
 		<div className={`flex flex-col justify-center items-center`}>
 			<PageTitle>Courses</PageTitle>
@@ -349,7 +380,10 @@ export default function CoordinatorCoursesPage({
 			>
 				<div className=' transition-all mt-2 '>
 					<Formik
-						initialValues={addCourseModel.initials}
+						initialValues={{
+							...addCourseModel.initials,
+							semester: defaultSemester,
+						}}
 						validationSchema={addCourseModel.schema}
 						onSubmit={handleAdd}
 					>
@@ -427,9 +461,10 @@ export default function CoordinatorCoursesPage({
 								</label>
 								<input
 									className={classInput}
-									type='text'
+									type='number'
 									name='credits'
 									id='credits'
+									min={1}
 									value={values.credits}
 									onChange={handleChange}
 								/>

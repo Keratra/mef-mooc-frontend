@@ -11,6 +11,9 @@ import {
 	HiViewGridAdd,
 	HiCash,
 	HiLightBulb,
+	HiDocumentReport,
+	HiDocument,
+	HiDocumentText,
 } from 'react-icons/hi';
 import { RiSecurePaymentFill } from 'react-icons/ri';
 
@@ -54,6 +57,11 @@ export const routes = [
 		name: 'MOOCs',
 		pathname: '/admin/moocs',
 		icon: <HiCash size={size} className={iconClass} />,
+	},
+	{
+		name: 'Reports',
+		pathname: '/admin/reports',
+		icon: <HiDocumentText size={size} className={iconClass} />,
 	},
 	// {
 	// 	name: 'Settings',
@@ -132,7 +140,7 @@ export const coordinatorPages = ['Courses', 'Profile'];
 
 export const studentPages = ['My Courses', 'MOOC List', 'My Profile'];
 
-export const adminPages = ['Dashboard', 'MOOCs'];
+export const adminPages = ['Dashboard', 'MOOCs', 'Reports'];
 
 export const ignoredRouteList = [
 	'/',

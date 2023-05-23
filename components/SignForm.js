@@ -89,14 +89,18 @@ export default function SignForm({
 							{errors.password && touched.password && errors.password}
 						</span>
 
-						<div
-							onClick={handleForgotPassword}
-							className={`md:col-span-2 text-left`}
-						>
-							<span className={`cursor-pointer text-zinc-700 hover:underline`}>
-								Forgot your password?
-							</span>
-						</div>
+						{handleForgotPassword && (
+							<div
+								onClick={handleForgotPassword}
+								className={`md:col-span-2 text-left`}
+							>
+								<span
+									className={`cursor-pointer text-zinc-700 hover:underline`}
+								>
+									Forgot your password?
+								</span>
+							</div>
+						)}
 
 						<button
 							variant='contained'

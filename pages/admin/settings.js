@@ -138,7 +138,7 @@ export default function StudentProfilePage() {
 								</label>
 								<input
 									className={classInput}
-									type='text'
+									type='password'
 									name='oldPassword'
 									id='oldPassword'
 									value={values.oldPassword}
@@ -155,7 +155,7 @@ export default function StudentProfilePage() {
 								</label>
 								<input
 									className={classInput}
-									type='text'
+									type='password'
 									name='newPassword'
 									id='newPassword'
 									value={values.newPassword}

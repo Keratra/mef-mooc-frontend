@@ -8,6 +8,7 @@ import EmptyTableMessage from '@components/EmptyTableMessage';
 import PageTitle from '@components/PageTitle';
 import Modal from '@components/Modal';
 import { notify } from 'utils/notify';
+import PasswordBox from '@components/PasswordBox';
 
 const InfoBox = ({ title, value }) => {
 	return (
@@ -42,8 +43,6 @@ export default function StudentProfilePage({ student }) {
 			});
 
 			notify('success', 'Operation successful');
-
-			Router.reload();
 		} catch (error) {
 			console.log(error);
 			notify(
@@ -82,12 +81,14 @@ export default function StudentProfilePage({ student }) {
 		<div className='flex flex-col justify-center items-center'>
 			<PageTitle>Student Profile</PageTitle>
 
-			{/* <span>{JSON.stringify(student, null, 2)}</span> */}
+			{/* <span>
+				{JSON.stringify(student, null, 2)}{' '}
+			</span> */}
 
 			<div className='flex flex-col justify-start items-center mt-2 gap-6 '>
 				<InfoBox
 					title={'Name'}
-					value={student?.name ?? '-' + ' ' + student?.surname ?? '-'}
+					value={(student?.name ?? '-') + ' ' + (student?.surname ?? '-')}
 				/>
 				<InfoBox title={'Student NO'} value={student?.student_no ?? '-'} />
 				<InfoBox title={'Email'} value={student?.email ?? '-'} />
@@ -131,16 +132,13 @@ export default function StudentProfilePage({ student }) {
 								onSubmit={handleSubmit}
 								className={`grid grid-cols-1 md:grid-cols-2 gap-2 content-center place-content-center px-4`}
 							>
-								<label className={classLabel} htmlFor='oldPassword'>
-									Your Old Password
-								</label>
-								<input
-									className={classInput}
-									type='text'
-									name='oldPassword'
-									id='oldPassword'
-									value={values.oldPassword}
-									onChange={handleChange}
+								<PasswordBox
+									title='Current Password'
+									classLabel={classLabel}
+									classInput={classInput}
+									oid='oldPassword'
+									values={values.oldPassword}
+									handleChange={handleChange}
 								/>
 								<span className={classError}>
 									{errors.oldPassword &&
@@ -148,16 +146,13 @@ export default function StudentProfilePage({ student }) {
 										errors.oldPassword}
 								</span>
 
-								<label className={classLabel} htmlFor='newPassword'>
-									New Password
-								</label>
-								<input
-									className={classInput}
-									type='text'
-									name='newPassword'
-									id='newPassword'
-									value={values.newPassword}
-									onChange={handleChange}
+								<PasswordBox
+									title='New Password'
+									classLabel={classLabel}
+									classInput={classInput}
+									oid='newPassword'
+									values={values.newPassword}
+									handleChange={handleChange}
 								/>
 								<span className={classError}>
 									{errors.newPassword &&

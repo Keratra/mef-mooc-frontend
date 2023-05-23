@@ -47,21 +47,24 @@ export default function Home() {
 					</p>
 				</div>
 			</Modal>
-			<h1 className='text-center text-5xl mb-16 drop-shadow-md'>
-				Who are you?
+			<h1 className='text-center text-5xl mb-4 drop-shadow-md'>
+				Hello MEF Member!
 			</h1>
+			<span className='text-center text-3xl mb-8 drop-shadow-md'>
+				Please login to your account.
+			</span>
 
-			<section className='mx-auto grid grid-cols-1 gap-8'>
+			<section className='mx-auto grid grid-cols-3 gap-8'>
 				<NextLink href='/coordinator/auth/login' className={classButton}>
-					Coordinator
+					As a Coordinator
 				</NextLink>
 
 				<NextLink href='/student/auth/login' className={classButton}>
-					Student
+					As a Student
 				</NextLink>
 
 				<NextLink href='/admin/auth/login' className={classButton}>
-					Administrator
+					As an Administrator
 				</NextLink>
 			</section>
 		</div>

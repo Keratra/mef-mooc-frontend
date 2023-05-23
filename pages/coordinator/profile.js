@@ -8,6 +8,7 @@ import EmptyTableMessage from '@components/EmptyTableMessage';
 import PageTitle from '@components/PageTitle';
 import Modal from '@components/Modal';
 import { notify } from 'utils/notify';
+import PasswordBox from '@components/PasswordBox';
 
 const InfoBox = ({ title, value }) => {
 	return (
@@ -42,8 +43,6 @@ export default function StudentProfilePage({ coordinator }) {
 			});
 
 			notify('success', 'Operation successful');
-
-			Router.reload();
 		} catch (error) {
 			console.log(error);
 			notify(
@@ -87,7 +86,9 @@ export default function StudentProfilePage({ coordinator }) {
 			<div className='flex flex-col justify-start items-center mt-2 gap-6 '>
 				<InfoBox
 					title={'Name'}
-					value={coordinator?.name ?? '-' + ' ' + coordinator?.surname ?? '-'}
+					value={
+						(coordinator?.name ?? '-') + ' ' + (coordinator?.surname ?? '-')
+					}
 				/>
 				<InfoBox title={'Email'} value={coordinator?.email ?? '-'} />
 				<InfoBox title={'Department'} value={coordinator?.department ?? '-'} />
@@ -130,16 +131,13 @@ export default function StudentProfilePage({ coordinator }) {
 								onSubmit={handleSubmit}
 								className={`grid grid-cols-1 md:grid-cols-2 gap-2 content-center place-content-center px-4`}
 							>
-								<label className={classLabel} htmlFor='oldPassword'>
-									Your Old Password
-								</label>
-								<input
-									className={classInput}
-									type='text'
-									name='oldPassword'
-									id='oldPassword'
-									value={values.oldPassword}
-									onChange={handleChange}
+								<PasswordBox
+									title='Current Password'
+									classLabel={classLabel}
+									classInput={classInput}
+									oid='oldPassword'
+									values={values.oldPassword}
+									handleChange={handleChange}
 								/>
 								<span className={classError}>
 									{errors.oldPassword &&
@@ -147,16 +145,13 @@ export default function StudentProfilePage({ coordinator }) {
 										errors.oldPassword}
 								</span>
 
-								<label className={classLabel} htmlFor='newPassword'>
-									New Password
-								</label>
-								<input
-									className={classInput}
-									type='text'
-									name='newPassword'
-									id='newPassword'
-									value={values.newPassword}
-									onChange={handleChange}
+								<PasswordBox
+									title='New Password'
+									classLabel={classLabel}
+									classInput={classInput}
+									oid='newPassword'
+									values={values.newPassword}
+									handleChange={handleChange}
 								/>
 								<span className={classError}>
 									{errors.newPassword &&

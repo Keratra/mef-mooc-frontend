@@ -146,13 +146,17 @@ export default function AdminDepartmentsPage({
 		}
 	};
 
-	const handleAdd = async ({ name, coordinator_id }, { setSubmitting }) => {
+	const handleAdd = async (
+		{ code, name, coordinator_id },
+		{ setSubmitting }
+	) => {
 		// alert(JSON.stringify({ name, coordinator_id }, null, 2));
 
 		try {
 			if (coordinator_id === 0) throw 'Please select a coordinator';
 
 			await axios.post(`/api/admin/add-department`, {
+				code,
 				name,
 				coordinator_id,
 			});
@@ -546,6 +550,15 @@ export default function AdminDepartmentsPage({
 									className={`min-w-[170px] px-4 py-2 font-semibold text-xl rounded-tl-md`}
 								>
 									<span className='text-center drop-shadow-md'>
+										Department Code
+									</span>
+								</th>
+								<th
+									scope='col'
+									align='left'
+									className={`min-w-[170px] px-4 py-2 font-semibold text-xl`}
+								>
+									<span className='text-center drop-shadow-md'>
 										Department Name
 									</span>
 								</th>
@@ -574,7 +587,7 @@ export default function AdminDepartmentsPage({
 							{!!departments &&
 								departments.map(
 									(
-										{ id, name, coordinator_name, coordinator_surname },
+										{ id, code, name, coordinator_name, coordinator_surname },
 										idx
 									) => (
 										<tr
@@ -583,6 +596,9 @@ export default function AdminDepartmentsPage({
 												idx % 2 === 0 ? 'bg-zinc-100' : 'bg-zinc-200/[0.75]'
 											}
 										>
+											<td className=' px-4 py-4 text-lg font-medium whitespace-nowrap'>
+												{code}
+											</td>
 											<td className=' px-4 py-4 text-lg font-medium whitespace-nowrap'>
 												{name}
 											</td>
@@ -775,6 +791,21 @@ export default function AdminDepartmentsPage({
 								onSubmit={handleSubmit}
 								className={`grid grid-cols-1 md:grid-cols-2 gap-2 content-center place-content-center px-4`}
 							>
+								<label className={classLabel} htmlFor='code'>
+									Department Code
+								</label>
+								<input
+									className={classInput}
+									type='text'
+									name='code'
+									id='code'
+									value={values.code}
+									onChange={handleChange}
+								/>
+								<span className={classError}>
+									{errors.code && touched.code && errors.code}
+								</span>
+
 								<label className={classLabel} htmlFor='name'>
 									Department Name
 								</label>

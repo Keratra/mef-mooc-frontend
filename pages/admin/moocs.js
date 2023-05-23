@@ -12,6 +12,9 @@ import {
 	UserMinusIcon,
 	PencilSquareIcon,
 	ChevronDoubleRightIcon,
+	XCircleIcon,
+	XMarkIcon,
+	CheckIcon,
 } from '@heroicons/react/24/solid';
 import KTable from '@components/KTable';
 import KTableHead from '@components/KTableHead';
@@ -96,6 +99,24 @@ export default function AdminMOOCsPage({ moocs }) {
 		}
 	};
 
+	const handleChangeStatus = async (mooc_id) => {
+		try {
+			await axios.post(`/api/admin/change-mooc-status`, {
+				mooc_id,
+			});
+
+			Router.reload();
+		} catch (error) {
+			console.log(error);
+			notify(
+				'error',
+				error?.response?.data?.message?.message ??
+					error?.response?.data?.message ??
+					error?.message
+			);
+		}
+	};
+
 	const classLabel = `
 		md:col-span-2
 		mt-3 p-2 -mb-4 rounded-lg
@@ -125,13 +146,13 @@ export default function AdminMOOCsPage({ moocs }) {
 					<KTableHead
 						tableHeaders={[
 							{
-								name: 'MOOC ID',
+								name: 'MOOC Name',
 								alignment: 'left',
 								className: 'rounded-tl-md',
 							},
-							{ name: 'MOOC Name', alignment: 'left' },
 							{ name: 'Certificate Link', alignment: 'left' },
-							{ name: 'Average Hours', alignment: 'left' },
+							{ name: 'Average Hours', alignment: 'center' },
+							{ name: 'Change Status', alignment: 'center' },
 							{
 								name: 'Edit a MOOC',
 								alignment: 'center',
@@ -141,16 +162,13 @@ export default function AdminMOOCsPage({ moocs }) {
 					></KTableHead>
 					<KTableBody>
 						{!!moocs &&
-							moocs.map(({ id, name, url, average_hours }, idx) => (
+							moocs.map(({ id, name, url, average_hours, is_active }, idx) => (
 								<tr
 									key={id}
 									className={
 										idx % 2 === 0 ? 'bg-zinc-100' : 'bg-zinc-200/[0.75]'
 									}
 								>
-									<td className='px-4 py-4 text-lg font-medium whitespace-nowrap'>
-										{id}
-									</td>
 									<td className='px-4 py-4 text-lg font-medium whitespace-nowrap'>
 										{name}
 									</td>
@@ -164,8 +182,22 @@ export default function AdminMOOCsPage({ moocs }) {
 											{url}
 										</NextLink>
 									</td>
-									<td className='px-4 py-4 text-lg font-medium whitespace-nowrap'>
+									<td className='px-4 py-4 text-lg font-medium text-center whitespace-nowrap'>
 										{average_hours}
+									</td>
+									<td className='px-4 py-4 text-lg font-medium text-center whitespace-nowrap'>
+										<button
+											onClick={() => handleChangeStatus(id)}
+											className={` ${
+												is_active
+													? 'bg-rose-600 hover:bg-rose-400'
+													: 'bg-emerald-600 hover:bg-emerald-400'
+											} py-1 px-2 rounded-md shadow-lg text-center font-thin border-none cursor-pointer transition-colors`}
+										>
+											<span className='font-semibold text-lg tracking-wider text-white'>
+												{is_active ? 'DISABLE' : 'ENABLE'}
+											</span>
+										</button>
 									</td>
 									<td className='px-4 py-4 text-lg font-medium text-center whitespace-nowrap'>
 										<button
@@ -266,6 +298,7 @@ export default function AdminMOOCsPage({ moocs }) {
 									type='number'
 									name='average_hours'
 									id='average_hours'
+									min={0}
 									value={values.average_hours}
 									onChange={handleChange}
 								/>
@@ -362,6 +395,7 @@ export default function AdminMOOCsPage({ moocs }) {
 									type='number'
 									name='average_hours'
 									id='average_hours'
+									min={0}
 									value={values.average_hours}
 									onChange={handleChange}
 								/>
