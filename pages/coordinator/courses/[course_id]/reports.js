@@ -25,7 +25,8 @@ import {
 	FiChevronDown,
 	FiChevronUp,
 } from 'react-icons/fi';
-import { FiCheckCircle, FiXCircle } from 'react-icons/fi';
+import { FiCheckCircle, FiXCircle, FiDown } from 'react-icons/fi';
+import { HiSortAscending, HiSortDescending } from 'react-icons/hi';
 import { RiFileExcel2Fill } from 'react-icons/ri';
 import { notify } from 'utils/notify';
 import Multiselect from 'multiselect-react-dropdown';
@@ -61,6 +62,7 @@ export default function CoordinatorCoursePage({
 	const [selectedModalTab, setSelectedModalTab] = useState(0);
 	const [dateHolder, setDateHolder] = useState({});
 	const [isOpen, setIsOpen] = useState(false);
+	const [sortStatus, setSortStatus] = useState(false);
 	const [selected, setSelected] = useState(0);
 	const [selectedMooc, setSelectedMooc] = useState([]);
 	const [selectedBundle, setSelectedBundle] = useState([
@@ -606,7 +608,8 @@ export default function CoordinatorCoursePage({
 			Router.reload();
 		} catch (error) {
 			console.log(error);
-			alert(
+			notify(
+				'error',
 				error?.response?.data?.message?.message ??
 					error?.response?.data?.message ??
 					error?.message ??
@@ -639,7 +642,8 @@ export default function CoordinatorCoursePage({
 			Router.reload();
 		} catch (error) {
 			console.log(error);
-			alert(
+			notify(
+				'error',
 				error?.response?.data?.message?.message ??
 					error?.response?.data?.message ??
 					error?.message ??
@@ -806,6 +810,81 @@ export default function CoordinatorCoursePage({
 
 	const tabs = [{ name: 'All Students' }, { name: 'Passed Students Report' }];
 
+	students.sort(function (a, b) {
+		let op1;
+		let op2;
+
+		if (
+			Object.entries(dictBundlesAC).filter(
+				([key, value]) => parseInt(value[0].student_id) === parseInt(a.id)
+			).length !== 0
+		) {
+			op1 = 5;
+		} else if (
+			Object.entries(dictBundlesWA).filter(
+				([key, value]) => parseInt(value[0].student_id) === parseInt(a.id)
+			).length !== 0
+		) {
+			op1 = 4;
+		} else if (
+			Object.entries(dictBundlesWC).filter(
+				([key, value]) => parseInt(value[0].student_id) === parseInt(a.id)
+			).length !== 0
+		) {
+			op1 = 3;
+		} else if (
+			Object.entries(dictBundlesWB).filter(
+				([key, value]) => parseInt(value[0].student_id) === parseInt(a.id)
+			).length !== 0
+		) {
+			op1 = 2;
+		} else if (
+			Object.entries(dictBundlesRB).filter(
+				([key, value]) => parseInt(value[0].student_id) === parseInt(a.id)
+			).length !== 0
+		) {
+			op1 = 1;
+		} else {
+			op1 = 0;
+		}
+
+		if (
+			Object.entries(dictBundlesAC).filter(
+				([key, value]) => parseInt(value[0].student_id) === parseInt(b.id)
+			).length !== 0
+		) {
+			op2 = 5;
+		} else if (
+			Object.entries(dictBundlesWA).filter(
+				([key, value]) => parseInt(value[0].student_id) === parseInt(b.id)
+			).length !== 0
+		) {
+			op2 = 4;
+		} else if (
+			Object.entries(dictBundlesWC).filter(
+				([key, value]) => parseInt(value[0].student_id) === parseInt(b.id)
+			).length !== 0
+		) {
+			op2 = 3;
+		} else if (
+			Object.entries(dictBundlesWB).filter(
+				([key, value]) => parseInt(value[0].student_id) === parseInt(b.id)
+			).length !== 0
+		) {
+			op2 = 2;
+		} else if (
+			Object.entries(dictBundlesRB).filter(
+				([key, value]) => parseInt(value[0].student_id) === parseInt(b.id)
+			).length !== 0
+		) {
+			op2 = 1;
+		} else {
+			op2 = 0;
+		}
+
+		return (sortStatus ? 1 : -1) * (op1 - op2);
+	});
+
 	return (
 		<div className='flex flex-col justify-center items-center'>
 			<span className='text-center text-2xl font-bold mt-4'>
@@ -884,7 +963,24 @@ export default function CoordinatorCoursePage({
 								},
 								{ name: 'Name', alignment: 'left' },
 								{ name: 'Email', alignment: 'left', className: '' },
-								{ name: 'Status', alignment: 'center', className: '' },
+								{
+									name: (
+										<div
+											onClick={() => setSortStatus((prev) => !prev)}
+											className='flex justify-center items-center gap-x-2'
+										>
+											<span>Status</span>
+
+											{sortStatus ? (
+												<HiSortAscending size={20} className='' />
+											) : (
+												<HiSortDescending size={20} className='' />
+											)}
+										</div>
+									),
+									alignment: 'center',
+									className: '',
+								},
 								{
 									name: 'Enroll Date',
 									alignment: 'left',
@@ -2623,74 +2719,6 @@ export default function CoordinatorCoursePage({
 				extraLarge={true}
 			>
 				<div className={`transition-all mt-2 `}>
-					{/* <section className='w-[95%] px-2 py-4 sm:px-0 font-sans transition-all '>
-						<div className='flex space-x-1 rounded-xl bg-zinc-200/[0.8]  p-1'>
-							<div
-								onClick={() => setSelectedModalTab(0)}
-								className={`
-							w-full rounded-lg py-2.5 text-lg
-							font-semibold leading-5 text-zinc-700 text-center
-							border-0 cursor-pointer 
-							ring-opacity-60 ring-white  ring-offset-2 ring-offset-zinc-400 
-							focus:outline-none focus:ring-2
-							${
-								selectedModalTab === 0
-									? 'bg-white text-zinc-900 shadow'
-									: 'text-zinc-400 bg-white/[0.35] hover:bg-white hover:text-black'
-							}
-						`}
-							>
-								<div>
-									<span className='drop-shadow-md select-none '>
-										View MOOCs
-									</span>
-								</div>
-							</div>
-							<div
-								onClick={() => setSelectedModalTab(1)}
-								className={`
-							w-full rounded-lg py-2.5 text-lg
-							font-semibold leading-5 text-zinc-700 text-center
-							border-0 cursor-pointer 
-							ring-opacity-60 ring-white  ring-offset-2 ring-offset-zinc-400 
-							focus:outline-none focus:ring-2
-							${
-								selectedModalTab === 1
-									? 'bg-white text-zinc-900 shadow'
-									: 'text-zinc-400 bg-white/[0.35] hover:bg-white hover:text-black'
-							}
-						`}
-							>
-								<div>
-									<span className='drop-shadow-md select-none '>
-										Add a MOOC
-									</span>
-								</div>
-							</div>
-							<div
-								onClick={() => setSelectedModalTab(2)}
-								className={`
-							w-full rounded-lg py-2.5 text-lg
-							font-semibold leading-5 text-zinc-700 text-center
-							border-0 cursor-pointer 
-							ring-opacity-60 ring-white  ring-offset-2 ring-offset-zinc-400 
-							focus:outline-none focus:ring-2
-							${
-								selectedModalTab === 2
-									? 'bg-white text-zinc-900 shadow'
-									: 'text-zinc-400 bg-white/[0.35] hover:bg-white hover:text-black'
-							}
-						`}
-							>
-								<div>
-									<span className='drop-shadow-md select-none '>
-										Change Bundle Feedback
-									</span>
-								</div>
-							</div>
-						</div>
-					</section> */}
-
 					<div className='flex flex-col items-center justify-center'>
 						<div className='w-full text-lg flex justify-evenly items-center gap-1 my-2'>
 							<span>
@@ -2707,16 +2735,6 @@ export default function CoordinatorCoursePage({
 								{selectedBundle[0]?.student_email}
 							</span>
 						</div>
-						{/* <div className='grid grid-cols-1 gap-2 my-4'>
-								{Object.entries(selectedBundle[0] ?? {}).map(
-									([key, value], index) => (
-										<div key={index} className='grid grid-cols-2 gap-1'>
-											<span>{key}:</span>
-											<span>{value ?? '-'}</span>
-										</div>
-									)
-								)}
-							</div> */}
 					</div>
 
 					{selectedModalTab === 0 && (
@@ -2905,40 +2923,9 @@ export default function CoordinatorCoursePage({
 									onSubmit={handleSubmit}
 									className={`grid grid-cols-1 md:grid-cols-2 gap-2 content-center place-content-center px-4`}
 								>
-									{/* <label className={classLabel} htmlFor='name'>
-								Name
-							</label>
-							<input
-								className={classInput}
-								type='text'
-								name='name'
-								id='name'
-								value={values.name}
-								onChange={handleChange}
-							/>
-							<span className={classError}>
-								{errors.name && touched.name && errors.name}
-							</span>
-
-							<label className={classLabel} htmlFor='surname'>
-								Surname
-							</label>
-							<input
-								className={classInput}
-								type='text'
-								name='surname'
-								id='surname'
-								value={values.surname}
-								onChange={handleChange}
-							/>
-							<span className={classError}>
-								{errors.surname && touched.surname && errors.surname}
-							</span> */}
-
 									<label className={classLabel} htmlFor='comment'>
 										Bundle Feedback
 									</label>
-
 									<textarea
 										className={classInput}
 										type='text'
