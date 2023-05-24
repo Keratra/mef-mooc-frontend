@@ -21,7 +21,7 @@ import {
 	PencilSquareIcon,
 } from '@heroicons/react/24/solid';
 import { notify } from 'utils/notify';
-import { FiUpload, FiDelete, FiX } from 'react-icons/fi';
+import { FiUpload, FiDelete, FiX, FiSettings } from 'react-icons/fi';
 import KTable from '@components/KTable';
 import KTableHead from '@components/KTableHead';
 import KTableBody from '@components/KTableBody';
@@ -53,6 +53,15 @@ export default function AdminDepartmentsPage({
 	const [selectedTabs, setSelectedTabs] = useState(1); // tabs
 
 	const [file, setFile] = useState(null);
+	const [showSettings, setShowSettings] = useState(false);
+	const [settings, setSettings] = useState({
+		rowHeader: 1,
+		colName: 'Name',
+		colSurname: 'Surname',
+		colEmail: 'Email',
+		colStudentNo: 'Student NO',
+		colDepartment: 'Department',
+	});
 	const [uploadedStudents, setUploadedStudents] = useState([]);
 
 	const [isOpenAdd, setIsOpenAdd] = useState(false);
@@ -344,11 +353,46 @@ export default function AdminDepartmentsPage({
 					data.push(rowData);
 				});
 
-				data = data.filter(
-					([name, url, average_hours]) => !!name && !!url && !!average_hours
+				const colName = data[settings?.rowHeader - 1 ?? 0].findIndex(
+					(col) => col.toLowerCase() === settings?.colName.toLowerCase()
 				);
 
-				setUploadedStudents(data.slice(1));
+				const colSurname = data[settings?.rowHeader - 1 ?? 0].findIndex(
+					(col) => col.toLowerCase() === settings?.colSurname.toLowerCase()
+				);
+
+				const colEmail = data[settings?.rowHeader - 1 ?? 0].findIndex(
+					(col) => col.toLowerCase() === settings?.colEmail.toLowerCase()
+				);
+
+				const colStudentNo = data[settings?.rowHeader - 1 ?? 0].findIndex(
+					(col) => col.toLowerCase() === settings?.colStudentNo.toLowerCase()
+				);
+
+				const colDepartment = data[settings?.rowHeader - 1 ?? 0].findIndex(
+					(col) => col.toLowerCase() === settings?.colDepartment.toLowerCase()
+				);
+
+				notify('info', data[settings?.rowHeader - 1 ?? 0][colName]);
+				notify('info', data[settings?.rowHeader - 1 ?? 0][colSurname]);
+				notify('info', data[settings?.rowHeader - 1 ?? 0][colEmail]);
+				notify('info', data[settings?.rowHeader - 1 ?? 0][colStudentNo]);
+				notify('info', data[settings?.rowHeader - 1 ?? 0][colDepartment]);
+
+				data = data.map((row) => [
+					row[colName],
+					row[colSurname],
+					row[colEmail],
+					row[colStudentNo],
+					row[colDepartment],
+				]);
+
+				data = data.filter(
+					([name, surname, email, studentNo, department]) =>
+						!!name && !!surname && !!email && !!studentNo && !!department
+				);
+
+				setUploadedStudents(data.slice(settings?.rowHeader ?? 1));
 
 				// const maxColumns = worksheet.columnCount;
 				// for (let col = 1; col <= maxColumns; col++) {
@@ -360,7 +404,7 @@ export default function AdminDepartmentsPage({
 				// 	data.push(columnData);
 				// }
 
-				console.log('Extracted data:', data);
+				// console.log('Extracted data:', data);
 			} catch (error) {
 				console.error('Error reading Excel file:', error);
 			}
@@ -390,24 +434,24 @@ export default function AdminDepartmentsPage({
 		try {
 			if (!uploadedStudents?.length) throw Error('Please upload students');
 
-			// await axios.post(`/api/admin/add-multiple-students`, {
-			// 	students: uploadedStudents.map(([name, url, average_hours]) => {
-			// 		return { name, url, average_hours };
-			// 	}),
-			// });
+			setIsOpenInviteMultiple(() => false);
+			notify('info', 'Inviting students...');
 
 			await axios.post(`/api/admin/invite-students`, {
-				students: uploadedStudents,
+				students: uploadedStudents.map((student) => {
+					const department_id = departments.find(
+						(department) => department.code === student[4]
+					)?.id;
+
+					return {
+						name: student[0],
+						surname: student[1],
+						email: student[2],
+						student_no: student[3],
+						department_id,
+					};
+				}),
 			});
-
-			// [{
-			// 		name,
-			// 		surname,
-			// 		email,
-			// 		student_no,
-			// 		department_id,
-			// 	}]
-
 			Router.reload();
 		} catch (error) {
 			console.log(error);
@@ -1360,11 +1404,158 @@ export default function AdminDepartmentsPage({
 					openModal: openModalInviteMultiple,
 				}}
 				title='Invite multiple students'
+				extraLarge={true}
 			>
 				<div className={`transition-all mt-2`}>
 					<div
 						className={`grid grid-cols-1 gap-2 content-center place-content-center px-4`}
 					>
+						<div className='col-span-full flex justify-between items-center'>
+							<button
+								onClick={() => setShowSettings((prev) => !prev)}
+								className={` flex justify-center items-center gap-x-2 py-1 px-3 shadow-md text-center text-lg font-thin rounded-full text-zinc-800 hover:text-zinc-600 border-none cursor-pointer transition-colors `}
+							>
+								<FiSettings size={20} className='' />
+								<span>
+									{showSettings ? 'Hide Excel Settings' : 'Show Excel Settings'}
+								</span>
+							</button>
+
+							<button
+								onClick={() => setUploadedStudents(() => [])}
+								className={` flex justify-center items-center gap-x-2 py-1 px-3 shadow-md text-center text-lg font-thin rounded-full text-rose-800 hover:text-zinc-600 border-none cursor-pointer transition-colors bg-rose-200/[0.5]`}
+							>
+								<FiX size={20} className='' />
+								<span>Delete All MOOCs</span>
+							</button>
+						</div>
+
+						{showSettings && (
+							<div className='col-span-full max-w-xl mx-auto grid grid-cols-2 gap-1'>
+								<div className='grid grid-cols-1 gap-x-2 gap-y-3'>
+									<label
+										htmlFor='rowHeader'
+										className={classLabel + ' text-base'}
+									>
+										Header Row Index
+									</label>
+									<input
+										id='rowHeader'
+										type='number'
+										value={settings?.rowHeader}
+										min={1}
+										onChange={(e) =>
+											setSettings(() => ({
+												...settings,
+												rowHeader: e.target.value,
+											}))
+										}
+										className={classInput}
+									/>
+								</div>
+								<div className='grid grid-cols-1 gap-x-2 gap-y-3'>
+									<label
+										htmlFor='colName'
+										className={classLabel + ' text-base'}
+									>
+										Name Column Name
+									</label>
+									<input
+										id='colName'
+										type='text'
+										value={settings?.colName}
+										onChange={(e) =>
+											setSettings(() => ({
+												...settings,
+												colName: e.target.value,
+											}))
+										}
+										className={classInput}
+									/>
+								</div>
+								<div className='grid grid-cols-1 gap-x-2 gap-y-3'>
+									<label
+										htmlFor='colSurname'
+										className={classLabel + ' text-base'}
+									>
+										Surname Column Name
+									</label>
+									<input
+										id='colSurname'
+										type='text'
+										value={settings?.colSurname}
+										onChange={(e) =>
+											setSettings(() => ({
+												...settings,
+												colSurname: e.target.value,
+											}))
+										}
+										className={classInput}
+									/>
+								</div>
+								<div className='grid grid-cols-1 gap-x-2 gap-y-3'>
+									<label
+										htmlFor='colEmail'
+										className={classLabel + ' text-base'}
+									>
+										Email Column Name
+									</label>
+									<input
+										id='colEmail'
+										type='text'
+										value={settings?.colEmail}
+										onChange={(e) =>
+											setSettings(() => ({
+												...settings,
+												colEmail: e.target.value,
+											}))
+										}
+										className={classInput}
+									/>
+								</div>
+								<div className='grid grid-cols-1 gap-x-2 gap-y-3'>
+									<label
+										htmlFor='colStudentNo'
+										className={classLabel + ' text-base'}
+									>
+										Student No Column Name
+									</label>
+									<input
+										id='colStudentNo'
+										type='text'
+										value={settings?.colStudentNo}
+										onChange={(e) =>
+											setSettings(() => ({
+												...settings,
+												colStudentNo: e.target.value,
+											}))
+										}
+										className={classInput}
+									/>
+								</div>
+								<div className='grid grid-cols-1 gap-x-2 gap-y-3'>
+									<label
+										htmlFor='colDepartment'
+										className={classLabel + ' text-base'}
+									>
+										Department Column Name
+									</label>
+									<input
+										id='colDepartment'
+										type='text'
+										value={settings?.colDepartment}
+										onChange={(e) =>
+											setSettings(() => ({
+												...settings,
+												colDepartment: e.target.value,
+											}))
+										}
+										className={classInput}
+									/>
+								</div>
+							</div>
+						)}
+
 						<div className='w-full col-span-full flex justify-center items-center mt-4'>
 							<input
 								type='file'
@@ -1385,7 +1576,7 @@ export default function AdminDepartmentsPage({
 							className='
 								col-span-full
 								max-h-[40rem] overflow-y-auto
-								max-w-4xl
+								w-full
 							'
 						>
 							{uploadedStudents?.length > 0 && (
@@ -1397,52 +1588,64 @@ export default function AdminDepartmentsPage({
 												alignment: 'left',
 												className: 'rounded-tl-md',
 											},
-											{ name: 'Student No', alignment: 'center' },
 											{
-												name: 'Average Hours',
+												name: 'Student No',
 												alignment: 'center',
+												className: '',
+											},
+											{
+												name: 'Email',
+												alignment: 'left',
+												className: '',
+											},
+											{
+												name: 'Department',
+												alignment: 'center',
+												className: '',
 											},
 											{
 												name: 'Remove',
 												alignment: 'center',
-												className: 'rounded-tr-md',
+												className: ' rounded-tr-md',
 											},
 										]}
 									/>
 									<KTableBody>
 										{!!uploadedStudents &&
-											uploadedStudents.map(([a, b, c], idx) => (
-												<tr
-													key={idx}
-													className={`
-													
-													${idx % 2 === 0 ? 'bg-zinc-100' : 'bg-zinc-200/[0.75]'}
-												`}
-												>
-													<td className='px-4 py-4 text-lg font-medium break-all'>
-														{a}
-													</td>
-													<td className='px-4 py-4 text-lg font-medium break-all'>
-														<NextLink
-															className='text-blue-700 hover:underline'
-															href={b}
-														>
-															<span>Click to open</span>
-														</NextLink>
-													</td>
-													<td className='px-4 py-4 text-lg font-medium break-all text-center'>
-														{c}
-													</td>
-													<td className='px-4 py-4 text-lg font-medium text-center'>
-														<button
-															onClick={() => handleRemoveUploaded(idx)}
-															className={` bg-transparent  text-center font-thin border-none cursor-pointer transition-colors`}
-														>
-															<FiX className='h-7 w-7 text-rose-700 drop-shadow-md' />
-														</button>
-													</td>
-												</tr>
-											))}
+											uploadedStudents.map(
+												(
+													[name, surname, email, studentNo, department],
+													idx
+												) => (
+													<tr
+														key={idx}
+														className={`
+															${idx % 2 === 0 ? 'bg-zinc-100' : 'bg-zinc-200/[0.75]'}
+														`}
+													>
+														<td className='px-4 py-4 text-lg font-medium break-all'>
+															{name} {surname}
+														</td>
+														<td className='px-4 py-4 text-lg font-medium break-all text-center'>
+															{studentNo}
+														</td>
+														<td className='px-4 py-4 text-lg font-medium break-all'>
+															{email}
+														</td>
+														<td className='px-4 py-4 text-lg font-medium break-all text-center'>
+															<span>{department} </span>
+														</td>
+														<td className='px-4 py-4 text-lg font-medium break-all text-center'>
+															<button
+																onClick={() => handleRemoveUploaded(idx)}
+																className={` bg-transparent  text-center font-thin border-none cursor-pointer transition-colors`}
+															>
+																<FiX className='h-7 w-7 text-rose-700 drop-shadow-md' />
+															</button>
+														</td>
+													</tr>
+												)
+											)}
 									</KTableBody>
 								</KTable>
 							)}

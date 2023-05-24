@@ -159,14 +159,17 @@ export default function AdminMOOCsPage({ moocs }) {
 				});
 
 				const colMoocName = data[settings?.rowHeader - 1 ?? 0].findIndex(
-					(col) => col === settings?.colMoocName
+					(col) => col?.toLowerCase() === settings?.colMoocName?.toLowerCase()
 				);
 				const colMoocUrl = data[settings?.rowHeader - 1 ?? 0].findIndex(
-					(col) => col === settings?.colMoocUrl
+					(col) => col?.toLowerCase() === settings?.colMoocUrl?.toLowerCase()
 				);
 				const colMoocAverageHours = data[
 					settings?.rowHeader - 1 ?? 0
-				].findIndex((col) => col === settings?.colMoocAverageHours);
+				].findIndex(
+					(col) =>
+						col?.toLowerCase() === settings?.colMoocAverageHours?.toLowerCase()
+				);
 
 				// notify('info', data[settings?.rowHeader - 1 ?? 0][colMoocName]);
 				// notify('info', data[settings?.rowHeader - 1 ?? 0][colMoocUrl]);
@@ -194,7 +197,7 @@ export default function AdminMOOCsPage({ moocs }) {
 				// 	data.push(columnData);
 				// }
 
-				console.log('Extracted data:', data);
+				// console.log('Extracted data:', data);
 			} catch (error) {
 				console.error('Error reading Excel file:', error);
 			}
