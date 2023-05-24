@@ -92,8 +92,6 @@ export default function CoordinatorCoursePage({
 	}
 
 	const handleApproveBundle = async (bundle_id) => {
-		// alert(JSON.stringify({ course_id, bundle_id }, null, 2));
-
 		try {
 			if (bundle_id === 0) throw 'Please select a bundle';
 			if (!confirm('Are you sure about approving this bundle?'))
@@ -108,7 +106,8 @@ export default function CoordinatorCoursePage({
 			Router.reload();
 		} catch (error) {
 			console.log(error);
-			alert(
+			notify(
+				'error',
 				error?.response?.data?.message?.message ??
 					error?.response?.data?.message ??
 					error?.message ??
@@ -118,8 +117,6 @@ export default function CoordinatorCoursePage({
 	};
 
 	const handleRejectBundle = async (bundle_id) => {
-		// alert(JSON.stringify({ course_id, bundle_id }, null, 2));
-
 		try {
 			if (bundle_id === 0) throw 'Please select a bundle';
 			if (!confirm('Are you sure about approving this bundle?'))
@@ -144,7 +141,8 @@ export default function CoordinatorCoursePage({
 			Router.reload();
 		} catch (error) {
 			console.log(error);
-			alert(
+			notify(
+				'error',
 				error?.response?.data?.message?.message ??
 					error?.response?.data?.message ??
 					error?.message ??
@@ -154,8 +152,6 @@ export default function CoordinatorCoursePage({
 	};
 
 	const handleApproveCertificate = async (bundle_id, student_id) => {
-		// alert(JSON.stringify({ course_id, bundle_id }, null, 2));
-
 		try {
 			if (bundle_id === 0) throw 'Please select a bundle';
 			if (
@@ -175,7 +171,8 @@ export default function CoordinatorCoursePage({
 			Router.reload();
 		} catch (error) {
 			console.log(error);
-			alert(
+			notify(
+				'error',
 				error?.response?.data?.message?.message ??
 					error?.response?.data?.message ??
 					error?.message ??
@@ -185,8 +182,6 @@ export default function CoordinatorCoursePage({
 	};
 
 	const handleRejectCertificate = async (bundle_id, student_id) => {
-		// alert(JSON.stringify({ course_id, bundle_id }, null, 2));
-
 		try {
 			if (bundle_id === 0) throw 'Please select a bundle';
 			if (
@@ -216,7 +211,8 @@ export default function CoordinatorCoursePage({
 			Router.reload();
 		} catch (error) {
 			console.log(error);
-			alert(
+			notify(
+				'error',
 				error?.response?.data?.message?.message ??
 					error?.response?.data?.message ??
 					error?.message ??
@@ -349,7 +345,8 @@ export default function CoordinatorCoursePage({
 			Router.reload();
 		} catch (error) {
 			console.log(error);
-			alert(
+			notify(
+				'error',
 				error?.response?.data?.message?.message ??
 					error?.response?.data?.message ??
 					error?.message ??
@@ -382,7 +379,8 @@ export default function CoordinatorCoursePage({
 			Router.reload();
 		} catch (error) {
 			console.log(error);
-			alert(
+			notify(
+				'error',
 				error?.response?.data?.message?.message ??
 					error?.response?.data?.message ??
 					error?.message ??

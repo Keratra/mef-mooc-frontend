@@ -21,8 +21,6 @@ export default function Login() {
 	const setAppState = useAppUpdate();
 
 	const handleLogin = async ({ email, password }, { setSubmitting }) => {
-		// alert(JSON.stringify({ student_no, password }, null, 2));
-
 		try {
 			const { data } = await axios.post(`/api/coordinator/auth/login`, {
 				email,
@@ -44,7 +42,8 @@ export default function Login() {
 			Router.replace('/coordinator/courses');
 		} catch (error) {
 			console.log(error);
-			alert(
+			notify(
+				'error',
 				error?.response?.data?.message?.message ??
 					error?.response?.data?.message ??
 					error?.message ??

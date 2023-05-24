@@ -21,8 +21,6 @@ export default function Login() {
 	const setAppState = useAppUpdate();
 
 	const handleLogin = async ({ email, password }, { setSubmitting }) => {
-		// alert(JSON.stringify({ student_no, password }, null, 2));
-
 		try {
 			const { data } = await axios.post(`/api/student/auth/login`, {
 				email,

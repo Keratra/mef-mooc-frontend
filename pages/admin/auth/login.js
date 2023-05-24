@@ -21,8 +21,6 @@ export default function Login() {
 	const setAppState = useAppUpdate();
 
 	const handleLogin = async ({ username, password }, { setSubmitting }) => {
-		// alert(JSON.stringify({ student_no, password }, null, 2));
-
 		try {
 			const { data } = await axios.post(`/api/admin/auth/login`, {
 				username,
@@ -44,7 +42,8 @@ export default function Login() {
 			Router.replace('/admin/dashboard');
 		} catch (error) {
 			console.log(error);
-			alert(
+			notify(
+				'error',
 				error?.response?.data?.message?.message ??
 					error?.response?.data?.message ??
 					error?.message ??

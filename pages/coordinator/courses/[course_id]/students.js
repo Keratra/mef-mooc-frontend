@@ -39,7 +39,8 @@ export default function CoordinatorCoursePage({
 			Router.reload();
 		} catch (error) {
 			console.log(error);
-			alert(
+			notify(
+				'error',
 				error?.response?.data?.message?.message ??
 					error?.response?.data?.message ??
 					error?.message ??
@@ -72,7 +73,8 @@ export default function CoordinatorCoursePage({
 			Router.reload();
 		} catch (error) {
 			console.log(error);
-			alert(
+			notify(
+				'error',
 				error?.response?.data?.message?.message ??
 					error?.response?.data?.message ??
 					error?.message ??

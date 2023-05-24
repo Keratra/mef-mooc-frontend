@@ -32,6 +32,7 @@ export default function RouteGuard({ children }) {
 			// alert('not ignored, token expired');
 			// router.push(`/${tokenDetails?.sub.type || state.userType}`);
 			// notify('error', 'Your session has expired. Please login again');
+			notify('warning', 'Please login again');
 		}
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [isAuthenticated, token]); // used to be [isAuthenticated, token]

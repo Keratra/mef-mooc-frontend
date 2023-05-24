@@ -545,7 +545,7 @@ export default function AdminMOOCsPage({ moocs }) {
 													<td className='px-4 py-4 text-lg font-medium break-all'>
 														{a}
 													</td>
-													<td className='px-4 py-4 text-lg font-medium break-all'>
+													<td className='px-4 py-4 text-lg font-medium break-all text-center'>
 														<NextLink
 															className='text-blue-700 hover:underline'
 															href={b}

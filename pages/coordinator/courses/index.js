@@ -18,6 +18,7 @@ import KTable from '@components/KTable';
 import KTableHead from '@components/KTableHead';
 import KTableBody from '@components/KTableBody';
 import { groupBy } from 'lodash';
+import { notify } from 'utils/notify';
 
 export default function CoordinatorCoursesPage({
 	active_courses,
@@ -35,8 +36,6 @@ export default function CoordinatorCoursesPage({
 		{ course_code, name, type, semester, credits },
 		{ setSubmitting }
 	) => {
-		// alert(JSON.stringify({ course_code, name, type, semester, credits }, null, 4));
-
 		try {
 			if (semester === 0) throw new Error('Select a valid semester');
 
@@ -51,10 +50,12 @@ export default function CoordinatorCoursesPage({
 			Router.reload();
 		} catch (error) {
 			console.log(error);
-			alert(
+			notify(
+				'error',
 				error?.response?.data?.message?.message ??
 					error?.response?.data?.message ??
-					error?.message
+					error?.message ??
+					'Error'
 			);
 		} finally {
 			setSubmitting(false);
@@ -62,8 +63,6 @@ export default function CoordinatorCoursesPage({
 	};
 
 	const handleDeactivate = async (course_id) => {
-		// alert(JSON.stringify({ course_id }, null, 2));
-
 		try {
 			if (course_id === 0) throw 'Please select a course';
 			if (!confirm('Are you sure about deactivating the course?'))
@@ -76,7 +75,8 @@ export default function CoordinatorCoursesPage({
 			Router.reload();
 		} catch (error) {
 			console.log(error);
-			alert(
+			notify(
+				'error',
 				error?.response?.data?.message?.message ??
 					error?.response?.data?.message ??
 					error?.message ??

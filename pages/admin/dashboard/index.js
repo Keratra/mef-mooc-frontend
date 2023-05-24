@@ -136,8 +136,6 @@ export default function AdminDepartmentsPage({
 		{ department_id, coordinator_id },
 		{ setSubmitting }
 	) => {
-		// alert(JSON.stringify({ department_id, coordinator_id }, null, 2));
-
 		try {
 			if (selected === 0) throw 'Please select a department';
 			if (coordinator_id === 0) throw 'Please select a coordinator';
@@ -167,8 +165,6 @@ export default function AdminDepartmentsPage({
 		{ code, name, coordinator_id },
 		{ setSubmitting }
 	) => {
-		// alert(JSON.stringify({ name, coordinator_id }, null, 2));
-
 		try {
 			if (coordinator_id === 0) throw 'Please select a coordinator';
 
@@ -193,8 +189,6 @@ export default function AdminDepartmentsPage({
 	};
 
 	const handleRemove = async (coordinator_id) => {
-		// alert(JSON.stringify({ coordinator_id }, null, 2));
-
 		try {
 			if (coordinator_id === 0) throw 'Please select a coordinator';
 			if (!confirm('Are you sure about deleting the coordinator?')) return;
@@ -216,8 +210,6 @@ export default function AdminDepartmentsPage({
 	};
 
 	const handleAddCo = async ({ name, surname, email }, { setSubmitting }) => {
-		// alert(JSON.stringify({ name, surname, email }, null, 2));
-
 		try {
 			const { data } = await axios.post(`/api/admin/add-coordinator`, {
 				name,
