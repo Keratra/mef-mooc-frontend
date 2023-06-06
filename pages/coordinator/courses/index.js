@@ -19,6 +19,9 @@ import KTableHead from '@components/KTableHead';
 import KTableBody from '@components/KTableBody';
 import { groupBy } from 'lodash';
 import { notify } from 'utils/notify';
+import { RiFileExcel2Fill } from 'react-icons/ri';
+import { saveAs } from 'file-saver';
+const ExcelJS = require('exceljs');
 
 export default function CoordinatorCoursesPage({
 	active_courses,
@@ -92,6 +95,372 @@ export default function CoordinatorCoursesPage({
 	function openModal() {
 		setIsOpen(true);
 	}
+
+	const handleDownload = async (selectedSemester) => {
+		try {
+			notify('info', selectedSemester);
+
+			const { data } = await axios.get(
+				`/api/coordinator/get-simple-report-data`,
+				{
+					params: {
+						semester: selectedSemester,
+					},
+				}
+			);
+
+			const semesterData = data.bundles;
+
+			const dictSemesterData = groupBy(
+				semesterData,
+				({ enrollment_id }) => enrollment_id
+			);
+
+			// console.log(dictSemesterData);
+
+			// EXCEL DOWNLOAD STARTS HERE
+
+			const BORDER_WIDTH = 'thin';
+
+			const workbook = new ExcelJS.Workbook();
+			const worksheet = workbook.addWorksheet();
+			worksheet.columns = [
+				{
+					header: 'Student Name',
+					key: 'sname',
+					width: 24,
+					style: {
+						font: {
+							bold: true,
+						},
+						alignment: {
+							vertical: 'middle',
+							horizontal: 'left',
+							wrapText: true,
+						},
+					},
+				},
+				{
+					header: 'Student ID',
+					key: 'sid',
+					width: 16,
+					style: {
+						font: {
+							bold: true,
+						},
+						alignment: {
+							vertical: 'middle',
+							horizontal: 'center',
+							wrapText: true,
+						},
+					},
+				},
+				{
+					header: 'MOOCs',
+					key: 'moocs',
+					width: 64,
+					style: {
+						font: {
+							bold: true,
+						},
+						alignment: {
+							vertical: 'middle',
+							horizontal: 'center',
+							wrapText: true,
+						},
+					},
+				},
+				{
+					header: 'Total ECTS',
+					key: 'credits',
+					width: 16,
+					style: {
+						font: {
+							bold: true,
+						},
+						alignment: {
+							vertical: 'middle',
+							horizontal: 'center',
+							wrapText: true,
+						},
+					},
+				},
+				{
+					header: 'Course Code',
+					key: 'ccode',
+					width: 16,
+					style: {
+						font: {
+							bold: true,
+						},
+						alignment: {
+							vertical: 'middle',
+							horizontal: 'center',
+							wrapText: true,
+						},
+					},
+				},
+				{
+					header: 'Specific Elective Slot',
+					key: 'ses',
+					width: 16,
+					style: {
+						font: {
+							bold: true,
+						},
+						alignment: {
+							vertical: 'middle',
+							horizontal: 'center',
+							wrapText: true,
+						},
+					},
+				},
+				{
+					header: 'Certificates',
+					key: 'certif',
+					width: 64,
+					style: {
+						font: {
+							bold: true,
+						},
+						alignment: {
+							vertical: 'middle',
+							horizontal: 'center',
+							wrapText: true,
+						},
+					},
+				},
+				{
+					header: 'Bundle Feedback',
+					key: 'feedback',
+					width: 64,
+					style: {
+						font: {
+							bold: true,
+						},
+						alignment: {
+							vertical: 'middle',
+							horizontal: 'center',
+							wrapText: true,
+						},
+					},
+				},
+			];
+
+			Object.entries(dictSemesterData).forEach(([key, value], i) => {
+				const studentBundleMOOCs = value
+					?.map(({ moocs }, index) => moocs)
+					.join('\n');
+
+				const studentBundleCertificates = value
+					?.map(({ certificate_url }, index) => certificate_url)
+					.join('\n');
+
+				const row = worksheet.addRow([
+					value[0]?.student_name,
+					value[0]?.student_no,
+					studentBundleMOOCs,
+					value[0]?.total_ects,
+					value[0]?.course_code,
+					value[0]?.course_name,
+					studentBundleCertificates,
+					value[0]?.comment,
+				]);
+
+				row.height = (row.height * 24) / row.width;
+				row.font = { bold: false };
+
+				row.getCell(3).alignment = {
+					vertical: 'middle',
+					horizontal: 'left',
+					wrapText: true,
+				};
+				row.getCell(7).alignment = {
+					vertical: 'middle',
+					horizontal: 'left',
+					wrapText: true,
+				};
+				row.getCell(8).alignment = {
+					vertical: 'middle',
+					horizontal: 'left',
+					wrapText: true,
+				};
+
+				row.getCell(1).border = {
+					top: { style: BORDER_WIDTH },
+					left: { style: BORDER_WIDTH },
+					bottom: { style: BORDER_WIDTH },
+					right: { style: BORDER_WIDTH },
+				};
+				row.getCell(2).border = {
+					top: { style: BORDER_WIDTH },
+					left: { style: BORDER_WIDTH },
+					bottom: { style: BORDER_WIDTH },
+					right: { style: BORDER_WIDTH },
+				};
+				row.getCell(3).border = {
+					top: { style: BORDER_WIDTH },
+					left: { style: BORDER_WIDTH },
+					bottom: { style: BORDER_WIDTH },
+					right: { style: BORDER_WIDTH },
+				};
+				row.getCell(4).border = {
+					top: { style: BORDER_WIDTH },
+					left: { style: BORDER_WIDTH },
+					bottom: { style: BORDER_WIDTH },
+					right: { style: BORDER_WIDTH },
+				};
+				row.getCell(5).border = {
+					top: { style: BORDER_WIDTH },
+					left: { style: BORDER_WIDTH },
+					bottom: { style: BORDER_WIDTH },
+					right: { style: BORDER_WIDTH },
+				};
+				row.getCell(6).border = {
+					top: { style: BORDER_WIDTH },
+					left: { style: BORDER_WIDTH },
+					bottom: { style: BORDER_WIDTH },
+					right: { style: BORDER_WIDTH },
+				};
+				row.getCell(7).border = {
+					top: { style: BORDER_WIDTH },
+					left: { style: BORDER_WIDTH },
+					bottom: { style: BORDER_WIDTH },
+					right: { style: BORDER_WIDTH },
+				};
+				row.getCell(8).border = {
+					top: { style: BORDER_WIDTH },
+					left: { style: BORDER_WIDTH },
+					bottom: { style: BORDER_WIDTH },
+					right: { style: BORDER_WIDTH },
+				};
+			});
+
+			worksheet.getCell('A1').fill = {
+				type: 'pattern',
+				pattern: 'solid',
+				fgColor: { argb: 'E2E2E2' },
+			};
+
+			worksheet.getCell('B1').fill = {
+				type: 'pattern',
+				pattern: 'solid',
+				fgColor: { argb: 'E2E2E2' },
+			};
+
+			worksheet.getCell('C1').fill = {
+				type: 'pattern',
+				pattern: 'solid',
+				fgColor: { argb: 'E2E2E2' },
+			};
+
+			worksheet.getCell('D1').fill = {
+				type: 'pattern',
+				pattern: 'solid',
+				fgColor: { argb: 'E2E2E2' },
+			};
+
+			worksheet.getCell('E1').fill = {
+				type: 'pattern',
+				pattern: 'solid',
+				fgColor: { argb: 'E2E2E2' },
+			};
+
+			worksheet.getCell('F1').fill = {
+				type: 'pattern',
+				pattern: 'solid',
+				fgColor: { argb: 'E2E2E2' },
+			};
+
+			worksheet.getCell('G1').fill = {
+				type: 'pattern',
+				pattern: 'solid',
+				fgColor: { argb: 'E2E2E2' },
+			};
+
+			worksheet.getCell('H1').fill = {
+				type: 'pattern',
+				pattern: 'solid',
+				fgColor: { argb: 'E2E2E2' },
+			};
+
+			worksheet.getCell('A1').border = {
+				top: { style: BORDER_WIDTH },
+				left: { style: BORDER_WIDTH },
+				bottom: { style: BORDER_WIDTH },
+				right: { style: BORDER_WIDTH },
+			};
+
+			worksheet.getCell('B1').border = {
+				top: { style: BORDER_WIDTH },
+				left: { style: BORDER_WIDTH },
+				bottom: { style: BORDER_WIDTH },
+				right: { style: BORDER_WIDTH },
+			};
+
+			worksheet.getCell('C1').border = {
+				top: { style: BORDER_WIDTH },
+				left: { style: BORDER_WIDTH },
+				bottom: { style: BORDER_WIDTH },
+				right: { style: BORDER_WIDTH },
+			};
+
+			worksheet.getCell('D1').border = {
+				top: { style: BORDER_WIDTH },
+				left: { style: BORDER_WIDTH },
+				bottom: { style: BORDER_WIDTH },
+				right: { style: BORDER_WIDTH },
+			};
+
+			worksheet.getCell('E1').border = {
+				top: { style: BORDER_WIDTH },
+				left: { style: BORDER_WIDTH },
+				bottom: { style: BORDER_WIDTH },
+				right: { style: BORDER_WIDTH },
+			};
+
+			worksheet.getCell('F1').border = {
+				top: { style: BORDER_WIDTH },
+				left: { style: BORDER_WIDTH },
+				bottom: { style: BORDER_WIDTH },
+				right: { style: BORDER_WIDTH },
+			};
+
+			worksheet.getCell('G1').border = {
+				top: { style: BORDER_WIDTH },
+				left: { style: BORDER_WIDTH },
+				bottom: { style: BORDER_WIDTH },
+				right: { style: BORDER_WIDTH },
+			};
+
+			worksheet.getCell('H1').border = {
+				top: { style: BORDER_WIDTH },
+				left: { style: BORDER_WIDTH },
+				bottom: { style: BORDER_WIDTH },
+				right: { style: BORDER_WIDTH },
+			};
+
+			const buf = await workbook.xlsx.writeBuffer();
+			const excelFilename =
+				'MOOCsForFaculty_' +
+				new Date().toLocaleDateString('tr-TR', {
+					year: 'numeric',
+					month: 'long',
+					day: 'numeric',
+				}) +
+				'-' +
+				new Date().toLocaleTimeString('tr-TR', {}) +
+				'.xlsx';
+			saveAs(new Blob([buf]), excelFilename);
+		} catch (error) {
+			notify(
+				'error',
+				error?.response?.data?.message?.message ??
+					error?.response?.data?.message ??
+					error?.message
+			);
+		}
+	};
 
 	const classLabel = `
 		md:col-span-2
@@ -194,7 +563,22 @@ export default function CoordinatorCoursesPage({
 					{Object.entries(dictActiveCourses)
 						.map(([key, value], idx) => (
 							<div key={idx} className='w-full'>
-								<div className='flex justify-between items-center w-full mb-2'>
+								<div className='flex justify-start items-center w-full mb-2'>
+									<div className='mr-1'>
+										{/* Print to Excel */}
+										<div className='flex justify-center items-center'>
+											<button
+												className='
+													text-green-800 hover:text-green-600 
+													cursor-pointer rounded-full border-none
+													transition-all duration-300 ease-in-out 
+												'
+												onClick={() => handleDownload(value[0]?.semester)}
+											>
+												<RiFileExcel2Fill className=' text-lg ' size={24} />
+											</button>
+										</div>
+									</div>
 									<h1 className='text-2xl font-semibold text-zinc-700'>
 										{key}
 										<span className='font-normal'> Semester Courses</span>
@@ -300,7 +684,22 @@ export default function CoordinatorCoursesPage({
 					{Object.entries(dictInactiveCourses)
 						.map(([key, value], idx) => (
 							<div key={idx} className='w-full'>
-								<div className='flex justify-between items-center w-full mb-2'>
+								<div className='flex justify-start items-center w-full mb-2'>
+									<div className='mr-1'>
+										{/* Print to Excel */}
+										<div className='flex justify-center items-center'>
+											<button
+												className='
+													text-green-800 hover:text-green-600 
+													cursor-pointer rounded-full border-none
+													transition-all duration-300 ease-in-out 
+												'
+												onClick={() => handleDownload(value[0]?.semester)}
+											>
+												<RiFileExcel2Fill className=' text-lg ' size={24} />
+											</button>
+										</div>
+									</div>
 									<h1 className='text-2xl font-semibold text-zinc-700'>
 										{key} <span className='font-normal'> Semester Courses</span>
 									</h1>
